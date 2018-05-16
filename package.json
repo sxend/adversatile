@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "prebuild": "tsfmt -r",
+    "codeformat": "tsfmt -r",
+    "prebuild": "npm run codeformat",
     "build": "webpack --mode=production",
     "serve": "serve -l -C"
   },
