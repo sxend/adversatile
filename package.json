@@ -7,7 +7,7 @@
     "test": "jest",
     "prebuild": "tsfmt -r",
     "build": "webpack --mode=production",
-    "serve": "serve -C"
+    "serve": "serve -l -C"
   },
   "author": "sxend",
   "license": "MIT",
