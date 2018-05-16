@@ -1,5 +1,5 @@
 node_modules/
 .DS_Store
-./target
-./dist
+target/
+dist/
 npm-debug.log
