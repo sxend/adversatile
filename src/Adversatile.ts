@@ -4,6 +4,5 @@ import EventBus from "./lib/EventBus";
 
 export default {
   Macro,
-  ViewModel,
   EventBus
 };

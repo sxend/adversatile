@@ -2,6 +2,13 @@ const path = require("path");
 
 module.exports = {
   entry: "./src/Adversatile.ts",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "adversatile.js"
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"]
+  },
   module: {
     rules: [
       {
@@ -10,12 +17,5 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  },
-  resolve: {
-    extensions: [".tsx", ".ts", ".js"]
-  },
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "adversatile.js"
   }
 };

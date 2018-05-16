@@ -1,2 +1,2 @@
-class ViewModel {}
+class ViewModel { }
 export default ViewModel;

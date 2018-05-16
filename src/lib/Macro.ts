@@ -1,2 +1,2 @@
-class Macro {}
+class Macro { }
 export default Macro;
