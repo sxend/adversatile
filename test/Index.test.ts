@@ -1,30 +1,26 @@
-import { proxyManager } from './helpers/proxy';
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import { SSL_OP_CRYPTOPRO_TLSEXT_BUG } from 'constants';
+import { BrowserWrapper } from './helpers/BrowserWrapper';
 
 test('adds 1 + 2 to equal 3', () => {
   expect(1 + 2).toBe(3);
 });
 
 describe("puppeteer", () => {
-  let manager: any;
-  let browser: Browser;
-  beforeEach(async () => {
-    manager = await proxyManager();
-    browser = await puppeteer.launch({
-      args: [`--proxy-server=${manager.address}`]
-    });
-    manager.proxy.intercept({
+  let browserWrapper: BrowserWrapper;
+  beforeEach(async (done) => {
+    browserWrapper = await BrowserWrapper.build();
+    browserWrapper.proxy.intercept({
       phase: 'request',
       as: 'string'
     }, function(req: any, resp: any, cycle: any) {
       resp.string = "intercept";
     });
-    await manager.start();
+    done();
   });
   it("sample", async (done) => {
-    const page = await browser.newPage();
+    const page = await browserWrapper.browser.newPage();
     await page.goto('http://example.com');
     const text = await page.evaluate(() => {
       return document.body.innerText;
@@ -33,8 +29,8 @@ describe("puppeteer", () => {
     expect(text).toBe("intercept");
     done();
   });
-  afterEach(async () => {
-    await browser.close();
-    await manager.close();
+  afterEach(async (done) => {
+    await browserWrapper.shutdown();
+    done();
   }, 10000);
 });
