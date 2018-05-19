@@ -29,11 +29,12 @@ describe("puppeteer", () => {
     const text = await page.evaluate(() => {
       return document.body.innerText;
     });
+    await page.close();
     expect(text).toBe("intercept");
     done();
   });
   afterEach(async () => {
-    await manager.close();
     await browser.close();
+    await manager.close();
   }, 10000);
 });
