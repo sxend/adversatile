@@ -3,6 +3,8 @@ import * as hoxy from "hoxy";
 import * as util from "util";
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class BrowserOps {
   static async launch(): Promise<BrowserOps> {
@@ -31,11 +33,11 @@ export class BrowserOps {
       .then(BrowserOps.bindConsole)
       .then(BrowserOps.preload);
   }
-  static async preload(page: puppeteer.Page) {
-    await page.evaluateOnNewDocument("");
+  static async preload(page: puppeteer.Page): Promise<puppeteer.Page> {
+    await page.evaluateOnNewDocument(fs.readFileSync(path.join(__dirname, "js/preload.js")).toString());
     return page;
   }
-  static async bindConsole(page: puppeteer.Page) {
+  static async bindConsole(page: puppeteer.Page): Promise<puppeteer.Page> {
     page.on('console', msg => {
       console.log.apply(console, msg.args().map(_ => `${_}`));
     });

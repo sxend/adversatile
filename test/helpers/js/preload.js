@@ -1,0 +1,2 @@
+window.E2EResult = {
+};
