@@ -21,7 +21,7 @@ describe("puppeteer", () => {
     done();
   });
   it("sample", async (done) => {
-    const page = await browserWrapper.browser.newPage().then(BrowserWrapper.bindConsole);
+    const page = await browserWrapper.newPage();
     await page.goto('http://example.com');
     const text = await page.evaluate(() => {
       return document.body.innerText;
