@@ -9,13 +9,22 @@ import * as path from 'path';
 export class BrowserOps {
   static async launch(): Promise<BrowserOps> {
     const proxyPort = await getPort();
-    const proxy = hoxy.createServer();
-    await new Promise(resolve => proxy.listen(proxyPort, resolve));
+    const proxy = await BrowserOps.createProxyServer(proxyPort);
     const browser = await puppeteer.launch({
       headless: process.env["HEADLESS"] !== void 0 ? JSON.parse(process.env["HEADLESS"]) : true,
       args: [`--proxy-server=localhost:${proxyPort}`]
     });
     return new BrowserOps(browser, proxy);
+  }
+  static async createProxyServer(proxyPort: number) {
+    const proxy = hoxy.createServer();
+    await new Promise(resolve => proxy.listen(proxyPort, resolve));
+    proxy.intercept({
+      fullUrl: "http://cdn.adversatile.local/adversatile.js", phase: 'request', as: 'string'
+    }, function(req: any, resp: any, cycle: any) {
+      resp.string = fs.readFileSync(path.join(__dirname, "../../dist/adversatile.js"));
+    });
+    return proxy;
   }
   constructor(public __browser: Browser, public proxy: any) {
   }

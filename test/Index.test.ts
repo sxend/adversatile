@@ -45,12 +45,6 @@ describe("adversatile.js", () => {
     }, function(req: any, resp: any, cycle: any) {
       resp.string = fs.readFileSync(path.join(__dirname, "helpers/html/index.html"));
     });
-    browser.proxy.intercept({
-      fullUrl: "http://cdn.adversatile.local/adversatile.js",
-      phase: 'request', as: 'string'
-    }, function(req: any, resp: any, cycle: any) {
-      resp.string = fs.readFileSync(path.join(__dirname, "../dist/adversatile.js"));
-    });
   });
   it("defined Adversatile object", async () => {
     const page = await browser.newPage();
