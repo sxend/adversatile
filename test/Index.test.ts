@@ -8,6 +8,7 @@ test('adds 1 + 2 to equal 3', () => {
 });
 
 describe("puppeteer", () => {
+  jest.setTimeout(10000);
   let browserWrapper: BrowserWrapper;
   beforeEach(async (done) => {
     browserWrapper = await BrowserWrapper.build();
@@ -20,9 +21,10 @@ describe("puppeteer", () => {
     done();
   });
   it("sample", async (done) => {
-    const page = await browserWrapper.browser.newPage();
+    const page = await browserWrapper.browser.newPage().then(BrowserWrapper.bindConsole);
     await page.goto('http://example.com');
     const text = await page.evaluate(() => {
+      console.log("foo", "bar");
       return document.body.innerText;
     });
     await page.close();

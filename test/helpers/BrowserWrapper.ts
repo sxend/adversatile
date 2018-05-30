@@ -8,6 +8,7 @@ export class BrowserWrapper {
     const proxy = require('hoxy').createServer();
     await new Promise(resolve => proxy.listen(proxyPort, resolve));
     const browser = await puppeteer.launch({
+      headless: process.env["HEADLESS"] !== void 0 ? JSON.parse(process.env["HEADLESS"]) : true, 
       args: [`--proxy-server=localhost:${proxyPort}`]
     });
     return new BrowserWrapper(browser, proxy);
@@ -22,5 +23,11 @@ export class BrowserWrapper {
         resolve();
       });
     });
+  }
+  static async bindConsole(page: puppeteer.Page) {
+    page.on('console', msg => {
+      console.log.apply(console, msg.args().map(_ => `${_}`));
+    });
+    return page;
   }
 }
