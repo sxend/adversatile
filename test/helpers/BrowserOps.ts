@@ -5,7 +5,7 @@ import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 
 export class BrowserOps {
-  static async build(): Promise<BrowserOps> {
+  static async launch(): Promise<BrowserOps> {
     const proxyPort = await getPort();
     const proxy = hoxy.createServer();
     await new Promise(resolve => proxy.listen(proxyPort, resolve));

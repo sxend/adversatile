@@ -11,7 +11,7 @@ describe("puppeteer", () => {
   jest.setTimeout(10000);
   let browser: BrowserOps;
   beforeEach(async () => {
-    browser = await BrowserOps.build();
+    browser = await BrowserOps.launch();
     browser.proxy.intercept({
       phase: 'request',
       as: 'string'
