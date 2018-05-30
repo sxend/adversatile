@@ -10,7 +10,7 @@ test('adds 1 + 2 to equal 3', () => {
 describe("puppeteer", () => {
   jest.setTimeout(10000);
   let browser: BrowserOps;
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     browser = await BrowserOps.build();
     browser.proxy.intercept({
       phase: 'request',
@@ -18,9 +18,8 @@ describe("puppeteer", () => {
     }, function(req: any, resp: any, cycle: any) {
       resp.string = "intercept";
     });
-    done();
   });
-  it("sample", async (done) => {
+  it("sample", async () => {
     const page = await browser.newPage();
     await page.goto('http://example.com');
     const text = await page.evaluate(() => {
@@ -28,10 +27,8 @@ describe("puppeteer", () => {
     });
     await page.close();
     expect(text).toBe("intercept");
-    done();
   });
-  afterEach(async (done) => {
+  afterEach(async () => {
     await browser.shutdown();
-    done();
   }, 10000);
 });

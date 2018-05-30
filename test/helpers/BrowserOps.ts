@@ -1,11 +1,13 @@
 import * as getPort from "get-port";
+import * as hoxy from "hoxy";
 import * as util from "util";
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
+
 export class BrowserOps {
   static async build(): Promise<BrowserOps> {
     const proxyPort = await getPort();
-    const proxy = require('hoxy').createServer();
+    const proxy = hoxy.createServer();
     await new Promise(resolve => proxy.listen(proxyPort, resolve));
     const browser = await puppeteer.launch({
       headless: process.env["HEADLESS"] !== void 0 ? JSON.parse(process.env["HEADLESS"]) : true,
