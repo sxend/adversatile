@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --forceExit",
+    "test": "npm run build && jest --forceExit",
     "codeformat": "tsfmt -r",
     "prebuild": "npm run codeformat",
     "build": "webpack --mode=production",

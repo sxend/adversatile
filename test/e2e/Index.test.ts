@@ -1,7 +1,7 @@
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import { SSL_OP_CRYPTOPRO_TLSEXT_BUG } from 'constants';
-import { BrowserOps } from './helpers/BrowserOps';
+import { BrowserOps } from '../helpers/BrowserOps';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -40,10 +40,9 @@ describe("adversatile.js", () => {
   beforeEach(async () => {
     browser = await BrowserOps.launch();
     browser.proxy.intercept({
-      fullUrl: "http://adversatile.local/index.html",
-      phase: 'request', as: 'string'
-    }, function(req: any, resp: any, cycle: any) {
-      resp.string = fs.readFileSync(path.join(__dirname, "helpers/html/index.html"));
+      fullUrl: "http://adversatile.local/index.html", phase: 'request', as: 'string'
+    }, (req: any, resp: any, cycle: any) => {
+      resp.string = fs.readFileSync(path.join(__dirname, "../helpers/html/index.html"));
     });
   });
   it("defined Adversatile object", async () => {

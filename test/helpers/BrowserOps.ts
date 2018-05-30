@@ -20,8 +20,8 @@ export class BrowserOps {
     const proxy = hoxy.createServer();
     await new Promise(resolve => proxy.listen(proxyPort, resolve));
     proxy.intercept({
-      fullUrl: "http://cdn.adversatile.local/adversatile.js", phase: 'request', as: 'string'
-    }, function(req: any, resp: any, cycle: any) {
+      url: "adversatile.js", phase: 'request', as: 'string'
+    }, (req: any, resp: any, cycle: any) => {
       resp.string = fs.readFileSync(path.join(__dirname, "../../dist/adversatile.js"));
     });
     return proxy;
