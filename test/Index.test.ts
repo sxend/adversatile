@@ -1,7 +1,7 @@
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import { SSL_OP_CRYPTOPRO_TLSEXT_BUG } from 'constants';
-import { BrowserWrapper } from './helpers/BrowserWrapper';
+import { BrowserOps } from './helpers/BrowserOps';
 
 test('adds 1 + 2 to equal 3', () => {
   expect(1 + 2).toBe(3);
@@ -9,10 +9,10 @@ test('adds 1 + 2 to equal 3', () => {
 
 describe("puppeteer", () => {
   jest.setTimeout(10000);
-  let browserWrapper: BrowserWrapper;
+  let browser: BrowserOps;
   beforeEach(async (done) => {
-    browserWrapper = await BrowserWrapper.build();
-    browserWrapper.proxy.intercept({
+    browser = await BrowserOps.build();
+    browser.proxy.intercept({
       phase: 'request',
       as: 'string'
     }, function(req: any, resp: any, cycle: any) {
@@ -21,7 +21,7 @@ describe("puppeteer", () => {
     done();
   });
   it("sample", async (done) => {
-    const page = await browserWrapper.newPage();
+    const page = await browser.newPage();
     await page.goto('http://example.com');
     const text = await page.evaluate(() => {
       return document.body.innerText;
@@ -31,7 +31,7 @@ describe("puppeteer", () => {
     done();
   });
   afterEach(async (done) => {
-    await browserWrapper.shutdown();
+    await browser.shutdown();
     done();
   }, 10000);
 });
