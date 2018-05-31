@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/Adversatile.ts",
@@ -17,5 +18,10 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      Promise: "es6-promise"
+    })
+  ]
 };
