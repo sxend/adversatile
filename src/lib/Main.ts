@@ -4,7 +4,10 @@ import Configuration, {
 } from "./Configuration";
 import { Plugin } from "./Plugin";
 import { isObject } from "./misc/TypeCheck";
-import ViewModel from "./ViewModel";
+import { ViewModel } from "./ViewModel";
+import { Action } from "./Action";
+import { State } from "./State";
+import { EventEmitter } from "./EventEmitter";
 
 export async function main(...args: any[]) {
   if (isObject(args[0]) && isConfiguration(args[0])) {
@@ -15,7 +18,10 @@ export async function main(...args: any[]) {
 }
 
 async function runWithConfiguration(configuration: Configuration) {
-  new ViewModel(configuration);
+  const dispatcher: EventEmitter = new EventEmitter();
+  const action = new Action(configuration, dispatcher);
+  const state = new State(configuration, dispatcher);
+  new ViewModel(configuration, state, action);
 }
 
 export function use(plugin: Plugin, options?: any) {
