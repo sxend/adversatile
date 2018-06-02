@@ -1,5 +1,5 @@
 import Configuration from "./Configuration";
-import { EventEmitter } from "./EventEmitter";
+import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 
 export class Action {

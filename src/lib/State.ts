@@ -1,15 +1,17 @@
 import Configuration from "./Configuration";
-import { EventEmitter } from "./EventEmitter";
+import { EventEmitter } from "events";
 
 export class State extends EventEmitter {
-  private dataMap: { [id: string]: any };
+  private dataMap: { [id: string]: any } = {};
   constructor(private configuration: Configuration, private dispatcher: EventEmitter) {
     super();
     const self = this;
     self.dispatcher.on("data", (newdata: any[]) => {
       const newDataIds: string[] = [];
       newdata.forEach(data => {
-        if (!data.id || !!self.dataMap[data.id]) return;
+        if (!data.id || !!self.dataMap[data.id]) {
+          return;
+        }
         self.dataMap[data.id] = data;
         newDataIds.push(data.id);
       });

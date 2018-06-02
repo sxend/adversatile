@@ -1,5 +1,5 @@
 import { ViewModel } from "./ViewModel";
-import * as deepmerge from "deepmerge";
+const deepmerge = require('deepmerge').default;
 
 export default class Configuration {
   version: number;

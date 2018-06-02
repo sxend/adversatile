@@ -11,7 +11,7 @@ export class ViewModel {
     private action: Action
   ) {
     const self = this;
-    self.state.on("new_data", (ids: string[]) => self.render(ids));
+    self.state.on("new_data", (ids: string[]) => self.newData(ids));
     setTimeout(function selector() {
       self.select();
       setTimeout(selector, configuration.vm.polling.interval);
@@ -25,23 +25,24 @@ export class ViewModel {
       newElementIds.push(id);
       element.setAttribute(attrName, id);
     });
-    this.action.fetchData(newElementIds);
+    this.action.fetchData(newElementIds).catch(console.error);
   }
   register(elements: HTMLElement[]) {
     this.newElements(elements);
     this.elements = this.elements.concat(elements);
   }
-  private render(ids: string[]) {
+  private newData(ids: string[]) {
     for (let id of ids) {
       const data = this.state.getData(id);
       const element = this.findElement(id);
       if (element) {
-        element.innerText = data;
+        element.innerText = JSON.stringify(data);
       }
     }
   }
   private findElement(id: string): HTMLElement {
-    return this.elements.find(el => el.getAttribute("") === id);
+    const idAttributeName = this.configuration.vm.idAttributeName;
+    return this.elements.find(el => el.getAttribute(idAttributeName) === id);
   }
   private select() {
     try {

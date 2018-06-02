@@ -7,11 +7,11 @@ import { isObject } from "./misc/TypeCheck";
 import { ViewModel } from "./ViewModel";
 import { Action } from "./Action";
 import { State } from "./State";
-import { EventEmitter } from "./EventEmitter";
+import { EventEmitter } from "events";
 
 export async function main(...args: any[]) {
   if (isObject(args[0]) && isConfiguration(args[0])) {
-    runWithConfiguration(asConfituration(args[0]));
+    await runWithConfiguration(asConfituration(args[0]));
   } else {
     throw "abort";
   }
