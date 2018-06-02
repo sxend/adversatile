@@ -1,10 +1,17 @@
+import ViewModel from "./ViewModel";
+import * as deepmerge from "deepmerge";
+
 export default class Configuration {
-  version: number = 1;
-  selector: string;
-  markedClass: string = "adversatile-marked";
-  polling: Polling = new Polling();
+  version: number;
+  vm: ViewModelConf = new ViewModelConf()
 }
-export class Polling {
+export class ViewModelConf {
+  selector: string = ".adversatile";
+  markedClass: string = "adversatile-marked";
+  idAttributeName: string = "data-adversatile-id";
+  polling: PollingConf = new PollingConf();
+}
+export class PollingConf {
   interval: number = 100;
 }
 
@@ -13,5 +20,5 @@ export function isConfiguration(obj: any): boolean {
 }
 
 export function asConfituration(obj: any): Configuration {
-  return Object.assign(new Configuration(), obj);
+  return deepmerge(new Configuration(), obj);
 }

@@ -1,25 +1,36 @@
 import Configuration from "./Configuration";
+import { RandomId } from "./misc/RandomId";
 
 class ViewModel {
-  constructor(configuration: Configuration) {
+  private elements: HTMLElement[] = [];
+  constructor(private configuration: Configuration) {
     const self = this;
-    function select() {
-      const elements: HTMLElement[] = [].slice.call(document.querySelectorAll(`${configuration.selector}:not(.${configuration.markedClass})`));
-      elements.forEach(el => {
-        el.classList.add(configuration.markedClass);
-      });
+    setTimeout(function selector() {
+      self.select();
+      setTimeout(selector, configuration.vm.polling.interval);
+    }, configuration.vm.polling.interval);
+  }
+  private select() {
+    try {
+      const self = this;
+      const selector = self.configuration.vm.selector;
+      const markedClass = self.configuration.vm.markedClass;
+      const elements: HTMLElement[] = [].slice.call(
+        document.querySelectorAll(`${selector}:not(.${markedClass})`)
+      );
+      elements.forEach(el => el.classList.add(markedClass));
       if (elements.length > 0) {
         self.register(elements);
       }
+    } catch (e) {
+      console.error(e);
     }
-    setTimeout(function selector() {
-      select();
-      setTimeout(selector, configuration.polling.interval);
-    }, configuration.polling.interval);
   }
-  private elements: HTMLElement[] = [];
   private newElements(elements: HTMLElement[]) {
-    elements.forEach(el => console.log(el));
+    elements.forEach(element => {
+      const attrName = this.configuration.vm.idAttributeName;
+      element.setAttribute(attrName, RandomId.gen());
+    });
   }
   register(elements: HTMLElement[]) {
     this.newElements(elements);

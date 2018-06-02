@@ -3,7 +3,7 @@ import Configuration, {
   asConfituration
 } from "./Configuration";
 import { Plugin } from "./Plugin";
-import { isObject } from "./Misc";
+import { isObject } from "./misc/TypeCheck";
 import ViewModel from "./ViewModel";
 
 export async function main(...args: any[]) {

@@ -1,4 +1,4 @@
-import { isArray } from "../../src/lib/Misc";
+import { isArray } from "../../src/lib/misc/TypeCheck";
 
 describe("isArray", () => {
   it("returns true only when apply Array Object", () => {
