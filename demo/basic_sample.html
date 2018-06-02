@@ -8,15 +8,14 @@
 </head>
 <body>
   <div class="adversatile"></div>
-  <script async src="../dist/adversatile.js"></script>
+  <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
   <script>
-    var __advr = __advr || {};
-    (__advr.q = __advr.q || []).push(function () {
+    function __advr_main() {
       Adversatile.main({
         version: 1,
         selector: ".adversatile"
       });
-    });
+    }
   </script>
 </body>
 </html>
