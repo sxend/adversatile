@@ -3,6 +3,8 @@
   },
   "payload": {
     "message": "json message",
-    "link": "/"
+    "link": {
+      "url": "/"
+    }
   }
 }

@@ -1,12 +1,15 @@
 import Configuration from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import * as handlebars from "handlebars";
+import Macro from "./Macro";
 
 export class ElementModel {
+  private macro: Macro;
   constructor(
     private element: HTMLElement,
     private configuration: Configuration
   ) {
+    this.macro = new Macro(configuration);
     if (!this.id) {
       element.setAttribute(this.idAttributeName, RandomId.gen());
     }
@@ -32,9 +35,10 @@ export class ElementModel {
   async render(data: any) {
     const template = await this.resolveTemplate();
     if (template) {
-      this.element.innerHTML = handlebars.compile(template)(data.payload);
+      this.element.innerHTML = await this.macro.applyTemplate(template, data);
+      await this.macro.applyElement(this.element, data);
     } else {
-      this.element.innerHTML = `<pre>${JSON.stringify(data, null, "  ")}</pre>`;
+      console.warn("missing template", this.id, this.group, data);
     }
   }
   private async resolveTemplate(): Promise<string | undefined> {

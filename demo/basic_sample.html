@@ -15,8 +15,8 @@
   <script type="text/x-adv-template" data-adv-em-template="adv-em-2">
     <div class="adv-container">
       <div>external template!</div>
-      <a data-adv-link></a>
-      <div>{{message}}</div>
+      <a data-adv-link>click here</a>
+      <div>{{payload.message}}</div>
     </div>
   </script>
   <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
@@ -28,9 +28,9 @@
           selector: ".adversatile",
           em: {
             templates: {
-              "adv-em-1": '<div class="adv-container">\n  <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>',
-              "adv-em-3-template-0": '<div class="adv-container">\n  adv-3-template-0 <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>',
-              "adv-em-3-template-1": '<div class="adv-container">\n  adv-3-template-1 <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>'
+              "adv-em-1": '<div class="adv-container">\n  <a data-adv-link>click here</a>\n  <div>{{payload.message}}</div>\n</div>',
+              "adv-em-3-template-0": '<div class="adv-container">\n  adv-3-template-0 <a data-adv-link>click here</a>\n  <div>{{payload.message}}</div>\n</div>',
+              "adv-em-3-template-1": '<div class="adv-container">\n  adv-3-template-1 <a data-adv-link>click here</a>\n  <div>{{payload.message}}</div>\n</div>'
             }
           }
         },
