@@ -2,13 +2,15 @@ import Configuration from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import * as handlebars from "handlebars";
 import Macro from "./Macro";
+import { EventEmitter } from "events";
 
-export class ElementModel {
+export class ElementModel extends EventEmitter {
   private macro: Macro;
   constructor(
     private element: HTMLElement,
     private configuration: Configuration
   ) {
+    super();
     this.macro = new Macro(configuration);
     if (!this.id) {
       element.setAttribute(this.idAttributeName, RandomId.gen());

@@ -7,7 +7,7 @@ export class Action {
   constructor(
     private configuration: Configuration,
     private dispatcher: EventEmitter
-  ) {}
+  ) { }
   async fetchData(ids: string[]) {
     let result: Promise<any>;
     const results = ids.map(id => {
