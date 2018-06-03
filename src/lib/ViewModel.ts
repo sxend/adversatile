@@ -2,6 +2,7 @@ import Configuration from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
 import { State } from "./State";
+import { ElementModel } from "./ElementModel";
 
 export class ViewModel {
   private elements: ElementModel[] = [];
@@ -58,22 +59,5 @@ export class ViewModel {
     const selector = this.configuration.vm.selector;
     const markedClass = this.configuration.vm.markedClass;
     return `${selector}:not(.${markedClass})`;
-  }
-}
-class ElementModel {
-  constructor(
-    private element: HTMLElement,
-    private configuration: Configuration
-  ) {
-    element.setAttribute(this.idAttributeName, RandomId.gen());
-  }
-  get id() {
-    return this.element.getAttribute(this.idAttributeName);
-  }
-  private get idAttributeName() {
-    return this.configuration.vm.em.idAttributeName;
-  }
-  async render(data: any) {
-    this.element.innerHTML = `<pre>${JSON.stringify(data, null, "  ")}</pre>`;
   }
 }
