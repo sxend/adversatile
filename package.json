@@ -10,7 +10,7 @@
     "prebuild": "npm run codeformat",
     "build": "webpack --mode=production",
     "build:watch": "npm run build -- --watch",
-    "serve": "serve -l -C"
+    "serve": "serve -l -C -p 3000"
   },
   "author": "sxend",
   "license": "MIT",

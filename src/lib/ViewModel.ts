@@ -36,7 +36,7 @@ export class ViewModel {
       const data = this.state.getData(id);
       const element = this.findElement(id);
       if (element) {
-        element.innerText = JSON.stringify(data);
+        element.innerHTML = `<pre>${JSON.stringify(data, null, "  ")}</pre>`;
       }
     }
   }

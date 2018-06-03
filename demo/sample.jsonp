@@ -1,0 +1,6 @@
+window[new URL(document.currentScript.src).searchParams.get("cb")]({
+  "metadata": {},
+  "payload": {
+    "message": "jsonp message"
+  }
+});
