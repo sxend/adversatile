@@ -8,7 +8,10 @@ module.exports = {
     filename: "adversatile.js"
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: [".tsx", ".ts", ".js"],
+    alias: {
+      handlebars: 'handlebars/dist/handlebars.min.js'
+    }
   },
   module: {
     rules: [

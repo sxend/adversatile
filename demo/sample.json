@@ -2,6 +2,7 @@
   "metadata": {
   },
   "payload": {
-    "message": "json message"
+    "message": "json message",
+    "link": "/"
   }
 }

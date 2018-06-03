@@ -7,14 +7,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-  <div class="adversatile"></div>
+  <div class="adversatile" data-adv-em-group="adv-em-1"></div>
+  ----
+  <div class="adversatile" data-adv-em-group="adv-em-2"></div>
+  ----
+  <div class="adversatile" data-adv-em-group="adv-em-3"></div>
+  <script type="text/x-adv-template" data-adv-em-template="adv-em-2">
+    <div class="adv-container">
+      <div>external template!</div>
+      <a data-adv-link></a>
+      <div>{{message}}</div>
+    </div>
+  </script>
   <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
   <script>
     function __advr_main() {
       Adversatile.main({
         version: 1,
         vm: {
-          selector: ".adversatile"
+          selector: ".adversatile",
+          em: {
+            templates: {
+              "adv-em-1": '<div class="adv-container">\n  <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>',
+              "adv-em-3-template-0": '<div class="adv-container">\n  adv-3-template-0 <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>',
+              "adv-em-3-template-1": '<div class="adv-container">\n  adv-3-template-1 <a data-adv-link></a>\n  <div>{{message}}</div>\n</div>'
+            }
+          }
+        },
+        ext: {
         }
       });
     }
