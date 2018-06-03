@@ -5,8 +5,8 @@ import { link } from "fs";
 class Macro {
   constructor(private configuration: Configuration) {
   }
-  async applyTemplate(html: string, data: any): Promise<string> {
-    return handlebars.compile(html)(data);
+  async applyTemplate(template: string, data: any): Promise<string> {
+    return handlebars.compile(template)(data);
   }
   async applyElement(element: HTMLElement, data?: any): Promise<void> {
     await this.applyLinkMacro(element, data);
