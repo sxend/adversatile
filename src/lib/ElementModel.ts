@@ -45,10 +45,10 @@ export class ElementModel extends EventEmitter {
   }
   private async resolveTemplate(): Promise<string | undefined> {
     const template = [
-      this.emConfig.templates[this.id],
-      this.emConfig.templates[this.group],
       this.resolveExternalTemplate(this.id),
-      this.resolveExternalTemplate(this.group)
+      this.resolveExternalTemplate(this.group),
+      this.emConfig.templates[this.id],
+      this.emConfig.templates[this.group]
     ].filter(_ => !!_)[0];
     return template;
   }

@@ -1,7 +1,10 @@
 export namespace Dom {
   export const TopLevelWindow: Promise<Window> = new Promise(resolve => {
     let current = window;
-    const timer = setTimeout(() => resolve(current), 100);
+    const timer = setTimeout(() => {
+      console.warn("TopLevelWindow search timeout");
+      resolve(current);
+    }, 50);
     function search() {
       // 今のparentがaccessableだったらcurrentにして再度探索
       if (current !== current.parent && hasFriendryParent(current)) {
