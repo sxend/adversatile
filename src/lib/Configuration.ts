@@ -10,8 +10,11 @@ export default class Configuration {
 export class ViewModelConf {
   selector: string = ".adversatile";
   markedClass: string = "adversatile-marked";
-  idAttributeName: string = "data-adversatile-id";
   polling: PollingConf = new PollingConf();
+  el: ElementModelConf = new ElementModelConf();
+}
+export class ElementModelConf {
+  idAttributeName: string = "data-adversatile-id";
 }
 
 export class ActionConf {
