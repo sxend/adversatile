@@ -71,7 +71,7 @@ class ElementModel {
     return this.element.getAttribute(this.idAttributeName);
   }
   private get idAttributeName() {
-    return this.configuration.vm.el.idAttributeName;
+    return this.configuration.vm.em.idAttributeName;
   }
   async render(data: any) {
     this.element.innerHTML = `<pre>${JSON.stringify(data, null, "  ")}</pre>`;

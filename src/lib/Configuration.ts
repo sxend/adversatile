@@ -11,7 +11,7 @@ export class ViewModelConf {
   selector: string = ".adversatile";
   markedClass: string = "adversatile-marked";
   polling: PollingConf = new PollingConf();
-  el: ElementModelConf = new ElementModelConf();
+  em: ElementModelConf = new ElementModelConf();
 }
 export class ElementModelConf {
   idAttributeName: string = "data-adversatile-id";
