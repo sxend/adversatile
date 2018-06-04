@@ -6,7 +6,7 @@ import { Plugin } from "./Plugin";
 import { isObject } from "./misc/TypeCheck";
 import { ViewModel } from "./ViewModel";
 import { Action } from "./Action";
-import { State } from "./State";
+import { Store } from "./Store";
 import { EventEmitter } from "events";
 
 export async function main(...args: any[]) {
@@ -20,8 +20,8 @@ export async function main(...args: any[]) {
 async function runWithConfiguration(configuration: Configuration) {
   const dispatcher: EventEmitter = new EventEmitter();
   const action = new Action(configuration, dispatcher);
-  const state = new State(configuration, dispatcher);
-  new ViewModel(configuration, state, action);
+  const store = new Store(configuration, dispatcher);
+  new ViewModel(configuration, store, action);
 }
 
 export function use(plugin: Plugin, options?: any) {

@@ -1,7 +1,7 @@
 import Configuration from "./Configuration";
 import { EventEmitter } from "events";
 
-export class State extends EventEmitter {
+export class Store extends EventEmitter {
   private dataMap: { [id: string]: any } = {};
   constructor(private configuration: Configuration, private dispatcher: EventEmitter) {
     super();

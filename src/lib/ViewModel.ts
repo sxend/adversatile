@@ -1,17 +1,17 @@
 import Configuration from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
-import { State } from "./State";
+import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
 
 export class ViewModel {
   private elements: ElementModel[] = [];
   constructor(
     private configuration: Configuration,
-    private state: State,
+    private store: Store,
     private action: Action
   ) {
-    this.state.on("new_data", (ids: string[]) => this.newData(ids));
+    this.store.on("new_data", (ids: string[]) => this.newData(ids));
     this.polling();
   }
   private async registerNewElements(elements: ElementModel[]) {
@@ -26,7 +26,7 @@ export class ViewModel {
   }
   private newData(ids: string[]) {
     for (let id of ids) {
-      const data = this.state.getData(id);
+      const data = this.store.getData(id);
       const element = this.findElement(id);
       if (element) {
         element.render(data).catch(console.error);
