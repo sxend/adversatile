@@ -7,7 +7,8 @@
     "test": "jest --forceExit",
     "build:test": "npm run build && npm test",
     "codeformat": "tsfmt -r",
-    "prebuild": "npm run codeformat",
+    "gen:pb": "mkdir -p generated-src && pbjs -t static-module -o generated-src/protobuf.js src/protobuf/message.proto && pbts -o generated-src/protobuf.d.ts generated-src/protobuf.js",
+    "prebuild": "npm run gen:pb && npm run codeformat",
     "build": "webpack --mode=production",
     "build:watch": "npm run build -- --watch",
     "serve": "serve -l -C -p 3000"
@@ -23,6 +24,7 @@
     "get-port": "^3.2.0",
     "hoxy": "^3.2.2",
     "jest": "^22.4.4",
+    "protobufjs": "^6.8.6",
     "puppeteer": "^1.4.0",
     "serve": "^6.5.8",
     "ts-jest": "^22.4.6",

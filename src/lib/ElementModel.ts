@@ -5,10 +5,11 @@ import Macro from "./Macro";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
 import { Store } from "./Store";
+import { IElementData } from "../../generated-src/compiled";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
-  private state: any;
+  private state: IElementData;
   constructor(
     private element: HTMLElement,
     private configuration: Configuration,
@@ -19,7 +20,7 @@ export class ElementModel extends EventEmitter {
     if (!this.id) {
       element.setAttribute(this.idAttributeName, RandomId.gen());
     }
-    this.store.on(`change:${this.id}`, (state: any) => this.update(state));
+    this.store.on(`change:${this.id}`, (state: IElementData) => this.update(state));
   }
   get id(): string {
     return this.element.getAttribute(this.idAttributeName);
@@ -39,7 +40,7 @@ export class ElementModel extends EventEmitter {
   private get templateQualifierKey() {
     return this.emConfig.templateQualifierKey;
   }
-  async update(state: any): Promise<void> {
+  async update(state: IElementData): Promise<void> {
     this.state = state;
     const template = await this.resolveTemplate();
     if (template) {
@@ -81,8 +82,8 @@ export class ElementModel extends EventEmitter {
       return this.emConfig.option(this.group);
     }
   }
-  private static DummyData = {
-    message: "..."
+  private static DummyData: IElementData = {
+    message: "...",
   };
   private macroNameToAssetNo(name: string): number {
     if (name === "link") {

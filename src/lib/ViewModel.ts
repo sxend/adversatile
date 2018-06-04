@@ -3,6 +3,7 @@ import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
+import { IElementData } from "../../generated-src/protobuf";
 
 export class ViewModel {
   private elements: ElementModel[] = [];
@@ -11,7 +12,6 @@ export class ViewModel {
     private store: Store,
     private action: Action
   ) {
-    // this.store.on("new_data", (ids: string[]) => this.newData(ids));
     this.polling();
   }
   private async registerNewElements(elements: ElementModel[]) {
