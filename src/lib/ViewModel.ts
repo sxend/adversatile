@@ -29,7 +29,7 @@ export class ViewModel {
       const data = this.store.getData(id);
       const element = this.findElement(id);
       if (element) {
-        element.render(data).catch(console.error);
+        element.update(data);
       }
     }
   }

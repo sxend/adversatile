@@ -7,6 +7,7 @@ import { firstDefined } from "./misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
+  private state: any = {};
   constructor(
     private element: HTMLElement,
     private configuration: Configuration
@@ -35,7 +36,8 @@ export class ElementModel extends EventEmitter {
   private get templateQualifierKey() {
     return this.emConfig.templateQualifierKey;
   }
-  async render(data: any): Promise<void> {
+  async update(data: any): Promise<void> {
+    this.state = data;
     const template = await this.resolveTemplate();
     if (template) {
       this.element.innerHTML = await this.macro.applyTemplate(template, data.payload);
@@ -47,15 +49,13 @@ export class ElementModel extends EventEmitter {
   async requestAssets(): Promise<number[]> {
     let assets: number[] = this.option.assets || [];
     if (this.option.preRender) {
-      await this.preRender();
+      const old = this.state;
+      await this.update(ElementModel.DummyData);
       const macros = this.macro.getAppliedMacros(this.element);
+      this.update(old);
       assets = assets.concat(macros.map(this.macroNameToAssetNo));
     }
     return assets;
-  }
-  private async preRender(): Promise<void> {
-    const dummyData = {};
-    await this.render(dummyData);
   }
   private async resolveTemplate(): Promise<string | undefined> {
     const template = firstDefined([
@@ -80,6 +80,9 @@ export class ElementModel extends EventEmitter {
       return this.emConfig.option(this.group);
     }
   }
+  private static DummyData = {
+    payload: { message: "..." }
+  };
   private macroNameToAssetNo(name: string): number {
     if (name === "link") {
       return 1;
