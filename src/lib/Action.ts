@@ -25,8 +25,8 @@ export class Action {
   }
   private dispatchPromise(event: string, promise: Promise<any>) {
     promise
-        .then(data => this.dispatcher.dispatch({ event, data }))
-        .catch(console.error);
+      .then(data => this.dispatcher.dispatch({ event, data }))
+      .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {
     return await (await fetch("/demo/sample.json")).json();
