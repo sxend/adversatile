@@ -1,6 +1,5 @@
 import Configuration, { ElementOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
-import * as handlebars from "handlebars";
 import Macro from "./Macro";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";

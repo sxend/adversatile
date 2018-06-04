@@ -1,5 +1,4 @@
 import Configuration from "./Configuration";
-import { link } from "fs";
 
 class Macro {
   constructor(private configuration: Configuration) {
