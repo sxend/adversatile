@@ -17,8 +17,11 @@ export class Action {
           : await this.fetchDataWithJsonp(req.id);
       return { id: req.id, data };
     });
-    Promise.all(results)
-      .then(results => this.dispatcher.emit("data", results))
+    this.dispatchPromise("data", Promise.all(results));
+  }
+  private dispatchPromise(name: string, promise: Promise<any>) {
+    promise
+      .then(data => this.dispatcher.emit(name, data))
       .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {
