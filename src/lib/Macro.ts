@@ -5,19 +5,32 @@ import { link } from "fs";
 class Macro {
   constructor(private configuration: Configuration) {
   }
+  get macroConf() {
+    return this.configuration.vm.em.macro;
+  }
   async applyTemplate(template: string, data: any): Promise<string> {
     return handlebars.compile(template)(data);
   }
-  async applyElement(element: HTMLElement, data?: any): Promise<void> {
-    await this.applyLinkMacro(element, data);
+  async applyElement(element: HTMLElement, data: any): Promise<void> {
+    await this.applyLinkMacro(element, data)
   }
-  private async applyLinkMacro(element: HTMLElement, data?: any) {
-    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll('a[data-adv-link]'));
-    if (links.length === 0) return;
-    if (!data || !data.payload || !data.payload.link) return;
+  private async applyLinkMacro(element: HTMLElement, data: any) {
+    const linkMacroSelector = this.macroConf.linkMacroSelector;
+    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(linkMacroSelector));
     for (let link of links) {
-      link.href = data.payload.link.url;
+      this.annotateUsedMacro(link, "link");
+      if (!data || !data.link || !data.link.url) continue;
+      link.href = data.link.url;
     }
+  }
+  private annotateUsedMacro(element: HTMLElement, name: string) {
+    element.setAttribute(this.macroConf.appliedMacroAnnotateAttr, name);
+  }
+  getAppliedMacros(element: HTMLElement): string[] {
+    return [].slice.call(
+      element.querySelectorAll(`[${this.macroConf.appliedMacroAnnotateAttr}]`)
+    ).map((el: HTMLElement) => el.getAttribute(this.macroConf.appliedMacroAnnotateAttr))
+      .filter((_: string) => !!_);
   }
 }
 export default Macro;

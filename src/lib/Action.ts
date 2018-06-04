@@ -8,24 +8,24 @@ export class Action {
     private configuration: Configuration,
     private dispatcher: EventEmitter
   ) { }
-  async fetchData(ids: string[]) {
+  fetchData(reqs: any[]) {
     let result: Promise<any>;
-    const results = ids.map(id => {
-      return Math.random() > 0.5
-        ? this.fetchDataWithJson(id)
-        : this.fetchDataWithJsonp(id);
+    const results = reqs.map(async req => {
+      const data: any =
+        Math.random() > 0.5
+          ? await this.fetchDataWithJson(req.id)
+          : await this.fetchDataWithJsonp(req.id);
+      return { id: req.id, data };
     });
-    this.dispatcher.emit("data", await Promise.all(results));
+    Promise.all(results)
+      .then(results => this.dispatcher.emit("data", results))
+      .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {
-    const data = await (await fetch("/demo/sample.json")).json();
-    data.id = id;
-    return data;
+    return await (await fetch("/demo/sample.json")).json();
   }
   private async fetchDataWithJsonp(id: string) {
     const cb = `${id}_cb`;
-    const data = await Jsonp.fetch(`/demo/sample.jsonp?cb=${cb}`, cb);
-    data.id = id;
-    return data;
+    return await Jsonp.fetch(`/demo/sample.jsonp?cb=${cb}`, cb);
   }
 }

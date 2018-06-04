@@ -29,7 +29,7 @@ export namespace Dom {
           wdw.parent.location.port === wdw.location.port) ||
         wdw.location.protocol === "about:"
       );
-    } catch (e) {}
+    } catch (e) { }
     return false;
   }
   export function createScriptElement(): HTMLScriptElement {

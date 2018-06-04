@@ -8,12 +8,12 @@ export class State extends EventEmitter {
     const self = this;
     self.dispatcher.on("data", (newdata: any[]) => {
       const newDataIds: string[] = [];
-      newdata.forEach(data => {
-        if (!data.id || !!self.dataMap[data.id]) {
+      newdata.forEach(envelope => {
+        if (!envelope.id || !!self.dataMap[envelope.id]) {
           return;
         }
-        self.dataMap[data.id] = data;
-        newDataIds.push(data.id);
+        self.dataMap[envelope.id] = envelope.data;
+        newDataIds.push(envelope.id);
       });
       if (newDataIds.length > 0) {
         self.emit("new_data", newDataIds);

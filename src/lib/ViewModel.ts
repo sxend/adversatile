@@ -14,9 +14,15 @@ export class ViewModel {
     this.state.on("new_data", (ids: string[]) => this.newData(ids));
     this.polling();
   }
-  private registerNewElements(elements: ElementModel[]) {
+  private async registerNewElements(elements: ElementModel[]) {
     this.elements = this.elements.concat(elements);
-    this.action.fetchData(elements.map(_ => _.id)).catch(console.error);
+    const reqs = await Promise.all(elements.map(async element => {
+      return {
+        id: element.id,
+        assets: await element.requestAssets().catch(console.error)
+      };
+    }));
+    this.action.fetchData(reqs);
   }
   private newData(ids: string[]) {
     for (let id of ids) {
