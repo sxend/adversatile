@@ -1,5 +1,4 @@
 import Configuration from "./Configuration";
-import * as handlebars from "handlebars";
 import { link } from "fs";
 
 class Macro {
@@ -9,7 +8,7 @@ class Macro {
     return this.configuration.vm.em.macro;
   }
   async applyTemplate(template: string, data: any): Promise<string> {
-    return handlebars.compile(template)(data);
+    return nano(template, data);
   }
   async applyElement(element: HTMLElement, data: any): Promise<void> {
     await this.applyLinkMacro(element, data)
@@ -33,4 +32,18 @@ class Macro {
       .filter((_: string) => !!_);
   }
 }
+
+/* Nano Templates - https://github.com/trix/nano */
+function nano(template: string, data: any) {
+  return template.replace(/\{\{([\w\.]*)\}\}/g, function(str, key) {
+    try {
+      var keys = key.split("."), v = data[keys.shift()];
+      for (var i = 0, l = keys.length; i < l; i++) v = v[keys[i]];
+      return (typeof v !== "undefined" && v !== null) ? v : "";
+    } catch (e) {
+    }
+    return str;
+  });
+}
+
 export default Macro;
