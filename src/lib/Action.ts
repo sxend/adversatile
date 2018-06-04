@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher } from "./Dispatcher";
+import { ElementData } from "../../generated-src/protobuf";
 
 export class Action {
   constructor(
@@ -18,7 +19,7 @@ export class Action {
           : await this.fetchDataWithJsonp(req.id);
       return {
         id: req.id,
-        data: data.payload
+        data: ElementData.fromObject(data.payload)
       };
     });
     this.dispatchPromise("ElementsData", Promise.all(results));

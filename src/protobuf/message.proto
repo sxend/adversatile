@@ -2,4 +2,8 @@ syntax = "proto3";
 
 message ElementData {
     string message = 1;
+    Link link = 2;
+}
+message Link {
+    string url = 1;
 }
