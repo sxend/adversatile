@@ -45,18 +45,8 @@ export class ElementModel extends EventEmitter {
     }
   }
   async requestAssets(): Promise<number[]> {
-    const option: ElementOption | undefined = firstDefined([
-      this.emConfig.option(this.id),
-      this.emConfig.option(this.group)
-    ]);
-    if (!option) {
-      return Promise.resolve([]);
-    }
-    return this.detectAssets(option);
-  }
-  private async detectAssets(option: ElementOption) {
-    let assets: number[] = option.assets || [];
-    if (option.preRender) {
+    let assets: number[] = this.option.assets || [];
+    if (this.option.preRender) {
       await this.preRender();
       const macros = this.macro.getAppliedMacros(this.element);
       assets = assets.concat(macros.map(this.macroNameToAssetNo));
@@ -81,6 +71,13 @@ export class ElementModel extends EventEmitter {
     const templateEl = document.querySelector(query);
     if (templateEl) {
       return templateEl.innerHTML;
+    }
+  }
+  private get option(): ElementOption {
+    if (this.emConfig.hasOption(this.id)) {
+      return this.emConfig.option(this.id);
+    } else {
+      return this.emConfig.option(this.group);
     }
   }
   private macroNameToAssetNo(name: string): number {

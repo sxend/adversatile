@@ -23,10 +23,8 @@ export class ElementModelConf {
   hasOption(name: string): boolean {
     return Object.keys(this.options).indexOf(name) !== -1;
   }
-  option(name: string): ElementOption | undefined {
-    if (this.hasOption(name)) {
-      return deepmerge(new ElementOption(), this.options[name]);
-    }
+  option(name: string): ElementOption {
+    return deepmerge(new ElementOption(), this.options[name] || {});
   }
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
@@ -53,7 +51,7 @@ export function isConfiguration(obj: any): boolean {
 }
 
 export function asConfituration(obj: any): Configuration {
-  const configuration = deepmerge(new Configuration(), obj);
+  const configuration = deepmerge(new Configuration(), obj || {});
   ElementModelConf.setPrototype(configuration.vm.em);
   return configuration;
 }

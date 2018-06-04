@@ -19,9 +19,9 @@ export class Action {
     });
     this.dispatchPromise("data", Promise.all(results));
   }
-  private dispatchPromise(name: string, promise: Promise<any>) {
+  private dispatchPromise(event: string, promise: Promise<any>) {
     promise
-      .then(data => this.dispatcher.emit(name, data))
+      .then(data => this.dispatcher.emit(event, data))
       .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {
