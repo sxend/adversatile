@@ -10,8 +10,7 @@ export class Store extends EventEmitter {
     private dispatcher: Dispatcher
   ) {
     super();
-    const self = this;
-    self.dispatcher.onDispatch((action: { event: string; data: any }) => {
+    this.dispatcher.onDispatch((action: { event: string; data: any }) => {
       this.applyAction(action);
     });
   }

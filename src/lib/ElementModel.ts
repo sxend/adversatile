@@ -43,19 +43,17 @@ export class ElementModel extends EventEmitter {
     this.state = state;
     const template = await this.resolveTemplate();
     if (template) {
-      this.element.innerHTML = await this.macro.applyTemplate(template, state.payload);
-      await this.macro.applyElement(this.element, state.payload);
+      this.element.innerHTML = await this.macro.applyTemplate(template, state);
+      await this.macro.applyElement(this.element, state);
     } else {
-      console.warn("missing template", this.id, this.group, state.payload);
+      console.warn("missing template", this.id, this.group, state);
     }
   }
   async requestAssets(): Promise<number[]> {
     let assets: number[] = this.option.assets || [];
     if (this.option.preRender) {
-      const old = this.state;
       await this.update(ElementModel.DummyData);
       const macros = this.macro.getAppliedMacros(this.element);
-      this.update(old);
       assets = assets.concat(macros.map(this.macroNameToAssetNo));
     }
     return assets;
@@ -84,7 +82,7 @@ export class ElementModel extends EventEmitter {
     }
   }
   private static DummyData = {
-    payload: { message: "..." }
+    message: "..."
   };
   private macroNameToAssetNo(name: string): number {
     if (name === "link") {

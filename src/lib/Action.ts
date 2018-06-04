@@ -16,14 +16,17 @@ export class Action {
         Math.random() > 0.5
           ? await this.fetchDataWithJson(req.id)
           : await this.fetchDataWithJsonp(req.id);
-      return { id: req.id, data };
+      return {
+        id: req.id,
+        data: data.payload
+      };
     });
     this.dispatchPromise("ElementsData", Promise.all(results));
   }
   private dispatchPromise(event: string, promise: Promise<any>) {
     promise
-      .then(data => this.dispatcher.dispatch({ event, data }))
-      .catch(console.error);
+        .then(data => this.dispatcher.dispatch({ event, data }))
+        .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {
     return await (await fetch("/demo/sample.json")).json();
