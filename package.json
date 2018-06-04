@@ -7,7 +7,7 @@
     "test": "jest --forceExit",
     "build:test": "npm run build && npm test",
     "codeformat": "tsfmt -r",
-    "gen:pb": "mkdir -p generated-src && pbjs -t static-module -o generated-src/protobuf.js src/protobuf/message.proto && pbts -o generated-src/protobuf.d.ts generated-src/protobuf.js",
+    "gen:pb": "rm -rf generated-src && mkdir -p generated-src && pbjs -t static-module -o generated-src/protobuf.js src/protobuf/message.proto && pbts -o generated-src/protobuf.d.ts generated-src/protobuf.js",
     "prebuild": "npm run gen:pb && npm run codeformat",
     "build": "webpack --mode=production",
     "build:watch": "npm run build -- --watch",
