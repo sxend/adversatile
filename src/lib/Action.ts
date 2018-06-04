@@ -2,13 +2,14 @@ import Configuration from "./Configuration";
 import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
+import { Dispatcher } from "./Dispatcher";
 
 export class Action {
   constructor(
     private configuration: Configuration,
-    private dispatcher: EventEmitter
+    private dispatcher: Dispatcher
   ) { }
-  fetchData(reqs: any[]) {
+  fetchElementsData(reqs: any[]) {
     let result: Promise<any>;
     const results = reqs.map(async req => {
       const data: any =
@@ -17,11 +18,11 @@ export class Action {
           : await this.fetchDataWithJsonp(req.id);
       return { id: req.id, data };
     });
-    this.dispatchPromise("data", Promise.all(results));
+    this.dispatchPromise("ElementsData", Promise.all(results));
   }
   private dispatchPromise(event: string, promise: Promise<any>) {
     promise
-      .then(data => this.dispatcher.emit(event, data))
+      .then(data => this.dispatcher.dispatch({ event, data }))
       .catch(console.error);
   }
   private async fetchDataWithJson(id: string) {

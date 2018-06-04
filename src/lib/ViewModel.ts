@@ -11,7 +11,7 @@ export class ViewModel {
     private store: Store,
     private action: Action
   ) {
-    this.store.on("new_data", (ids: string[]) => this.newData(ids));
+    // this.store.on("new_data", (ids: string[]) => this.newData(ids));
     this.polling();
   }
   private async registerNewElements(elements: ElementModel[]) {
@@ -22,17 +22,9 @@ export class ViewModel {
         assets: await element.requestAssets().catch(console.error)
       };
     }));
-    this.action.fetchData(reqs);
+    this.action.fetchElementsData(reqs);
   }
-  private newData(ids: string[]) {
-    for (let id of ids) {
-      const data = this.store.getData(id);
-      const element = this.findElement(id);
-      if (element) {
-        element.update(data);
-      }
-    }
-  }
+
   private findElement(id: string): ElementModel | undefined {
     return this.elements.find(el => el.id === id);
   }
@@ -55,8 +47,11 @@ export class ViewModel {
       .call(document.querySelectorAll(this.selector()))
       .map((element: HTMLElement) => {
         this.markElement(element);
-        return new ElementModel(element, this.configuration);
+        return this.createNewElement(element);
       });
+  }
+  private createNewElement(rawElement: HTMLElement): ElementModel {
+    return new ElementModel(rawElement, this.configuration, this.store);
   }
   private markElement(element: HTMLElement): void {
     element.classList.add(this.configuration.vm.markedClass);

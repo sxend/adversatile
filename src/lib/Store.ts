@@ -1,26 +1,36 @@
 import Configuration from "./Configuration";
 import { EventEmitter } from "events";
+import { Dispatcher } from "./Dispatcher";
 
 export class Store extends EventEmitter {
+  private state: any = {};
   private dataMap: { [id: string]: any } = {};
-  constructor(private configuration: Configuration, private dispatcher: EventEmitter) {
+  constructor(
+    private configuration: Configuration,
+    private dispatcher: Dispatcher
+  ) {
     super();
     const self = this;
-    self.dispatcher.on("data", (newdata: any[]) => {
-      const newDataIds: string[] = [];
-      newdata.forEach(envelope => {
-        if (!envelope.id || !!self.dataMap[envelope.id]) {
-          return;
-        }
-        self.dataMap[envelope.id] = envelope.data;
-        newDataIds.push(envelope.id);
-      });
-      if (newDataIds.length > 0) {
-        self.emit("new_data", newDataIds);
-      }
+    self.dispatcher.onDispatch((action: { event: string; data: any }) => {
+      this.applyAction(action);
     });
   }
-  getData(id: string): any {
-    return this.dataMap[id];
+  applyAction(action: { event: string; data: any }): void {
+    switch (action.event) {
+      case "ElementsData":
+        action.data.forEach((envelope: any) => {
+          if (!envelope.id) {
+            return;
+          }
+          this.state[envelope.id] = envelope.data;
+          this.emit(`change:${envelope.id}`, this.state[envelope.id]);
+        });
+        break;
+      default:
+        break;
+    }
+  }
+  getState(): any {
+    return this.state;
   }
 }

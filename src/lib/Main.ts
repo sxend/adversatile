@@ -8,6 +8,7 @@ import { ViewModel } from "./ViewModel";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { EventEmitter } from "events";
+import { Dispatcher } from "./Dispatcher";
 
 export async function main(...args: any[]) {
   if (isObject(args[0]) && isConfiguration(args[0])) {
@@ -18,7 +19,7 @@ export async function main(...args: any[]) {
 }
 
 async function runWithConfiguration(configuration: Configuration) {
-  const dispatcher: EventEmitter = new EventEmitter();
+  const dispatcher: Dispatcher = new Dispatcher();
   const action = new Action(configuration, dispatcher);
   const store = new Store(configuration, dispatcher);
   new ViewModel(configuration, store, action);

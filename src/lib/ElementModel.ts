@@ -4,19 +4,22 @@ import * as handlebars from "handlebars";
 import Macro from "./Macro";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
+import { Store } from "./Store";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
-  private state: any = {};
+  private state: any;
   constructor(
     private element: HTMLElement,
-    private configuration: Configuration
+    private configuration: Configuration,
+    private store: Store
   ) {
     super();
     this.macro = new Macro(configuration);
     if (!this.id) {
       element.setAttribute(this.idAttributeName, RandomId.gen());
     }
+    this.store.on(`change:${this.id}`, (state: any) => this.update(state));
   }
   get id(): string {
     return this.element.getAttribute(this.idAttributeName);
@@ -36,14 +39,14 @@ export class ElementModel extends EventEmitter {
   private get templateQualifierKey() {
     return this.emConfig.templateQualifierKey;
   }
-  async update(data: any): Promise<void> {
-    this.state = data;
+  async update(state: any): Promise<void> {
+    this.state = state;
     const template = await this.resolveTemplate();
     if (template) {
-      this.element.innerHTML = await this.macro.applyTemplate(template, data.payload);
-      await this.macro.applyElement(this.element, data.payload);
+      this.element.innerHTML = await this.macro.applyTemplate(template, state.payload);
+      await this.macro.applyElement(this.element, state.payload);
     } else {
-      console.warn("missing template", this.id, this.group, data.payload);
+      console.warn("missing template", this.id, this.group, state.payload);
     }
   }
   async requestAssets(): Promise<number[]> {
