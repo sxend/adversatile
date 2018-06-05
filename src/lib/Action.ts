@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher } from "./Dispatcher";
-import { ElementData } from "../../generated-src/protobuf";
+import { ElementData } from "../../generated-src/protobuf/messages";
 
 export class Action {
   constructor(

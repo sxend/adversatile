@@ -3,7 +3,7 @@ import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
-import { IElementData } from "../../generated-src/protobuf";
+import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ViewModel {
   private elements: ElementModel[] = [];
