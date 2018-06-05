@@ -8,7 +8,6 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
-  private state: IElementData;
   constructor(
     private element: HTMLElement,
     private configuration: Configuration,
@@ -19,7 +18,7 @@ export class ElementModel extends EventEmitter {
     if (!this.id) {
       element.setAttribute(this.idAttributeName, RandomId.gen());
     }
-    this.store.on(`change:${this.id}`, (state: IElementData) => this.update(state));
+    this.store.on(`change:${this.id}`, () => this.update(this.store.getState(this.id)));
   }
   get id(): string {
     return this.element.getAttribute(this.idAttributeName);
@@ -39,8 +38,7 @@ export class ElementModel extends EventEmitter {
   private get templateQualifierKey() {
     return this.emConfig.templateQualifierKey;
   }
-  async update(state: IElementData): Promise<void> {
-    this.state = state;
+  private async update(state: IElementData): Promise<void> {
     const template = await this.resolveTemplate();
     if (template) {
       this.element.innerHTML = await this.macro.applyTemplate(template, state);
@@ -49,7 +47,14 @@ export class ElementModel extends EventEmitter {
       console.warn("missing template", this.id, this.group, state);
     }
   }
-  async requestAssets(): Promise<number[]> {
+  async requestData(): Promise<{ id: string, assets: number[] }> {
+    const assets = await this.requestAssets();
+    return {
+      id: this.id,
+      assets
+    };
+  }
+  private async requestAssets(): Promise<number[]> {
     let assets: number[] = this.option.assets || [];
     if (this.option.preRender) {
       await this.update(ElementModel.DummyData);

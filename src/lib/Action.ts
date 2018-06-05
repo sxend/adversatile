@@ -10,7 +10,7 @@ export class Action {
     private configuration: Configuration,
     private dispatcher: IDispatcher
   ) { }
-  fetchElementsData(reqs: any[]) {
+  fetchElementsData(reqs: any[]): void {
     const results: Promise<IElementData>[] = reqs.map(async req => {
       const data: any =
         Math.random() > 0.5

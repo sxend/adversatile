@@ -5,7 +5,6 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class Store extends EventEmitter {
   private state: any = {};
-  private dataMap: { [id: string]: any } = {};
   constructor(
     private configuration: Configuration,
     private dispatcher: IDispatcher
@@ -19,7 +18,7 @@ export class Store extends EventEmitter {
     this.state[elementData.id] = elementData;
     this.emit(`change:${elementData.id}`, this.state[elementData.id]);
   }
-  getState(): any {
-    return this.state;
+  getState(id: string): any {
+    return this.state[id];
   }
 }

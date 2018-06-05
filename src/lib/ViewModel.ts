@@ -6,7 +6,6 @@ import { ElementModel } from "./ElementModel";
 import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ViewModel {
-  private elements: ElementModel[] = [];
   constructor(
     private configuration: Configuration,
     private store: Store,
@@ -14,51 +13,39 @@ export class ViewModel {
   ) {
     this.polling();
   }
-  private async registerNewElements(elements: ElementModel[]) {
-    this.elements = this.elements.concat(elements);
-    const reqs = await Promise.all(elements.map(async element => {
-      return {
-        id: element.id,
-        assets: await element.requestAssets().catch(console.error)
-      };
-    }));
-    this.action.fetchElementsData(reqs);
+  private get vmConfig() {
+    return this.configuration.vm;
   }
-
-  private findElement(id: string): ElementModel | undefined {
-    return this.elements.find(el => el.id === id);
+  private initNewElements(elements: ElementModel[]): void {
+    Promise.all(elements.map(el => el.requestData()))
+      .then(reqs => this.action.fetchElementsData(reqs))
+      .catch(console.error);
   }
-  private polling() {
+  private polling(): void {
     const poller = () => {
       try {
-        const elements: ElementModel[] = this.findNewElements();
-        if (elements.length > 0) {
-          this.registerNewElements(elements);
-        }
+        this.pollElements();
       } catch (e) {
         console.error(e);
       }
-      setTimeout(poller, this.configuration.vm.polling.interval);
+      setTimeout(poller, this.vmConfig.polling.interval);
     };
     setTimeout(poller);
   }
-  private findNewElements(): ElementModel[] {
-    return [].slice
+  private pollElements(): void {
+    const newElements = [].slice
       .call(document.querySelectorAll(this.selector()))
       .map((element: HTMLElement) => {
-        this.markElement(element);
-        return this.createNewElement(element);
+        element.classList.add(this.vmConfig.markedClass);
+        return new ElementModel(element, this.configuration, this.store);
       });
-  }
-  private createNewElement(rawElement: HTMLElement): ElementModel {
-    return new ElementModel(rawElement, this.configuration, this.store);
-  }
-  private markElement(element: HTMLElement): void {
-    element.classList.add(this.configuration.vm.markedClass);
+    if (newElements.length !== 0) {
+      this.initNewElements(newElements);
+    }
   }
   private selector(): string {
-    const selector = this.configuration.vm.selector;
-    const markedClass = this.configuration.vm.markedClass;
+    const selector = this.vmConfig.selector;
+    const markedClass = this.vmConfig.markedClass;
     return `${selector}:not(.${markedClass})`;
   }
 }
