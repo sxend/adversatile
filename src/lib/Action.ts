@@ -2,37 +2,34 @@ import Configuration from "./Configuration";
 import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
-import { Dispatcher } from "./Dispatcher";
-import { ElementData } from "../../generated-src/protobuf";
+import { Dispatcher, IDispatcher } from "./Dispatcher";
+import { ElementData, IElementData } from "../../generated-src/protobuf/messages";
 
 export class Action {
   constructor(
     private configuration: Configuration,
-    private dispatcher: Dispatcher
+    private dispatcher: IDispatcher
   ) { }
   fetchElementsData(reqs: any[]) {
-    let result: Promise<any>;
-    const results = reqs.map(async req => {
+    const results: Promise<IElementData>[] = reqs.map(async req => {
       const data: any =
         Math.random() > 0.5
           ? await this.fetchDataWithJson(req.id)
           : await this.fetchDataWithJsonp(req.id);
-      return {
+      return ElementData.fromObject({
         id: req.id,
-        data: ElementData.fromObject(data.payload)
-      };
+        ...data.payload
+      });
     });
-    this.dispatchPromise("ElementsData", Promise.all(results));
+    Promise.all(results).then(_ => _.forEach(data => {
+      this.dispatcher.dispatch({ event: "ElementData", data: data });
+    })).catch(console.error);
   }
-  private dispatchPromise(event: string, promise: Promise<any>) {
-    promise
-      .then(data => this.dispatcher.dispatch({ event, data }))
-      .catch(console.error);
-  }
-  private async fetchDataWithJson(id: string) {
+
+  private async fetchDataWithJson(id: string): Promise<IElementData> {
     return await (await fetch("/demo/sample.json")).json();
   }
-  private async fetchDataWithJsonp(id: string) {
+  private async fetchDataWithJsonp(id: string): Promise<IElementData> {
     const cb = `${id}_cb`;
     return await Jsonp.fetch(`/demo/sample.jsonp?cb=${cb}`, cb);
   }

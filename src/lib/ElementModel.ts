@@ -4,7 +4,7 @@ import Macro from "./Macro";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
 import { Store } from "./Store";
-import { IElementData } from "../../generated-src/protobuf";
+import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
