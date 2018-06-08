@@ -1,10 +1,7 @@
-import Configuration from "./Configuration";
+import Configuration, { MacroConf } from "./Configuration";
 
 class Macro {
-  constructor(private configuration: Configuration) {
-  }
-  get macroConf() {
-    return this.configuration.vm.em.macro;
+  constructor(private config: MacroConf) {
   }
   async applyTemplate(template: string, data: any): Promise<string> {
     return nano(template, data);
@@ -13,7 +10,7 @@ class Macro {
     await this.applyLinkMacro(element, data)
   }
   private async applyLinkMacro(element: HTMLElement, data: any) {
-    const linkMacroSelector = this.macroConf.linkMacroSelector;
+    const linkMacroSelector = this.config.linkMacroSelector;
     const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(linkMacroSelector));
     for (let link of links) {
       this.annotateUsedMacro(link, "link");
@@ -22,12 +19,12 @@ class Macro {
     }
   }
   private annotateUsedMacro(element: HTMLElement, name: string) {
-    element.setAttribute(this.macroConf.appliedMacroAnnotateAttr, name);
+    element.setAttribute(this.config.appliedMacroAnnotateAttr, name);
   }
   getAppliedMacros(element: HTMLElement): string[] {
     return [].slice.call(
-      element.querySelectorAll(`[${this.macroConf.appliedMacroAnnotateAttr}]`)
-    ).map((el: HTMLElement) => el.getAttribute(this.macroConf.appliedMacroAnnotateAttr))
+      element.querySelectorAll(`[${this.config.appliedMacroAnnotateAttr}]`)
+    ).map((el: HTMLElement) => el.getAttribute(this.config.appliedMacroAnnotateAttr))
       .filter((_: string) => !!_);
   }
 }

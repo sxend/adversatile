@@ -20,9 +20,9 @@ export async function main(...args: any[]) {
 
 async function runWithConfiguration(configuration: Configuration) {
   const dispatcher: Dispatcher = new Dispatcher();
-  const action = new Action(configuration, dispatcher);
-  const store = new Store(configuration, dispatcher);
-  new ViewModel(configuration, store, action);
+  const action = new Action(configuration.action, dispatcher);
+  const store = new Store(configuration.store, dispatcher);
+  new ViewModel(configuration.vm, store, action);
 }
 
 export function use(plugin: Plugin, options?: any) {

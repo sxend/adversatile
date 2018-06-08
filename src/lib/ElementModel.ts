@@ -1,4 +1,4 @@
-import Configuration, { ElementOption } from "./Configuration";
+import Configuration, { ElementOption, ElementModelConf } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import Macro from "./Macro";
 import { EventEmitter } from "events";
@@ -10,33 +10,21 @@ export class ElementModel extends EventEmitter {
   private macro: Macro;
   constructor(
     private element: HTMLElement,
-    private configuration: Configuration,
+    private config: ElementModelConf,
     private store: Store
   ) {
     super();
-    this.macro = new Macro(configuration);
+    this.macro = new Macro(this.config.macro);
     if (!this.id) {
-      element.setAttribute(this.idAttributeName, RandomId.gen());
+      element.setAttribute(this.config.idAttributeName, RandomId.gen());
     }
     this.store.on(`change:${this.id}`, () => this.update(this.store.getState(this.id)));
   }
   get id(): string {
-    return this.element.getAttribute(this.idAttributeName);
+    return this.element.getAttribute(this.config.idAttributeName);
   }
   get group(): string {
-    return this.element.getAttribute(this.groupAttributeName);
-  }
-  private get emConfig() {
-    return this.configuration.vm.em;
-  }
-  private get idAttributeName() {
-    return this.emConfig.idAttributeName;
-  }
-  private get groupAttributeName() {
-    return this.emConfig.groupAttributeName;
-  }
-  private get templateQualifierKey() {
-    return this.emConfig.templateQualifierKey;
+    return this.element.getAttribute(this.config.groupAttributeName);
   }
   private async update(state: IElementData): Promise<void> {
     const template = await this.resolveTemplate();
@@ -67,23 +55,23 @@ export class ElementModel extends EventEmitter {
     const template = firstDefined([
       this.resolveExternalTemplate(this.id),
       this.resolveExternalTemplate(this.group),
-      this.emConfig.templates[this.id],
-      this.emConfig.templates[this.group]
+      this.config.templates[this.id],
+      this.config.templates[this.group]
     ]);
     return template;
   }
   private resolveExternalTemplate(qualifier: string): string | undefined {
-    const query = `[${this.templateQualifierKey}="${qualifier}"]`;
+    const query = `[${this.config.templateQualifierKey}="${qualifier}"]`;
     const templateEl = document.querySelector(query);
     if (templateEl) {
       return templateEl.innerHTML;
     }
   }
   private get option(): ElementOption {
-    if (this.emConfig.hasOption(this.id)) {
-      return this.emConfig.option(this.id);
+    if (this.config.hasOption(this.id)) {
+      return this.config.option(this.id);
     } else {
-      return this.emConfig.option(this.group);
+      return this.config.option(this.group);
     }
   }
   private static DummyData: IElementData = {

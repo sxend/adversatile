@@ -1,4 +1,4 @@
-import Configuration from "./Configuration";
+import Configuration, { ViewModelConf } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
 import { Store } from "./Store";
@@ -7,14 +7,11 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ViewModel {
   constructor(
-    private configuration: Configuration,
+    private config: ViewModelConf,
     private store: Store,
     private action: Action
   ) {
     this.polling();
-  }
-  private get vmConfig() {
-    return this.configuration.vm;
   }
   private initNewElements(elements: ElementModel[]): void {
     Promise.all(elements.map(el => el.requestData()))
@@ -28,7 +25,7 @@ export class ViewModel {
       } catch (e) {
         console.error(e);
       }
-      setTimeout(poller, this.vmConfig.polling.interval);
+      setTimeout(poller, this.config.polling.interval);
     };
     setTimeout(poller);
   }
@@ -36,16 +33,16 @@ export class ViewModel {
     const newElements = [].slice
       .call(document.querySelectorAll(this.selector()))
       .map((element: HTMLElement) => {
-        element.classList.add(this.vmConfig.markedClass);
-        return new ElementModel(element, this.configuration, this.store);
+        element.classList.add(this.config.markedClass);
+        return new ElementModel(element, this.config.em, this.store);
       });
     if (newElements.length !== 0) {
       this.initNewElements(newElements);
     }
   }
   private selector(): string {
-    const selector = this.vmConfig.selector;
-    const markedClass = this.vmConfig.markedClass;
+    const selector = this.config.selector;
+    const markedClass = this.config.markedClass;
     return `${selector}:not(.${markedClass})`;
   }
 }

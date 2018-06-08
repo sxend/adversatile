@@ -1,4 +1,4 @@
-import Configuration from "./Configuration";
+import Configuration, { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
 import { IElementData } from "../../generated-src/protobuf/messages";
@@ -6,7 +6,7 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 export class Store extends EventEmitter {
   private state: any = {};
   constructor(
-    private configuration: Configuration,
+    private config: StoreConf,
     private dispatcher: IDispatcher
   ) {
     super();

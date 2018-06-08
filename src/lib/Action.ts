@@ -1,4 +1,4 @@
-import Configuration from "./Configuration";
+import Configuration, { ActionConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
@@ -7,7 +7,7 @@ import { ElementData, IElementData } from "../../generated-src/protobuf/messages
 
 export class Action {
   constructor(
-    private configuration: Configuration,
+    private config: ActionConf,
     private dispatcher: IDispatcher
   ) { }
   fetchElementsData(reqs: any[]): void {
