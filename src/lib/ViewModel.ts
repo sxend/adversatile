@@ -13,11 +13,6 @@ export class ViewModel {
   ) {
     this.polling();
   }
-  private initNewElements(elements: ElementModel[]): void {
-    Promise.all(elements.map(el => el.requestData()))
-      .then(reqs => this.action.fetchElementsData(reqs))
-      .catch(console.error);
-  }
   private polling(): void {
     const poller = () => {
       try {
@@ -34,7 +29,7 @@ export class ViewModel {
       .call(document.querySelectorAll(this.selector()))
       .map((element: HTMLElement) => {
         element.classList.add(this.config.markedClass);
-        return new ElementModel(element, this.config.em, this.store);
+        return element;
       });
     if (newElements.length !== 0) {
       this.initNewElements(newElements);
@@ -45,4 +40,18 @@ export class ViewModel {
     const markedClass = this.config.markedClass;
     return `${selector}:not(.${markedClass})`;
   }
+  private initNewElements(elements: HTMLElement[]): void {
+    Promise.all(elements.map(el => this.createElementModel(el)))
+      .then((models: ElementModel[]) => {
+        const reqs = models.map(model => model.requestData());
+        this.action.fetchElementsData(reqs);
+      }).catch(console.error);
+  }
+  private createElementModel(element: HTMLElement): Promise<ElementModel> {
+    return new Promise(resolve => {
+      new ElementModel(element, this.config.em, this.store, {
+        onInit: (model) => resolve(model)
+      });
+    });
+  };
 }

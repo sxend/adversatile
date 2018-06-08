@@ -8,19 +8,29 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 
 export class ElementModel extends EventEmitter {
   private macro: Macro;
-  private templateResolver: TemplateResolver;
+  private templateOps: TemplateOps;
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
-    private store: Store
+    private store: Store,
+    private props: {
+      onInit: (self: ElementModel) => void
+    }
   ) {
     super();
     this.macro = new Macro(this.config.macro);
-    this.templateResolver = new TemplateResolver(this.config.templates, this.config.templateQualifierKey);
+    this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
     if (!this.id) {
       element.setAttribute(this.config.idAttributeName, RandomId.gen());
     }
     this.store.on(`change:${this.id}`, () => this.update(this.store.getState(this.id)));
+    if (this.option.preRender) {
+      this.update(ElementModel.DummyData).then(_ => {
+        this.props.onInit(this);
+      });
+    } else {
+      this.props.onInit(this);
+    }
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -29,7 +39,7 @@ export class ElementModel extends EventEmitter {
     return this.element.getAttribute(this.config.groupAttributeName);
   }
   private async update(state: IElementData): Promise<void> {
-    const template = await this.templateResolver.resolveTemplate(this.id, this.group);
+    const template = await this.templateOps.resolveTemplate(this.id, this.group);
     if (template) {
       this.element.innerHTML = await this.macro.applyTemplate(template, state);
       await this.macro.applyElement(this.element, state);
@@ -37,20 +47,17 @@ export class ElementModel extends EventEmitter {
       console.warn("missing template", this.id, this.group, state);
     }
   }
-  async requestData(): Promise<{ id: string, assets: number[] }> {
-    const assets = await this.requestAssets();
+  requestData(): { id: string, assets: number[] } {
+    const assets = this.requestAssets();
     return {
       id: this.id,
       assets
     };
   }
-  private async requestAssets(): Promise<number[]> {
+  private requestAssets(): number[] {
     let assets: number[] = this.option.assets || [];
-    if (this.option.preRender) {
-      await this.update(ElementModel.DummyData);
-      const macros = this.macro.getAppliedMacros(this.element);
-      assets = assets.concat(macros.map(this.macroNameToAssetNo));
-    }
+    const macros = this.macro.getAppliedMacros(this.element);
+    assets = assets.concat(macros.map(this.macroNameToAssetNo));
     return assets;
   }
   private get option(): ElementOption {
@@ -70,7 +77,7 @@ export class ElementModel extends EventEmitter {
     return 0;
   }
 }
-class TemplateResolver {
+class TemplateOps {
   constructor(private templates: { [id: string]: string }, private templateQualifierKey: string) {
   }
   async resolveTemplate(...ids: string[]): Promise<string | undefined> {
