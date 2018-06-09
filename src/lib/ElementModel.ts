@@ -19,38 +19,33 @@ export class ElementModel extends EventEmitter {
   ) {
     super();
     this.renderer = new Renderer(this.config, this, {});
-    if (!this.id) {
-      element.setAttribute(this.config.idAttributeName, RandomId.gen());
+    if (!this.name) {
+      element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
-    this.store.on(`change:${this.id}`, () => this.update(this.store.getElementData(this.id)));
-    if (this.option.preRender) {
-      this.update(ElementModel.DummyData).then(_ => {
-        this.props.onInit(this);
-      });
-    } else {
+    (this.option.preRender ? this.update(ElementModel.DummyData) : Promise.resolve()).then(_ => {
+      this.store.on(`change:${this.name}`, () => this.updateWithStore(this.name));
+      this.updateWithStore(this.name);
       this.props.onInit(this);
+    });
+  }
+  get name(): string {
+    return this.element.getAttribute(this.config.nameAttributeName);
+  }
+  private async updateWithStore(qualifier: string) {
+    if (this.store.hasElementData(qualifier)) {
+      return this.update(this.store.consumeElementData(qualifier));
     }
-  }
-  get id(): string {
-    return this.element.getAttribute(this.config.idAttributeName);
-  }
-  get group(): string {
-    return this.element.getAttribute(this.config.groupAttributeName);
   }
   private async update(data: IElementData): Promise<void> {
     return this.renderer.render(this.element, data);
   }
-  requestAssets(): number[] {
+  requireAssets(): number[] {
     let assets: number[] = this.option.assets || [];
     assets = assets.concat(this.renderer.getAssets());
     return assets;
   }
   private get option(): ElementOption {
-    if (this.config.hasOption(this.id)) {
-      return this.config.option(this.id);
-    } else {
-      return this.config.option(this.group);
-    }
+    return this.config.option(this.name);
   }
   private static DummyData: IElementData = {
     message: "...",
@@ -72,12 +67,12 @@ class Renderer {
   }
   async render(element: HTMLElement, data: IElementData): Promise<void> {
     this.assets = [];
-    const template = await this.templateOps.resolveTemplate(this.model.id, this.model.group);
+    const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
       element.innerHTML = await this.macroOps.applyTemplate(template, data);
       await this.macroOps.applyElement(element, data);
     } else {
-      console.warn("missing template", this.model.id, this.model.group, data);
+      console.warn("missing template", this.model.name, data);
     }
   }
   getAssets(): number[] {

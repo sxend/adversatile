@@ -10,14 +10,14 @@ export class Action {
     private config: ActionConf,
     private dispatcher: IDispatcher
   ) { }
-  fetchElementsData(reqs: any[]): void {
+  fetchElementsData(reqs: { name: string, assets: number[] }[]): void {
     const results: Promise<IElementData>[] = reqs.map(async req => {
       const data: any =
         Math.random() > 0.5
-          ? await this.fetchDataWithJson(req.id)
-          : await this.fetchDataWithJsonp(req.id);
+          ? await this.fetchDataWithJson(req.assets)
+          : await this.fetchDataWithJsonp(req.assets);
       return new ElementData({
-        id: req.id,
+        name: req.name,
         ...data.payload
       });
     });
@@ -26,11 +26,11 @@ export class Action {
     })).catch(console.error);
   }
 
-  private async fetchDataWithJson(id: string): Promise<IElementData> {
+  private async fetchDataWithJson(assets: number[]): Promise<IElementData> {
     return await (await fetch("/demo/sample.json")).json();
   }
-  private async fetchDataWithJsonp(id: string): Promise<IElementData> {
-    const cb = `${id}_cb`;
+  private async fetchDataWithJsonp(assets: number[]): Promise<IElementData> {
+    const cb = `__adv_cb_${RandomId.gen()}`;
     return await Jsonp.fetch(`/demo/sample.jsonp?cb=${cb}`, cb);
   }
 }

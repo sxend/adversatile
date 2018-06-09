@@ -14,10 +14,10 @@ export class ViewModelConf {
   markedClass: string = "adv-marked";
   polling: PollingConf = new PollingConf();
   em: ElementModelConf = new ElementModelConf();
+  prefetch: PrefetchConf[] = [];
 }
 export class ElementModelConf {
-  idAttributeName: string = "data-adv-em-id";
-  groupAttributeName: string = "data-adv-em-group";
+  nameAttributeName: string = "data-adv-em-name";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
   hasOption(name: string): boolean {
@@ -46,6 +46,10 @@ export class LinkMacroConf {
 }
 export class PollingConf {
   interval: number = 100;
+}
+export class PrefetchConf {
+  name: string;
+  size: number;
 }
 export class ExtConf { }
 export function isConfiguration(obj: any): boolean {

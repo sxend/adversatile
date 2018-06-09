@@ -15,10 +15,13 @@ export class Store extends EventEmitter {
     });
   }
   private onElementData(elementData: IElementData) {
-    this.state[elementData.id] = elementData;
-    this.emit(`change:${elementData.id}`, this.state[elementData.id]);
+    (this.state[elementData.name] = this.state[elementData.name] || []).push(elementData);
+    this.emit(`change:${elementData.name}`);
   }
-  getElementData(id: string): IElementData {
-    return this.state[id];
+  hasElementData(name: string): boolean {
+    return !!this.state[name] && this.state[name].length > 0;
+  }
+  consumeElementData(name: string): IElementData {
+    return (this.state[name] || []).shift();
   }
 }
