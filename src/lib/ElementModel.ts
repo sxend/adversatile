@@ -7,7 +7,7 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps } from "./MacroOps";
 
-export class ElementModel extends EventEmitter {
+export class ElementModel {
   private renderer: Renderer;
   constructor(
     private element: HTMLElement,
@@ -17,7 +17,6 @@ export class ElementModel extends EventEmitter {
       onInit: (self: ElementModel) => void
     }
   ) {
-    super();
     this.renderer = new Renderer(this.config, this, {});
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
