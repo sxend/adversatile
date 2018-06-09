@@ -31,8 +31,8 @@ export class ElementModel {
   get name(): string {
     return this.element.getAttribute(this.config.nameAttributeName);
   }
-  isNative(): boolean {
-    return this.option.isNative();
+  get option(): ElementOption {
+    return this.config.option(this.name);
   }
   get assets(): number[] {
     let assets: number[] = this.option.assets || [];
@@ -47,9 +47,7 @@ export class ElementModel {
   private async update(data: IElementData): Promise<void> {
     return this.renderer.render(this.element, data);
   }
-  private get option(): ElementOption {
-    return this.config.option(this.name);
-  }
+
   private static DummyData: IElementData = {
     message: "...",
   };

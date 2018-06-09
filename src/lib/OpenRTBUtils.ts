@@ -3,12 +3,12 @@ import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
 
 export namespace OpenRTBUtils {
-  export async function createImp(name: string, isNative: boolean, assets: number[]) {
+  export async function createImp(name: string, format: string, assets: number[]) {
     const imp = new BidRequest.Imp({
       id: name,
       tagid: name,
-      native: isNative ? await createNative(assets) : void 0,
-      banner: !isNative ? await createBanner() : void 0
+      native: format === "native" ? await createNative(assets) : void 0,
+      banner: format !== "native" ? await createBanner() : void 0
     });
     return imp;
   }

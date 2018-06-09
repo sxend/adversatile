@@ -21,24 +21,20 @@ export class ElementModelConf {
   nameAttributeName: string = "data-adv-em-name";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
-  hasOption(name: string): boolean {
+  hasOption: (name: string) => boolean = (name) => {
     return Object.keys(this.options).indexOf(name) !== -1;
-  }
-  option(name: string): ElementOption {
+  };
+  option: (name: string) => ElementOption = (name) => {
     return deepmerge(new ElementOption(name), this.options[name] || {});
-  }
+  };
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
-  static setPrototype(em: any) {
-    Object.setPrototypeOf(em, ElementModelConf.prototype);
-  }
 }
 export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
   assets: number[] = []; // FIXME use official asset
-  isNative = () => this.format === "native";
 }
 export class ActionConf {
   apiUrl: string = "/* @echo API_URL */";
@@ -66,6 +62,5 @@ export function isConfiguration(obj: any): boolean {
 
 export function asConfituration(obj: any): Configuration {
   const configuration = deepmerge(new Configuration(), obj || {});
-  ElementModelConf.setPrototype(configuration.vm.em);
   return configuration;
 }
