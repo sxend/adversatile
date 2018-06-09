@@ -16,7 +16,7 @@ export class Action {
         Math.random() > 0.5
           ? await this.fetchDataWithJson(req.id)
           : await this.fetchDataWithJsonp(req.id);
-      return ElementData.fromObject({
+      return new ElementData({
         id: req.id,
         ...data.payload
       });
