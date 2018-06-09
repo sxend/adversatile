@@ -1,24 +1,5 @@
 import Configuration, { MacroConf } from "./Configuration";
 
-export interface Macro {
-  applyMacro(element: HTMLElement, data: any): Promise<void>;
-}
-class LinkMacro implements Macro {
-  constructor(private config: MacroConf, private props: {
-    useAssets: (...asset: number[]) => void
-  }) { }
-  applyMacro(element: HTMLElement, data: any): Promise<void> {
-    const selector = this.config.link.selector;
-    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(selector));
-    if (links.length === 0) return Promise.resolve();
-    this.props.useAssets(1);
-    for (let link of links) {
-      if (!data || !data.link || !data.link.url) continue;
-      link.href = data.link.url;
-    }
-    return Promise.resolve();
-  }
-}
 export class MacroOps {
   private macroStack: Macro[];
   constructor(private config: MacroConf, private props: {
@@ -49,4 +30,25 @@ function nano(template: string, data: any) {
     }
     return str;
   });
+}
+
+export interface Macro {
+  applyMacro(element: HTMLElement, data: any): Promise<void>;
+}
+
+class LinkMacro implements Macro {
+  constructor(private config: MacroConf, private props: {
+    useAssets: (...asset: number[]) => void
+  }) { }
+  applyMacro(element: HTMLElement, data: any): Promise<void> {
+    const selector = this.config.link.selector;
+    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(selector));
+    if (links.length === 0) return Promise.resolve();
+    this.props.useAssets(1);
+    for (let link of links) {
+      if (!data || !data.link || !data.link.url) continue;
+      link.href = data.link.url;
+    }
+    return Promise.resolve();
+  }
 }

@@ -58,9 +58,6 @@ export class ViewModel {
         this.action.fetchElementsData(reqs);
       }).catch(console.error);
   }
-  private isNotPrefetch(name: string): boolean {
-    return !this.config.prefetch.find(_ => _.name === name);
-  }
   private createElementModel(element: HTMLElement): Promise<ElementModel> {
     return new Promise(resolve => {
       new ElementModel(element, this.config.em, this.store, {
@@ -68,4 +65,7 @@ export class ViewModel {
       });
     });
   };
+  private isNotPrefetch(name: string): boolean {
+    return !this.config.prefetch.find(_ => _.name === name);
+  }
 }
