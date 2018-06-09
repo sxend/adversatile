@@ -8,7 +8,7 @@
     "build:test": "npm run build && npm test",
     "codeformat": "tsfmt -r",
     "gen:pb:clean": "rm -rf generated-src && mkdir -p generated-src/protobuf",
-    "gen:openrtb": "curl -q https://raw.githubusercontent.com/google/openrtb/master/openrtb-core/src/main/protobuf/openrtb.proto | grep -v com.google.openrtb > ./generated-src/protobuf/openrtb.proto",
+    "gen:openrtb": "curl -q https://raw.githubusercontent.com/google/openrtb/1.5.2/openrtb-core/src/main/protobuf/openrtb.proto | grep -v com.google.openrtb > ./generated-src/protobuf/openrtb.proto",
     "gen:pb:js": "pbjs -t static-module --no-create --no-encode --no-decode --no-verify --no-convert --no-delimited -o generated-src/protobuf/messages.js src/protobuf/*.proto generated-src/protobuf/*.proto",
     "gen:pb:ts": "pbts -o generated-src/protobuf/messages.d.ts generated-src/protobuf/messages.js",
     "gen:pb": "npm run gen:pb:clean && npm run gen:openrtb && npm run gen:pb:js && npm run gen:pb:ts",

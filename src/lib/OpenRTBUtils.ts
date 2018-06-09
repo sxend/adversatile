@@ -2,7 +2,7 @@ import { NativeRequest, BidRequest } from "../../generated-src/protobuf/messages
 import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
 
-export namespace OpenRTBOps {
+export namespace OpenRTBUtils {
   export async function createImp(name: string, isNative: boolean, assets: number[]) {
     const imp = new BidRequest.Imp({
       id: name,

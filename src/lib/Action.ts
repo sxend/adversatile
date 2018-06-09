@@ -26,7 +26,7 @@ export class Action {
     }).catch(console.error);
   }
   private async fetchDataWithJson(req: BidRequest): Promise<BidResponse> {
-    const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath)).json();
+    const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath + `?${reqToParams(req)}`)).json();
     return new BidResponse({
       id: req.id,
       ...result.payload
@@ -34,10 +34,16 @@ export class Action {
   }
   private async fetchDataWithJsonp(req: BidRequest): Promise<BidResponse> {
     const cb = `__adv_cb_${RandomId.gen()}`;
-    const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?callback=${cb}`, cb);
+    const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?${reqToParams(req)}&callback=${cb}`, cb);
     return new BidResponse({
       id: req.id,
       ...result.payload
     });
   }
+}
+
+function reqToParams(req: BidRequest): string {
+  return Object.keys(req).map(key => {
+    return `${key}=${encodeURIComponent(JSON.stringify((<any>req)[key]))}`
+  }).join("&");
 }

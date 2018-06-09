@@ -6,7 +6,7 @@ import { ElementModel } from "./ElementModel";
 import { BidRequest, NativeRequest } from "../../generated-src/protobuf/messages";
 import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
-import { OpenRTBOps } from "./OpenRTBOps";
+import { OpenRTBUtils } from "./OpenRTBUtils";
 
 export class ViewModel {
   constructor(
@@ -77,14 +77,14 @@ export class ViewModel {
   }
   private async createBidReqByEMOptions(emOptions: ElementOption[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(emOptions.map(async option => {
-      return OpenRTBOps.createImp(option.name, option.isNative(), option.assets);
+      return OpenRTBUtils.createImp(option.name, option.isNative(), option.assets);
     }));
-    return OpenRTBOps.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
+    return OpenRTBUtils.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
   }
   private async createBidReqByModels(models: ElementModel[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(models.map(async model => {
-      return OpenRTBOps.createImp(model.name, model.isNative(), model.assets);
+      return OpenRTBUtils.createImp(model.name, model.isNative(), model.assets);
     }));
-    return OpenRTBOps.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
+    return OpenRTBUtils.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
   }
 }
