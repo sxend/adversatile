@@ -18,7 +18,7 @@ export class Store extends EventEmitter {
     this.state[elementData.id] = elementData;
     this.emit(`change:${elementData.id}`, this.state[elementData.id]);
   }
-  getState(id: string): any {
+  getElementData(id: string): IElementData {
     return this.state[id];
   }
 }

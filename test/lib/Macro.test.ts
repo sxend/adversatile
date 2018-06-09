@@ -1,7 +1,7 @@
-import Macro from "../../src/lib/Macro";
+import {MacroOps} from "../../src/lib/MacroOps";
 import Configuration, { MacroConf } from "../../src/lib/Configuration";
 
-test("Macro", done => {
-  const macro = new Macro(new MacroConf());
+test("MacroOps", done => {
+  const macro = new MacroOps(new MacroConf());
   done();
 });

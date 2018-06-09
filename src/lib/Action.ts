@@ -22,7 +22,7 @@ export class Action {
       });
     });
     Promise.all(results).then(_ => _.forEach(data => {
-      this.dispatcher.dispatch({ event: "ElementData", data: data });
+      this.dispatcher.dispatch({ event: "ElementData", data: data })
     })).catch(console.error);
   }
 

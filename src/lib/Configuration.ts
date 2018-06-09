@@ -39,8 +39,10 @@ export class ElementOption {
 export class ActionConf { }
 export class StoreConf { }
 export class MacroConf {
-  appliedMacroAnnotateAttr: string = "data-adv-macro-applied";
-  linkMacroSelector: string = 'a[data-adv-macro-link]';
+  link: LinkMacroConf = new LinkMacroConf();
+}
+export class LinkMacroConf {
+  selector: string = 'a[data-adv-macro-link]';
 }
 export class PollingConf {
   interval: number = 100;

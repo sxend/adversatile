@@ -1,14 +1,14 @@
 import Configuration, { ElementOption, ElementModelConf } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
-import Macro from "./Macro";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
 import { Store } from "./Store";
 import { IElementData } from "../../generated-src/protobuf/messages";
+import { TemplateOps } from "./TemplateOps";
+import { MacroOps } from "./MacroOps";
 
 export class ElementModel extends EventEmitter {
-  private macro: Macro;
-  private templateOps: TemplateOps;
+  private renderer: Renderer;
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
@@ -18,12 +18,11 @@ export class ElementModel extends EventEmitter {
     }
   ) {
     super();
-    this.macro = new Macro(this.config.macro);
-    this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
+    this.renderer = new Renderer(this.config, this, {});
     if (!this.id) {
       element.setAttribute(this.config.idAttributeName, RandomId.gen());
     }
-    this.store.on(`change:${this.id}`, () => this.update(this.store.getState(this.id)));
+    this.store.on(`change:${this.id}`, () => this.update(this.store.getElementData(this.id)));
     if (this.option.preRender) {
       this.update(ElementModel.DummyData).then(_ => {
         this.props.onInit(this);
@@ -38,26 +37,12 @@ export class ElementModel extends EventEmitter {
   get group(): string {
     return this.element.getAttribute(this.config.groupAttributeName);
   }
-  private async update(state: IElementData): Promise<void> {
-    const template = await this.templateOps.resolveTemplate(this.id, this.group);
-    if (template) {
-      this.element.innerHTML = await this.macro.applyTemplate(template, state);
-      await this.macro.applyElement(this.element, state);
-    } else {
-      console.warn("missing template", this.id, this.group, state);
-    }
+  private async update(data: IElementData): Promise<void> {
+    return this.renderer.render(this.element, data);
   }
-  requestData(): { id: string, assets: number[] } {
-    const assets = this.requestAssets();
-    return {
-      id: this.id,
-      assets
-    };
-  }
-  private requestAssets(): number[] {
+  requestAssets(): number[] {
     let assets: number[] = this.option.assets || [];
-    const macros = this.macro.getAppliedMacros(this.element);
-    assets = assets.concat(macros.map(this.macroNameToAssetNo));
+    assets = assets.concat(this.renderer.getAssets());
     return assets;
   }
   private get option(): ElementOption {
@@ -70,28 +55,32 @@ export class ElementModel extends EventEmitter {
   private static DummyData: IElementData = {
     message: "...",
   };
-  private macroNameToAssetNo(name: string): number {
-    if (name === "link") {
-      return 1;
-    }
-    return 0;
-  }
 }
-class TemplateOps {
-  constructor(private templates: { [id: string]: string }, private templateQualifierKey: string) {
+
+class Renderer {
+  private macroOps: MacroOps;
+  private templateOps: TemplateOps;
+  private assets: number[] = [];
+  constructor(private config: ElementModelConf, private model: ElementModel, private props: {}) {
+    this.macroOps = new MacroOps(this.config.macro, {
+      useAssets: (...assets: number[]) => this.addAssets(...assets)
+    });
+    this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
   }
-  async resolveTemplate(...ids: string[]): Promise<string | undefined> {
-    const template = firstDefined([].concat(
-      ids.map(id => this.resolveExternalTemplate(id)),
-      ids.map(id => this.templates[id])
-    ));
-    return template;
+  private addAssets(...assets: number[]): void {
+    this.assets = this.assets.concat(assets).filter((x, i, self) => self.indexOf(x) === i);
   }
-  resolveExternalTemplate(qualifier: string): string | undefined {
-    const query = `[${this.templateQualifierKey}="${qualifier}"]`;
-    const templateEl = document.querySelector(query);
-    if (templateEl) {
-      return templateEl.innerHTML;
+  async render(element: HTMLElement, data: IElementData): Promise<void> {
+    this.assets = [];
+    const template = await this.templateOps.resolveTemplate(this.model.id, this.model.group);
+    if (template) {
+      element.innerHTML = await this.macroOps.applyTemplate(template, data);
+      await this.macroOps.applyElement(element, data);
+    } else {
+      console.warn("missing template", this.model.id, this.model.group, data);
     }
+  }
+  getAssets(): number[] {
+    return this.assets;
   }
 }

@@ -42,7 +42,7 @@ export class ViewModel {
   private initNewElements(elements: HTMLElement[]): void {
     Promise.all(elements.map(el => this.createElementModel(el)))
       .then((models: ElementModel[]) => {
-        const reqs = models.map(model => model.requestData());
+        const reqs = models.map(model => ({ id: model.id, assets: model.requestAssets() }));
         this.action.fetchElementsData(reqs);
       }).catch(console.error);
   }
