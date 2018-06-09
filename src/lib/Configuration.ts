@@ -36,7 +36,11 @@ export class ElementOption {
   preRender: boolean = true;
   assets: number[] = []; // FIXME use official asset
 }
-export class ActionConf { }
+export class ActionConf {
+  apiUrl: string = "/* @echo API_URL */";
+  jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
+  jsonPFetchPath: string = "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
+}
 export class StoreConf { }
 export class MacroConf {
   link: LinkMacroConf = new LinkMacroConf();

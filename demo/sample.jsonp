@@ -1,4 +1,4 @@
-window[new URL(document.currentScript.src).searchParams.get("cb")]({
+window[new URL(document.currentScript.src).searchParams.get("callback")]({
   "metadata": {},
   "payload": {
     "message": "jsonp message",

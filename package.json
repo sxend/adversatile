@@ -28,6 +28,7 @@
     "get-port": "^3.2.0",
     "hoxy": "^3.2.2",
     "jest": "^22.4.4",
+    "preprocess-loader": "^0.2.2",
     "protobufjs": "^6.8.6",
     "puppeteer": "^1.4.0",
     "serve": "^6.5.8",

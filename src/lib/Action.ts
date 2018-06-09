@@ -27,10 +27,10 @@ export class Action {
   }
 
   private async fetchDataWithJson(assets: number[]): Promise<IElementData> {
-    return await (await fetch("/demo/sample.json")).json();
+    return await (await fetch(this.config.apiUrl + this.config.jsonFetchPath)).json();
   }
   private async fetchDataWithJsonp(assets: number[]): Promise<IElementData> {
     const cb = `__adv_cb_${RandomId.gen()}`;
-    return await Jsonp.fetch(`/demo/sample.jsonp?cb=${cb}`, cb);
+    return await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?callback=${cb}`, cb);
   }
 }

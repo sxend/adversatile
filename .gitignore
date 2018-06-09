@@ -4,3 +4,4 @@ target/
 dist/
 npm-debug.log
 generated-src/
+.advrc.json
