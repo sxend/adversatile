@@ -1,9 +1,9 @@
 import { EventEmitter } from "events";
-import { IElementData } from "../../generated-src/protobuf/messages";
+import { IElementData, BidResponse, ElementData } from "../../generated-src/protobuf/messages";
 
 export interface IDispatcher {
-  dispatch(action: { event: "ElementData", data: IElementData }): void;
-  onDispatch(event: "ElementData", callback: (data: IElementData) => void): void;
+  dispatch(action: { event: "FetchData", data: ElementData }): void;
+  onDispatch(event: "FetchData", callback: (data: ElementData) => void): void;
 }
 export class Dispatcher extends EventEmitter implements IDispatcher {
   dispatch(action: { event: string, data: any }): void {

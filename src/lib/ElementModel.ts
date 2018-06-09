@@ -3,9 +3,10 @@ import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
 import { Store } from "./Store";
-import { IElementData } from "../../generated-src/protobuf/messages";
+import { IElementData, BidRequest, NativeRequest } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps } from "./MacroOps";
+import { Dom } from "./misc/Dom";
 
 export class ElementModel {
   private renderer: Renderer;
@@ -30,6 +31,14 @@ export class ElementModel {
   get name(): string {
     return this.element.getAttribute(this.config.nameAttributeName);
   }
+  isNative(): boolean {
+    return this.option.isNative();
+  }
+  requireAssets(): number[] {
+    let assets: number[] = this.option.assets || [];
+    assets = assets.concat(this.renderer.getAssets());
+    return assets;
+  }
   private async updateWithStore(qualifier: string) {
     if (this.store.hasElementData(qualifier)) {
       return this.update(this.store.consumeElementData(qualifier));
@@ -37,11 +46,6 @@ export class ElementModel {
   }
   private async update(data: IElementData): Promise<void> {
     return this.renderer.render(this.element, data);
-  }
-  requireAssets(): number[] {
-    let assets: number[] = this.option.assets || [];
-    assets = assets.concat(this.renderer.getAssets());
-    return assets;
   }
   private get option(): ElementOption {
     return this.config.option(this.name);

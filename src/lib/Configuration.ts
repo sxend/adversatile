@@ -12,6 +12,7 @@ export default class Configuration {
 export class ViewModelConf {
   selector: string = ".adversatile";
   markedClass: string = "adv-marked";
+  deviceIfaAttrName: string = "data-adv-device-ifa";
   polling: PollingConf = new PollingConf();
   em: ElementModelConf = new ElementModelConf();
   prefetch: PrefetchConf[] = [];
@@ -24,7 +25,7 @@ export class ElementModelConf {
     return Object.keys(this.options).indexOf(name) !== -1;
   }
   option(name: string): ElementOption {
-    return deepmerge(new ElementOption(), this.options[name] || {});
+    return deepmerge(new ElementOption(name), this.options[name] || {});
   }
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
@@ -33,8 +34,11 @@ export class ElementModelConf {
   }
 }
 export class ElementOption {
+  constructor(public name: string) { }
   preRender: boolean = true;
+  format: string = "native";
   assets: number[] = []; // FIXME use official asset
+  isNative = () => this.format === "native";
 }
 export class ActionConf {
   apiUrl: string = "/* @echo API_URL */";

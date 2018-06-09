@@ -1,7 +1,7 @@
 import Configuration, { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { IElementData } from "../../generated-src/protobuf/messages";
+import { IElementData, BidResponse, ElementData } from "../../generated-src/protobuf/messages";
 
 export class Store extends EventEmitter {
   private state: any = {};
@@ -10,13 +10,13 @@ export class Store extends EventEmitter {
     private dispatcher: IDispatcher
   ) {
     super();
-    this.dispatcher.onDispatch("ElementData", (data: IElementData) => {
+    this.dispatcher.onDispatch("FetchData", (data: ElementData) => {
       this.onElementData(data);
     });
   }
-  private onElementData(elementData: IElementData) {
-    (this.state[elementData.name] = this.state[elementData.name] || []).push(elementData);
-    this.emit(`change:${elementData.name}`);
+  private onElementData(data: ElementData) {
+    (this.state[data.name] = this.state[data.name] || []).push(data);
+    this.emit(`change:${data.name}`);
   }
   hasElementData(name: string): boolean {
     return !!this.state[name] && this.state[name].length > 0;

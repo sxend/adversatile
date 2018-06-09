@@ -3,34 +3,41 @@ import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { ElementData, IElementData } from "../../generated-src/protobuf/messages";
+import { ElementData, IElementData, BidRequest, BidResponse } from "../../generated-src/protobuf/messages";
 
 export class Action {
   constructor(
     private config: ActionConf,
     private dispatcher: IDispatcher
   ) { }
-  fetchElementsData(reqs: { name: string, assets: number[] }[]): void {
-    const results: Promise<IElementData>[] = reqs.map(async req => {
-      const data: any =
-        Math.random() > 0.5
-          ? await this.fetchDataWithJson(req.assets)
-          : await this.fetchDataWithJsonp(req.assets);
-      return new ElementData({
-        name: req.name,
-        ...data.payload
+  fetchData(req: BidRequest): void {
+    const result = Math.random() > 0.5
+      ? this.fetchDataWithJson(req)
+      : this.fetchDataWithJsonp(req);
+    result.then(res => {
+      req.imp.forEach(imp => {
+        const data = new ElementData({
+          name: imp.id,
+          ...(<any> res)
+        });
+        this.dispatcher.dispatch({ event: "FetchData", data: data});
       });
+      return Promise.resolve();
+    }).catch(console.error);
+  }
+  private async fetchDataWithJson(req: BidRequest): Promise<BidResponse> {
+    const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath)).json();
+    return new BidResponse({
+      id: req.id,
+      ...result
     });
-    Promise.all(results).then(_ => _.forEach(data => {
-      this.dispatcher.dispatch({ event: "ElementData", data: data })
-    })).catch(console.error);
   }
-
-  private async fetchDataWithJson(assets: number[]): Promise<IElementData> {
-    return await (await fetch(this.config.apiUrl + this.config.jsonFetchPath)).json();
-  }
-  private async fetchDataWithJsonp(assets: number[]): Promise<IElementData> {
+  private async fetchDataWithJsonp(req: BidRequest): Promise<BidResponse> {
     const cb = `__adv_cb_${RandomId.gen()}`;
-    return await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?callback=${cb}`, cb);
+    const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?callback=${cb}`, cb);
+    return new BidResponse({
+      id: req.id,
+      ...result
+    });
   }
 }
