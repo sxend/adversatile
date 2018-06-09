@@ -3,10 +3,10 @@ import { RandomId } from "./misc/RandomId";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
-import { BidRequest, NativeRequest } from "../../generated-src/protobuf/messages";
 import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
-import { OpenRTBUtils } from "./OpenRTBUtils";
+import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
+import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class ViewModel {
   constructor(
@@ -75,14 +75,14 @@ export class ViewModel {
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);
   }
-  private async createBidReqFromElementOptions(emOptions: ElementOption[]): Promise<BidRequest> {
-    const imp: BidRequest.IImp[] = await Promise.all(emOptions.map(async option => {
+  private async createBidReqFromElementOptions(emOptions: ElementOption[]): Promise<OpenRTB.BidRequest> {
+    const imp: OpenRTB.Imp[] = await Promise.all(emOptions.map(async option => {
       return OpenRTBUtils.createImp(option.name, option.format, option.assets);
     }));
     return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);
   }
-  private async createBidReqFromModels(models: ElementModel[]): Promise<BidRequest> {
-    const imp: BidRequest.IImp[] = await Promise.all(models.map(async model => {
+  private async createBidReqFromModels(models: ElementModel[]): Promise<OpenRTB.BidRequest> {
+    const imp: OpenRTB.Imp[] = await Promise.all(models.map(async model => {
       return OpenRTBUtils.createImp(model.name, model.option.format, model.assets);
     }));
     return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);

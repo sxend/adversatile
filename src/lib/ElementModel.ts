@@ -3,7 +3,7 @@ import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { firstDefined } from "./misc/ObjectUtils";
 import { Store } from "./Store";
-import { IElementData, BidRequest, NativeRequest } from "../../generated-src/protobuf/messages";
+import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
