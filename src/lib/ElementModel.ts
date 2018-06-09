@@ -34,7 +34,7 @@ export class ElementModel {
   isNative(): boolean {
     return this.option.isNative();
   }
-  requireAssets(): number[] {
+  get assets(): number[] {
     let assets: number[] = this.option.assets || [];
     assets = assets.concat(this.renderer.getAssets());
     return assets;

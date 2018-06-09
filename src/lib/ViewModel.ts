@@ -6,6 +6,7 @@ import { ElementModel } from "./ElementModel";
 import { BidRequest, NativeRequest } from "../../generated-src/protobuf/messages";
 import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
+import { OpenRTBOps } from "./OpenRTBOps";
 
 export class ViewModel {
   constructor(
@@ -22,7 +23,6 @@ export class ViewModel {
       const option = this.config.em.option(target.name);
       if (option.assets.length > 0) {
         const options = Array(target.size).fill(option);
-        this.createBidReqByEMOptions(options);
         this.createBidReqByEMOptions(options).then(req => {
           this.action.fetchData(req);
         }).catch(console.error);
@@ -77,75 +77,14 @@ export class ViewModel {
   }
   private async createBidReqByEMOptions(emOptions: ElementOption[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(emOptions.map(async option => {
-      return this.createImp(option.name, option.isNative(), option.assets);
+      return OpenRTBOps.createImp(option.name, option.isNative(), option.assets);
     }));
-    return this.createBidReqWithImp(imp);
+    return OpenRTBOps.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
   }
   private async createBidReqByModels(models: ElementModel[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(models.map(async model => {
-      return this.createImp(model.name, model.isNative(), model.requireAssets());
+      return OpenRTBOps.createImp(model.name, model.isNative(), model.assets);
     }));
-    return this.createBidReqWithImp(imp);
-  }
-  private async createImp(name: string, isNative: boolean, assets: number[]) {
-    const imp = new BidRequest.Imp({
-      id: name,
-      tagid: name,
-      native: isNative ? await this.createNative(assets) : void 0,
-      banner: !isNative ? await this.createBanner() : void 0
-    });
-    return imp;
-  }
-  private async createBidReqWithImp(imp: BidRequest.IImp[]): Promise<BidRequest> {
-    const wdw = await Dom.TopLevelWindow;
-    const siteLocation = wdw.location;
-    const siteDocument = wdw.document;
-    const site = new BidRequest.Site({
-      page: siteLocation.href,
-      domain: siteLocation.hostname,
-      ref: !!siteDocument ? siteDocument.referrer : void 0
-    });
-    const device = new BidRequest.Device({
-      ifa: this.getIfa()
-    });
-    const app = new BidRequest.App({
-    });
-    const req = new BidRequest({
-      id: "1",
-      imp,
-      site,
-      device,
-      app
-    });
-    return req;
-  }
-  async createNative(assets: number[]): Promise<BidRequest.Imp.INative> {
-    return new BidRequest.Imp.Native({
-      requestNative: new NativeRequest({
-        ver: "1",
-        assets: assets.map(this.assetIdToObject)
-      })
-    });
-  }
-  async createBanner(): Promise<BidRequest.Imp.IBanner> {
-    return new BidRequest.Imp.Banner({
-      topframe: (await Dom.TopLevelWindow) === window
-    });
-  }
-  private assetIdToObject(num: number): NativeRequest.Asset {
-    return new NativeRequest.Asset({
-      id: num
-    });
-  }
-  private getIfa() {
-    const element = document.querySelector(
-      `[${this.config.deviceIfaAttrName}]`
-    );
-    if (element && element.getAttribute(this.config.deviceIfaAttrName)) {
-      return element.getAttribute(this.config.deviceIfaAttrName);
-    }
-    if (Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
-      return Adversatile.plugin.bridge.ifa;
-    }
+    return OpenRTBOps.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
   }
 }

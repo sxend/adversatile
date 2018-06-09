@@ -18,9 +18,9 @@ export class Action {
       req.imp.forEach(imp => {
         const data = new ElementData({
           name: imp.id,
-          ...(<any> res)
+          ...(<any>res)
         });
-        this.dispatcher.dispatch({ event: "FetchData", data: data});
+        this.dispatcher.dispatch({ event: "FetchData", data: data });
       });
       return Promise.resolve();
     }).catch(console.error);
@@ -29,7 +29,7 @@ export class Action {
     const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath)).json();
     return new BidResponse({
       id: req.id,
-      ...result
+      ...result.payload
     });
   }
   private async fetchDataWithJsonp(req: BidRequest): Promise<BidResponse> {
@@ -37,7 +37,7 @@ export class Action {
     const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?callback=${cb}`, cb);
     return new BidResponse({
       id: req.id,
-      ...result
+      ...result.payload
     });
   }
 }
