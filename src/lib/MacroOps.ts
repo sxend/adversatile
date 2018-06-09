@@ -1,21 +1,22 @@
 import Configuration, { MacroConf } from "./Configuration";
 
 export class MacroOps {
-  private macroStack: Macro[];
   constructor(private config: MacroConf, private props: {
     useAssets: (...asset: number[]) => void
   }) {
-    this.macroStack = [
-      new LinkMacro(config, { useAssets: this.props.useAssets })
-    ];
   }
   async applyTemplate(template: string, data: any): Promise<string> {
     return nano(template, data);
   }
   async applyElement(element: HTMLElement, data: any): Promise<void> {
-    for (let macro of this.macroStack) {
+    for (let macro of this.macroStack(data)) {
       await macro.applyMacro(element, data);
     }
+  }
+  private macroStack(data: any): Macro[] {
+    return [
+      new LinkMacro(this.config, { useAssets: this.props.useAssets })
+    ];
   }
 }
 
