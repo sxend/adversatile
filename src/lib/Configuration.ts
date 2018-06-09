@@ -21,10 +21,10 @@ export class ElementModelConf {
   nameAttributeName: string = "data-adv-em-name";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
-  hasOption: (name: string) => boolean = function (name) {
+  hasOption: (name: string) => boolean = function(name) {
     return Object.keys(this.options).indexOf(name) !== -1;
   };
-  option: (name: string) => ElementOption = function (name) {
+  option: (name: string) => ElementOption = function(name) {
     return deepmerge(new ElementOption(name), this.options[name] || {});
   };
   templates: { [name: string]: string } = {};

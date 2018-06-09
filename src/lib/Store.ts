@@ -1,7 +1,7 @@
 import Configuration, { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { IElementData, BidResponse, ElementData } from "../../generated-src/protobuf/messages";
+import { IElementData, ElementData } from "../../generated-src/protobuf/messages";
 
 export class Store extends EventEmitter {
   private state: any = {};
@@ -15,13 +15,13 @@ export class Store extends EventEmitter {
     });
   }
   private onElementData(data: ElementData) {
-    (this.state[data.name] = this.state[data.name] || []).push(data);
-    this.emit(`change:${data.name}`);
+    (this.state[data.id] = this.state[data.id] || []).push(data);
+    this.emit(`change:${data.id}`);
   }
-  hasElementData(name: string): boolean {
-    return !!this.state[name] && this.state[name].length > 0;
+  hasElementData(id: string): boolean {
+    return !!this.state[id] && this.state[id].length > 0;
   }
-  consumeElementData(name: string): IElementData {
-    return (this.state[name] || []).shift();
+  consumeElementData(id: string): IElementData {
+    return (this.state[id] || []).shift();
   }
 }

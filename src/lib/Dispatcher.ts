@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { IElementData, BidResponse, ElementData } from "../../generated-src/protobuf/messages";
+import { ElementData } from "../../generated-src/protobuf/messages";
 
 export interface IDispatcher {
   dispatch(action: { event: "FetchData", data: ElementData }): void;

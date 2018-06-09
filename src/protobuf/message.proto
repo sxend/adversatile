@@ -2,11 +2,8 @@ syntax = "proto3";
 import "../../generated-src/protobuf/openrtb.proto";
 
 message ElementData {
-    string name = 1;
+    string id = 1;
     string message = 2;
     Link link = 3;
     BidResponse bidres = 4;
-}
-message Link {
-    string url = 1;
 }

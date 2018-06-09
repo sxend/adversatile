@@ -79,12 +79,12 @@ export class ViewModel {
     const imp: BidRequest.IImp[] = await Promise.all(emOptions.map(async option => {
       return OpenRTBUtils.createImp(option.name, option.format, option.assets);
     }));
-    return OpenRTBUtils.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
+    return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);
   }
   private async createBidReqFromModels(models: ElementModel[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(models.map(async model => {
       return OpenRTBUtils.createImp(model.name, model.option.format, model.assets);
     }));
-    return OpenRTBUtils.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
+    return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);
   }
 }

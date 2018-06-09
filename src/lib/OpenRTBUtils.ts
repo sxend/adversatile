@@ -3,16 +3,16 @@ import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
 
 export namespace OpenRTBUtils {
-  export async function createImp(name: string, format: string, assets: number[]) {
+  export async function createImp(id: string, format: string, assets: number[]) {
     const imp = new BidRequest.Imp({
-      id: name,
-      tagid: name,
+      id: id,
+      tagid: id,
       native: format === "native" ? await createNative(assets) : void 0,
       banner: format !== "native" ? await createBanner() : void 0
     });
     return imp;
   }
-  export async function createBidReqWithImp(imp: BidRequest.IImp[], ifaAttrName?: string): Promise<BidRequest> {
+  export async function createBidReqWithImp(imp: BidRequest.IImp[], ext: any, ifaAttrName?: string): Promise<BidRequest> {
     const wdw = await Dom.TopLevelWindow;
     const siteLocation = wdw.location;
     const siteDocument = wdw.document;
@@ -31,7 +31,8 @@ export namespace OpenRTBUtils {
       imp,
       site,
       device,
-      app
+      app,
+      ...<any>{ ext: ext }
     });
     return req;
   }

@@ -17,7 +17,7 @@ export class Action {
     result.then(res => {
       req.imp.forEach(imp => {
         const data = new ElementData({
-          name: imp.id,
+          id: imp.id,
           ...(<any>res)
         });
         this.dispatcher.dispatch({ event: "FetchData", data: data });
@@ -27,18 +27,12 @@ export class Action {
   }
   private async fetchDataWithJson(req: BidRequest): Promise<BidResponse> {
     const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath + `?${reqToParams(req)}`)).json();
-    return new BidResponse({
-      id: req.id,
-      ...result.payload
-    });
+    return new BidResponse(result.payload);
   }
   private async fetchDataWithJsonp(req: BidRequest): Promise<BidResponse> {
     const cb = `__adv_cb_${RandomId.gen()}`;
     const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?${reqToParams(req)}&callback=${cb}`, cb);
-    return new BidResponse({
-      id: req.id,
-      ...result.payload
-    });
+    return new BidResponse(result.payload);
   }
 }
 
