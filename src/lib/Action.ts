@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { ElementData, IElementData } from "../../generated-src/protobuf/messages";
+import { ElementData } from "../../generated-src/protobuf/messages";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Action {
@@ -26,12 +26,16 @@ export class Action {
   }
   private async fetchDataWithJson(req: OpenRTB.BidRequest): Promise<OpenRTB.BidResponse> {
     const result = await (await fetch(this.config.apiUrl + this.config.jsonFetchPath + `?${reqToParams(req)}`)).json();
-    return new OpenRTB.BidResponse(result.payload);
+    const res = new OpenRTB.BidResponse();
+    res.seatbid = result.payload;
+    return res;
   }
   private async fetchDataWithJsonp(req: OpenRTB.BidRequest): Promise<OpenRTB.BidResponse> {
     const cb = `__adv_cb_${RandomId.gen()}`;
     const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?${reqToParams(req)}&callback=${cb}`, cb);
-    return new OpenRTB.BidResponse(result.payload);
+    const res = new OpenRTB.BidResponse();
+    res.seatbid = result.payload;
+    return res;
   }
 }
 

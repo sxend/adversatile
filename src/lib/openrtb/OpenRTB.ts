@@ -1,41 +1,31 @@
 export namespace OpenRTB {
   export class Banner {
-    constructor(
-      public id?: string,
-      public w?: number,
-      public h?: number,
-      public pos?: number,
-      public topframe?: number
-    ) { }
+    id?: string;
+    w?: number;
+    h?: number;
+    pos?: number;
+    topframe?: number;
   }
 
   export class Native {
-    constructor(
-      public ver: string = "1",
-      public api: string[] = [],
-      public battr: string[] = [],
-      public request?: NativeAd.AdRequest
-    ) { }
+    ver: string = "1";
+    api: string[] = [];
+    battr: string[] = [];
+    request?: NativeAd.AdRequest;
   }
-  export class App {
-    constructor() { }
-  }
+  export class App { }
   export class Imp {
-    constructor(
-      public id?: string,
-      public tagid?: string,
-      public banner?: Banner,
-      public _native?: Native,
-      public iframebuster: string[] = [],
-      public ext?: Ext.ImpressionExt
-    ) { }
+    id?: string;
+    tagid?: string;
+    banner?: Banner;
+    _native?: Native;
+    iframebuster: string[] = [];
+    ext?: Ext.ImpressionExt;
   }
   export class Site {
-    constructor(
-      public page?: string,
-      public domain?: string,
-      public ref?: string
-    ) { }
+    page?: string;
+    domain?: string;
+    ref?: string;
   }
   export class BidRequest {
     id: string = "1";
@@ -44,75 +34,59 @@ export namespace OpenRTB {
     device?: Device;
     app?: App;
     ext?: ReqExt;
-    constructor() {
-    }
   }
-  export class ReqExt {
-
-  }
+  export class ReqExt { }
 
   export class Device {
-    constructor(
-      public dnt?: number,
-      public hwv?: string,
-      public carrier?: string,
-      public ifa?: string,
-      public uuid?: string
-    ) { }
+    dnt?: number;
+    hwv?: string;
+    carrier?: string;
+    ifa?: string;
+    uuid?: string;
   }
 
   export class Bid {
-    constructor(
-      public price?: number,
-      public impid?: string,
-      public id?: string,
-      public adomain: string[] = [],
-      public attr: number[] = [],
-      public ext?: Ext.Adhoc.BidExt,
-      public adm?: string,
-      public w?: number,
-      public h?: number
-    ) { }
+    price?: number;
+    impid?: string;
+    id?: string;
+    adomain: string[] = [];
+    attr: number[] = [];
+    ext?: Ext.Adhoc.BidExt;
+    adm?: string;
+    w?: number;
+    h?: number;
   }
   export class SeatBid {
-    constructor(
-      public bid: Bid[] = [],
-      public seat?: string,
-      public group: number = 0,
-      public ext?: Ext.Adhoc.SeatBidExt
-    ) { }
+    bid: Bid[] = [];
+    seat?: string;
+    group: number = 0;
+    ext?: Ext.Adhoc.SeatBidExt;
   }
   export class BidResponse {
-    constructor(public seatbid: SeatBid[] = []) { }
+    seatbid: SeatBid[] = [];
   }
   export namespace NativeAd {
     export class AdRequest {
-      constructor(
-        public ver: string = "1",
-        public plcmtcnt?: number,
-        public assets: Request.Assets[] = []
-      ) { }
+      ver: string = "1";
+      plcmtcnt?: number;
+      assets: Request.Assets[] = [];
     }
     export class AdResponse {
-      constructor(
-        public ver: number = 1,
-        public assets: Response.Assets[] = []
-      ) { }
+      ver: number = 1;
+      assets: Response.Assets[] = [];
     }
 
     export namespace Request {
       export class Assets {
-        constructor(
-          public id: number = 1,
-          public req: boolean = false,
-          public img?: Img,
-          public title?: Title,
-          public data?: Data
-        ) { }
+        id: number = 1;
+        req: boolean = false;
+        img?: Img;
+        title?: Title;
+        data?: Data;
       }
 
       export class Title {
-        constructor(public len: number = 0) { } //debug
+        len: number = 0;
       }
 
       export enum ImgTypes {
@@ -122,13 +96,11 @@ export namespace OpenRTB {
       }
 
       export class Img {
-        constructor(
-          public type?: number,
-          public w?: number,
-          public h?: number,
-          public wmin?: number,
-          public hmin?: number
-        ) { }
+        type?: number;
+        w?: number;
+        h?: number;
+        wmin?: number;
+        hmin?: number;
       }
 
       export enum DataTypes {
@@ -137,165 +109,138 @@ export namespace OpenRTB {
       }
 
       export class Data {
-        constructor(public type?: number, public len?: number) { }
+        type?: number;
+        len?: number;
       }
     }
 
     export namespace Response {
       export class Assets {
-        constructor(
-          public id: number = 1,
-          public req: boolean = false,
-          public img?: Img,
-          public link?: Link,
-          public title?: Title,
-          public data?: Data,
-          public video?: Video
-        ) { }
+        id: number = 1;
+        req: boolean = false;
+        img?: Img;
+        link?: Link;
+        title?: Title;
+        data?: Data;
+        video?: Video;
       }
       export class Native {
-        constructor(
-          public assets: Assets[] = [],
-          public link?: Link,
-          public imptracker?: string[],
-          public jstracker?: string,
-          public ext?: NativeExt
-        ) { }
+        assets: Assets[] = [];
+        link?: Link;
+        imptracker?: string[];
+        jstracker?: string;
+        ext?: NativeExt;
       }
       export class NativeExt {
-        constructor(
-          public html: string,
-          public plcmtcnt: number,
-          public adPositions: number[],
-          public interval: number,
-          public viewableImptrackers: string[]
-        ) { }
+        html: string;
+        plcmtcnt: number;
+        adPositions: number[];
+        interval: number;
+        viewableImptrackers: string[];
       }
       export class Link {
-        constructor(
-          public url?: string,
-          public clktrck: string[] = [],
-          public ext?: Ext.Adhoc.LinkExt
-        ) { }
+        url?: string;
+        clktrck: string[] = [];
+        ext?: Ext.Adhoc.LinkExt;
       }
       export class Title {
-        constructor(public text?: string) { }
+        text?: string;
       }
       export class Img {
-        constructor(public url?: string) { }
+        url?: string;
       }
       export class Data {
-        constructor(public value?: string) { }
+        value?: string;
       }
       export class Video {
-        constructor(public vasttag?: string) { }
+        vasttag?: string;
       }
     }
   }
   namespace Ext {
     export class ImpressionExt {
-      constructor(
-        public excludedBidders: string[] = [],
-        public txid0: string = "",
-        public notrim: boolean = false
-      ) { }
+      excludedBidders: string[] = [];
+      txid0: string = "";
+      notrim: boolean = false;
     }
     export namespace Adhoc {
       export class Img {
-        constructor(public url?: string) { }
+        url?: string;
       }
       export class Assets {
-        constructor(
-          public id?: number,
-          public req: boolean = false,
-          public img?: Img
-        ) { }
+        id?: number;
+        req: boolean = false;
+        img?: Img;
       }
       export class LinkExt {
-        constructor(public urlEncoded?: string) { }
+        urlEncoded?: string;
       }
       export class BidExt {
-        constructor(
-          public tagid: string,
-          public admNative?: NativeAd.Response.Native,
-          public filler?: string,
-          public bidderName?: string,
-          public iMobileExtras?: IMobileExtras,
-          public yahooAppExtras?: YahooAppExtras,
-          public ydnExtras?: YdnExtras,
-          public adcalltracker?: string,
-          public txid0?: string,
-          public imptrackers?: string[],
-          public viewableImptrackers?: string[],
-          public clickThroughUrl?: string,
-          public viewThroughUrls?: string[],
-          public bannerHtml?: string,
-          public appId?: string
-        ) { }
+        tagid: string;
+        admNative?: NativeAd.Response.Native;
+        filler?: string;
+        bidderName?: string;
+        iMobileExtras?: IMobileExtras;
+        yahooAppExtras?: YahooAppExtras;
+        ydnExtras?: YdnExtras;
+        adcalltracker?: string;
+        txid0?: string;
+        imptrackers?: string[];
+        viewableImptrackers?: string[];
+        clickThroughUrl?: string;
+        viewThroughUrls?: string[];
+        bannerHtml?: string;
+        appId?: string;
       }
       export class AmoadExtras {
-        constructor(
-          public rawContent?: string,
-          public creativeTypeId?: number,
-          public type?: string
-        ) { }
+        rawContent?: string;
+        creativeTypeId?: number;
+        type?: string;
       }
       export class TagOverride {
-        constructor(
-          public tagid: string,
-          public plcmtcnt?: number,
-          public filler?: string,
-          public position?: number[]
-        ) { }
+        tagid: string;
+        plcmtcnt?: number;
+        filler?: string;
+        position?: number[];
       }
       export class PagePattern {
-        constructor(
-          public id: number,
-          public displayRatio?: number,
-          public tagOverrides?: TagOverride[]
-        ) { }
+        id: number;
+        displayRatio?: number;
+        tagOverrides?: TagOverride[];
       }
       export class SeatBidExt {
-        constructor(
-          public amoadExtras?: AmoadExtras,
-          public noAdMessage?: string,
-          public pattern?: string,
-          public bidsShufflingEnabled?: boolean,
-          public pagePatterns?: PagePattern[],
-          public pvId?: string
-        ) { }
+        amoadExtras?: AmoadExtras;
+        noAdMessage?: string;
+        pattern?: string;
+        bidsShufflingEnabled?: boolean;
+        pagePatterns?: PagePattern[];
+        pvId?: string;
       }
       export class IMobileExtras {
-        constructor(
-          public adCallUrl: string,
-          public clickUrl: string,
-          public imageUrl: string,
-          public pid: number,
-          public asid: number,
-          public asn: number,
-          public infeedNum: number,
-          public ver: string,
-          public dpr: number
-        ) { }
+        adCallUrl: string;
+        clickUrl: string;
+        imageUrl: string;
+        pid: number;
+        asid: number;
+        asn: number;
+        infeedNum: number;
+        ver: string;
+        dpr: number;
       }
       export class YahooAppExtras {
-        constructor(
-          public adCallUrl: string,
-          public s: string // s = yahoo tag id
-        ) { }
+        adCallUrl: string;
+        s: string; // s = yahoo tag id
       }
       export class YdnExtras {
-        constructor(
-          public adCallUrl: string,
-          public type: string,
-          public adformat: string,
-          public callback: string,
-          public ctxtUrl: string,
-          public maxCount: string,
-          public outputCharEnc: string,
-          public ref: string,
-          public source: string // source = yahoo tag id
-        ) { }
+        adCallUrl: string;
+        type: string;
+        adformat: string;
+        callback: string;
+        ctxtUrl: string;
+        maxCount: string;
+        outputCharEnc: string;
+        ref: string;
+        source: string; // source = yahoo tag id
       }
     }
   }
