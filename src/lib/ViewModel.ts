@@ -23,7 +23,7 @@ export class ViewModel {
       const option = this.config.em.option(target.name);
       if (option.assets.length > 0) {
         const options = Array(target.size).fill(option);
-        this.createBidReqByEMOptions(options).then(req => {
+        this.createBidReqFromElementOptions(options).then(req => {
           this.action.fetchData(req);
         }).catch(console.error);
       }
@@ -59,7 +59,7 @@ export class ViewModel {
   private initNewElements(elements: HTMLElement[]): void {
     Promise.all(elements.map(el => this.createElementModel(el)))
       .then((models: ElementModel[]) => {
-        this.createBidReqByModels(models.filter(_ => this.isNotPrefetch(_.name))).then(
+        this.createBidReqFromModels(models.filter(_ => this.isNotPrefetch(_.name))).then(
           req => this.action.fetchData(req)
         );
       })
@@ -75,13 +75,13 @@ export class ViewModel {
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);
   }
-  private async createBidReqByEMOptions(emOptions: ElementOption[]): Promise<BidRequest> {
+  private async createBidReqFromElementOptions(emOptions: ElementOption[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(emOptions.map(async option => {
       return OpenRTBUtils.createImp(option.name, option.format, option.assets);
     }));
     return OpenRTBUtils.createBidReqWithImp(imp, this.config.deviceIfaAttrName);
   }
-  private async createBidReqByModels(models: ElementModel[]): Promise<BidRequest> {
+  private async createBidReqFromModels(models: ElementModel[]): Promise<BidRequest> {
     const imp: BidRequest.IImp[] = await Promise.all(models.map(async model => {
       return OpenRTBUtils.createImp(model.name, model.option.format, model.assets);
     }));

@@ -63,7 +63,7 @@ export namespace OpenRTBUtils {
       }
     }
     if (Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
-      return Adversatile.plugin.bridge.ifa;
+      return Adversatile.plugin.bridge.ifa; // use bridge plugin
     }
   }
 }

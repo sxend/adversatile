@@ -28,6 +28,12 @@
   <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
   <script>
     function __advr_main() {
+      Adversatile.use({
+        install: function(adv) {
+          adv.plugin.bridge = adv.plugin.bridge || {};
+          adv.plugin.bridge.ifa = "ifa";
+        }
+      });
       Adversatile.main({
         version: 1,
         vm: {
