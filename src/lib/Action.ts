@@ -11,9 +11,7 @@ export class Action {
     private dispatcher: IDispatcher
   ) { }
   fetchData(req: BidRequest): void {
-    const result = Math.random() > 0.5
-      ? this.fetchDataWithJson(req)
-      : this.fetchDataWithJsonp(req);
+    const result = this.fetchDataWithJsonp(req);
     result.then(res => {
       req.imp.forEach(imp => {
         const data = new ElementData({
