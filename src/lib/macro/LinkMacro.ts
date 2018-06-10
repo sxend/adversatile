@@ -12,6 +12,9 @@ export class LinkMacro implements Macro {
       onAdClick?: (url: string, appId?: string) => void;
     }
   ) { }
+  getName(): string {
+    return "LinkMacro";
+  }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
     if (!data || !data.link || !data.link.url) return;
     const selector = this.selector();

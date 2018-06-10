@@ -7,6 +7,7 @@ import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
+import { Tracking } from "./misc/Tracking";
 
 export class ElementModel {
   private renderer: Renderer;
@@ -19,7 +20,9 @@ export class ElementModel {
       onInit: (self: ElementModel) => void
     }
   ) {
-    this.renderer = new Renderer(this.config, this, {});
+    this.renderer = new Renderer(this.config, this, {
+      trackingCall: Tracking.trackingCall
+    });
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
@@ -51,7 +54,6 @@ export class ElementModel {
   private async update(data: IElementData): Promise<void> {
     return this.renderer.render(this.element, data, {});
   }
-
   private static DummyData: IElementData = {
     message: "...",
   };
@@ -61,9 +63,12 @@ class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
   private assets: AssetOption[] = [];
-  constructor(private config: ElementModelConf, private model: ElementModel, private props: {}) {
+  constructor(private config: ElementModelConf, private model: ElementModel, private props: {
+    trackingCall: (urls: string[], trackingName: string) => Promise<void>
+  }) {
     this.macroOps = new MacroOps(this.config.macro, {
-      addAssetOptions: (...assets: AssetOption[]) => this.addAssetOptions(...assets)
+      addAssetOptions: (...assets: AssetOption[]) => this.addAssetOptions(...assets),
+      trackingCall: (urls: string[], trackingName: string) => this.props.trackingCall(urls, trackingName)
     });
     this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
   }

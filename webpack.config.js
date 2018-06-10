@@ -26,7 +26,8 @@ module.exports = {
               let context = {
                 API_URL: "",
                 JSON_FETCH_PATH: "",
-                JSONP_FETCH_PATH: ""
+                JSONP_FETCH_PATH: "",
+                VIDEO_PLAYER_SCRIPT_URI: ""
               };
               try {
                 context = deepmerge(context, require("./.advrc.json"));

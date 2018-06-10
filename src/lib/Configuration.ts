@@ -15,7 +15,7 @@ export class ActionConf {
     "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
 }
 
-export class StoreConf {}
+export class StoreConf { }
 
 export class ViewModelConf {
   selector: string = ".adversatile";
@@ -50,7 +50,7 @@ export class ElementModelConf {
 }
 
 export class ElementOption {
-  constructor(public name: string) {}
+  constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
   assets: AssetOption[] = []; // FIXME use official asset
@@ -59,14 +59,18 @@ export class ElementOption {
 }
 
 export class AssetOption {
-  constructor(public id: number, public name?: string, public prop: any = {}) {}
+  constructor(public id: number, public name?: string, public prop: any = {}) { }
 }
 
 export class MacroConf {
+  video: VideoMacroConf = new VideoMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
-
+export class VideoMacroConf {
+  selectorAttrName: string = "data-adv-macro-video";
+  videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URI */" || "";
+}
 export class LinkMacroConf {
   selectorAttrName: string = "data-adv-macro-link";
   markedClass: string = "adv-link-added";

@@ -4,14 +4,17 @@ import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
-export class LinkMacro implements Macro {
+export class LinkJsMacro implements Macro {
   constructor(
     private config: MacroConf,
     private props: {
       addAssetOptions: (...asset: AssetOption[]) => void;
       trackingCall: (urls: string[], trackingName: string) => Promise<void>;
     }
-  ) {}
+  ) { }
+  getName(): string {
+    return "LinkJsMacro";
+  }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
     if (!data || !data.link || !data.link.url || !data.link.clktrck) return;
     const selector = this.selector();
