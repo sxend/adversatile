@@ -1,9 +1,9 @@
-import Configuration, { MacroConf } from "./Configuration";
+import Configuration, { MacroConf, AssetOption } from "./Configuration";
 import { nano } from "./misc/StringUtils";
 
 export class MacroOps {
   constructor(private config: MacroConf, private props: {
-    useAssets: (...asset: number[]) => void
+    useAssets: (...assets: AssetOption[]) => void
   }) {
   }
   async applyTemplate(template: string, data: any): Promise<string> {
@@ -27,13 +27,13 @@ export interface Macro {
 
 class LinkMacro implements Macro {
   constructor(private config: MacroConf, private props: {
-    useAssets: (...asset: number[]) => void
+    useAssets: (...asset: AssetOption[]) => void
   }) { }
   applyMacro(element: HTMLElement, data: any): Promise<void> {
     const selector = this.config.link.selector;
     const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(selector));
     if (links.length === 0) return Promise.resolve();
-    this.props.useAssets(1);
+    this.props.useAssets(new AssetOption(1));
     for (let link of links) {
       if (!data || !data.link || !data.link.url) continue;
       link.href = data.link.url;

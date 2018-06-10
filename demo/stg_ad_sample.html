@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>index.html</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="adversatile" data-adv-em-name="19413"></div>
+  ----
+  <div class="adversatile" data-adv-em-name="19414"></div>
+  ----
+  <div class="adversatile" data-adv-em-name="19415"></div>
+  <script type="text/x-adv-template" data-adv-em-template="19414">
+    <div class="adv-container">
+      <div>19414 external template!</div>
+      <a data-adv-macro-link>click here</a>
+      <div>{{message}}</div>
+    </div>
+  </script>
+  <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
+  <script>
+    function __advr_main() {
+      Adversatile.use({
+        install: function(adv) {
+          adv.plugin.bridge = adv.plugin.bridge || {};
+          adv.plugin.bridge.ifa = "ifa";
+        }
+      });
+      Adversatile.main({
+        version: 1,
+        vm: {
+          selector: ".adversatile",
+          em: {
+            templates: {
+              "19413": '<div class="adv-container">\n 19413 <a data-adv-macro-link>click here</a>\n  <div>{{message}}</div>\n</div>',
+              "19415": '<div class="adv-container">\n 19415 <a data-adv-macro-link>click here</a>\n  <div>{{message}}</div>\n</div>',
+            },
+            options: {
+              "19415": {
+                preRender: true
+              }
+            }
+          }
+        },
+        ext: {
+        }
+      });
+    }
+  </script>
+</body>
+</html>

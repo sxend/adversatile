@@ -52,7 +52,14 @@ export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
-  assets: number[] = []; // FIXME use official asset
+  assets: AssetOption[] = []; // FIXME use official asset
+  notrim: boolean = false;
+  excludedBidders: string[] = [];
+}
+
+export class AssetOption {
+  constructor(public id: number, public name?: string, public props: any = {}) {
+  }
 }
 
 export class MacroConf {

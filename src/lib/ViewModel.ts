@@ -23,9 +23,11 @@ export class ViewModel {
       const option = this.config.em.option(target.name);
       if (option.assets.length > 0) {
         const options = Array(target.size).fill(option);
-        this.createBidReqFromElementOptions(options).then(req => {
-          this.action.fetchData(req);
-        }).catch(console.error);
+        this.createBidReqFromElementOptions(options)
+          .then(req => {
+            this.action.fetchData(req);
+          })
+          .catch(console.error);
       }
     }
   }
@@ -59,9 +61,9 @@ export class ViewModel {
   private initNewElements(elements: HTMLElement[]): void {
     Promise.all(elements.map(el => this.createElementModel(el)))
       .then((models: ElementModel[]) => {
-        this.createBidReqFromModels(models.filter(_ => this.isNotPrefetch(_.name))).then(
-          req => this.action.fetchData(req)
-        );
+        this.createBidReqFromModels(
+          models.filter(_ => this.isNotPrefetch(_.name))
+        ).then(req => this.action.fetchData(req));
       })
       .catch(console.error);
   }
@@ -75,16 +77,48 @@ export class ViewModel {
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);
   }
-  private async createBidReqFromElementOptions(emOptions: ElementOption[]): Promise<OpenRTB.BidRequest> {
-    const imp: OpenRTB.Imp[] = await Promise.all(emOptions.map(async option => {
-      return OpenRTBUtils.createImp(option.name, option.format, option.assets);
-    }));
-    return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);
+  private async createBidReqFromElementOptions(
+    emOptions: ElementOption[]
+  ): Promise<OpenRTB.BidRequest> {
+    const imp: OpenRTB.Imp[] = await Promise.all(
+      emOptions.map(async option => {
+        const impExt = new OpenRTB.Ext.ImpressionExt();
+        impExt.excludedBidders = option.excludedBidders;
+        impExt.notrim = option.notrim;
+        return OpenRTBUtils.createImp(
+          option.name,
+          option.format,
+          option.assets.map(OpenRTBUtils.optionToNativeAsset),
+          impExt
+        );
+      })
+    );
+    return OpenRTBUtils.createBidReqWithImp(
+      imp,
+      new OpenRTB.Ext.BidRequestExt(),
+      this.config.deviceIfaAttrName
+    );
   }
-  private async createBidReqFromModels(models: ElementModel[]): Promise<OpenRTB.BidRequest> {
-    const imp: OpenRTB.Imp[] = await Promise.all(models.map(async model => {
-      return OpenRTBUtils.createImp(model.name, model.option.format, model.assets);
-    }));
-    return OpenRTBUtils.createBidReqWithImp(imp, {}, this.config.deviceIfaAttrName);
+  private async createBidReqFromModels(
+    models: ElementModel[]
+  ): Promise<OpenRTB.BidRequest> {
+    const imp: OpenRTB.Imp[] = await Promise.all(
+      models.map(async model => {
+        const impExt = new OpenRTB.Ext.ImpressionExt();
+        impExt.excludedBidders = model.excludedBidders;
+        impExt.notrim = model.option.notrim;
+        return OpenRTBUtils.createImp(
+          model.name,
+          model.option.format,
+          model.assets.map(OpenRTBUtils.optionToNativeAsset),
+          impExt
+        );
+      })
+    );
+    return OpenRTBUtils.createBidReqWithImp(
+      imp,
+      new OpenRTB.Ext.BidRequestExt(),
+      this.config.deviceIfaAttrName
+    );
   }
 }

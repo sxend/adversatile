@@ -1,7 +1,7 @@
-import Configuration, { ElementOption, ElementModelConf } from "./Configuration";
+import Configuration, { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
-import { firstDefined } from "./misc/ObjectUtils";
+import { firstDefined, uniq, uniqBy } from "./misc/ObjectUtils";
 import { Store } from "./Store";
 import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
@@ -10,6 +10,7 @@ import { Dom } from "./misc/Dom";
 
 export class ElementModel {
   private renderer: Renderer;
+  private _excludedBidders: string[] = [];
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
@@ -34,10 +35,13 @@ export class ElementModel {
   get option(): ElementOption {
     return this.config.option(this.name);
   }
-  get assets(): number[] {
-    let assets: number[] = this.option.assets || [];
+  get assets(): AssetOption[] {
+    let assets: AssetOption[] = this.option.assets || [];
     assets = assets.concat(this.renderer.getAssets());
     return assets;
+  }
+  get excludedBidders(): string[] {
+    return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   private async updateWithStore(qualifier: string) {
     if (this.store.hasElementData(qualifier)) {
@@ -56,15 +60,15 @@ export class ElementModel {
 class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
-  private assets: number[] = [];
+  private assets: AssetOption[] = [];
   constructor(private config: ElementModelConf, private model: ElementModel, private props: {}) {
     this.macroOps = new MacroOps(this.config.macro, {
-      useAssets: (...assets: number[]) => this.addAssets(...assets)
+      useAssets: (...assets: AssetOption[]) => this.addAssets(...assets)
     });
     this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
   }
-  private addAssets(...assets: number[]): void {
-    this.assets = this.assets.concat(assets).filter((x, i, self) => self.indexOf(x) === i);
+  private addAssets(...assets: AssetOption[]): void {
+    this.assets = uniqBy(this.assets.concat(assets), (a) => a.id);
   }
   async render(element: HTMLElement, data: IElementData): Promise<void> {
     this.assets = [];
@@ -76,7 +80,7 @@ class Renderer {
       console.warn("missing template", this.model.name, data);
     }
   }
-  getAssets(): number[] {
+  getAssets(): AssetOption[] {
     return this.assets;
   }
 }

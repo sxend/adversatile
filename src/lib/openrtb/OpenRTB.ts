@@ -150,8 +150,8 @@ export namespace OpenRTB {
     export class BidRequestExt { }
     export class ImpressionExt {
       excludedBidders: string[] = [];
-      txid0: string = "";
       notrim: boolean = false;
+      txid0: string = "";
     }
     export class SeatBidExt {
       amoadExtras?: Adhoc.AmoadExtras;
