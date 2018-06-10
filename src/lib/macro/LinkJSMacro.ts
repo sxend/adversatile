@@ -43,6 +43,7 @@ export class LinkMacro implements Macro {
         return false;
       };
     }
+    return Promise.resolve();
   }
   private selector(): string {
     const selector = this.config.linkJs.selectorAttrName;
