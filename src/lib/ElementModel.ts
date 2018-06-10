@@ -57,11 +57,9 @@ export class ElementModel {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   private async updateWithStore(qualifier: string) {
-    console.log(this.isRendered || this.store.getState().hasBid(qualifier));
     if (this.isRendered || this.store.getState().hasBid(qualifier)) return;
     this.isRendered = true;
     const bid = this.store.getState().getBid(qualifier);
-    console.log(bid);
     this.update(bid);
   }
   private async update(bid: OpenRTB.Bid): Promise<void> {
@@ -102,7 +100,6 @@ export class ElementModel {
       new OpenRTB.NativeAd.Response.Assets(5, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
       new OpenRTB.NativeAd.Response.Assets(3, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
     ];
-    console.log(bid);
     return bid;
   })();
 }

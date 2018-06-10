@@ -19,7 +19,6 @@ export class Store extends EventEmitter {
     (this.internal.responses[response.id] = this.internal.responses[response.id] || []).push(response);
   }
   private addBid(bid: OpenRTB.Bid) {
-    console.log(bid);
     (this.internal.bids = this.internal.bids || {});
     (this.internal.bids[bid.impid] = this.internal.bids[bid.impid] || []).push(bid);
   }
