@@ -92,7 +92,7 @@ export namespace AssetUtils {
   export function getAssetByAssetId(id: number): AssetTypes {
     return assetIdMap[id];
   }
-  function getAssetIdByAsset(asset: AssetTypes): number {
+  export function getAssetIdByAsset(asset: AssetTypes): number {
     return asset + 1;
   }
   function getImageTypeByAsset(assetId: AssetTypes): number {

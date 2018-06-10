@@ -4,6 +4,9 @@ import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 import { AssetUtils } from "../openrtb/OpenRTBUtils";
+import {OpenRTB } from "../openrtb/OpenRTB";
+import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import ResAssets = OpenRTB.NativeAd.Response.Assets;
 
 export class IconImageMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -11,13 +14,16 @@ export class IconImageMacro implements Macro {
     return "IconImageMacro";
   }
   async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    if (!context || !context.asset) return;
+    const iconId = AssetUtils.getAssetIdByAsset(AssetTypes.ICON_URL);
+    const assets: ResAssets[] = context.bid.ext.admNative.assets;
+    const icon = assets.find(asset => asset.id === iconId);
+    if (!icon) return;
     const targets: HTMLImageElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
-      target.src = context.asset.img.url;
+      target.src = icon.img.url;
       if (this.props.addAssetOptions) {
         this.props.addAssetOptions(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
       }
