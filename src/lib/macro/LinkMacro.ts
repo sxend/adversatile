@@ -5,23 +5,31 @@ import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
 export class LinkMacro implements Macro {
-  constructor(private config: MacroConf, private props: {
-    addAssetOptions: (...asset: AssetOption[]) => void,
-    onAdClick?: (url: string, appId?: string) => void
-  }) { }
+  constructor(
+    private config: MacroConf,
+    private props: {
+      addAssetOptions: (...asset: AssetOption[]) => void;
+      onAdClick?: (url: string, appId?: string) => void;
+    }
+  ) { }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
     if (!data || !data.link || !data.link.url) return;
     const selector = this.selector();
-    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(selector));
+    const links: HTMLAnchorElement[] = [].slice.call(
+      element.querySelectorAll(selector)
+    );
     if (links.length === 0) return Promise.resolve();
-    const clickUrl: string = MacroUtils.addExpandParams(data.link.url, data.expandParams);
+    const clickUrl: string = MacroUtils.addExpandParams(
+      data.link.url,
+      data.expandParams
+    );
     for (let link of links) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       if (!!this.props.onAdClick) {
         anchor.onclick = () => {
           const passingAppId: string | null = !!data.appId ? data.appId : null;
           this.props.onAdClick(clickUrl, passingAppId);
-        }
+        };
       } else {
         const urlFormat = link.getAttribute(this.config.link.selectorAttrName);
         const context = {
@@ -36,7 +44,7 @@ export class LinkMacro implements Macro {
         link.parentElement.insertBefore(anchor, link);
       }
       link.classList.add(this.config.link.markedClass);
-      anchor.appendChild(element);
+      anchor.appendChild(link);
     }
     return Promise.resolve();
   }
@@ -46,13 +54,15 @@ export class LinkMacro implements Macro {
     return `[${selector}]:not(.${markedClass})`;
   }
   private detectAnchorTarget(element: HTMLElement): string {
-    const targetAttr = element.querySelector(`[${this.config.link.anchorTargetAttrName}]`);
+    const targetAttr = element.querySelector(
+      `[${this.config.link.anchorTargetAttrName}]`
+    );
     if (targetAttr) {
       return targetAttr.getAttribute(this.config.link.anchorTargetAttrName);
     } else if (Dom.isInIframe(window)) {
-      return '_top';
+      return "_top";
     } else {
-      return '_blank';
+      return "_blank";
     }
   }
 }
