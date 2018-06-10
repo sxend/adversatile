@@ -12,3 +12,10 @@ export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
     return (flags[key] = true);
   });
 }
+export function resultOrElse<A>(fn: () => A, e?: A): A {
+  try {
+    return fn();
+  } catch (e) {
+  }
+  return e;
+}

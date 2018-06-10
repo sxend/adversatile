@@ -7,6 +7,7 @@ import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export class TitleLongMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -15,7 +16,7 @@ export class TitleLongMacro implements Macro {
   }
   async applyMacro(element: HTMLElement, context: any): Promise<void> {
     const textId = AssetUtils.getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT);
-    const assets: ResAssets[] = context.bid.ext.admNative.assets;
+    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
     const text = assets.find(asset => asset.id === textId);
     if (!text) return;
     const targets: HTMLElement[] = [].slice.call(

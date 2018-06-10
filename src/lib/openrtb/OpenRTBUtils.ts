@@ -72,7 +72,7 @@ export namespace OpenRTBUtils {
   }
 
   const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-  const dummyText: string = "...";  
+  const dummyText: string = "...";
   export const DummyBid: OpenRTB.Bid = (() => {
     const bid = new OpenRTB.Bid();
     bid.ext.admNative.assets = [

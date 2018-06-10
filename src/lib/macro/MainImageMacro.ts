@@ -7,6 +7,7 @@ import { OpenRTBUtils, AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
+import { resultOrElse } from "../misc/ObjectUtils";
 
 
 export class MainImageMacro implements Macro {
@@ -16,7 +17,7 @@ export class MainImageMacro implements Macro {
   }
   async applyMacro(element: HTMLElement, context: any): Promise<void> {
     const imageId = AssetUtils.getAssetIdByAsset(AssetTypes.IMAGE_URL);
-    const assets: ResAssets[] = context.bid.ext.admNative.assets;
+    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
     const image = assets.find(asset => asset.id === imageId);
     if (!image) return;
     const targets: HTMLImageElement[] = [].slice.call(

@@ -3,6 +3,7 @@ import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export class LinkJsMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -10,7 +11,10 @@ export class LinkJsMacro implements Macro {
     return "LinkJsMacro";
   }
   async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    if (!context || !context.link || !context.link.url || !context.link.clktrck) return;
+    const linkUrl = resultOrElse(() => context.bid.ext.admNative.link.url);
+    const clktrckUrl = resultOrElse(() => context.bid.ext.admNative.link.clktrck);
+    const expandParams = resultOrElse(() => context.expandParams);
+    if (!linkUrl || !linkUrl) return;
     const selector = this.selector();
     const links: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
@@ -19,23 +23,23 @@ export class LinkJsMacro implements Macro {
     for (let link of links) {
       link.style.cursor = "auto";
       link.onclick = async () => {
-        await this.props.trackingCall(context.link.clktrck, "click-track-beacon");
+        await this.props.trackingCall(clktrckUrl, "click-track-beacon");
         const openTarget = link.getAttribute(
           this.config.linkJs.openTargetAttrName
         );
         if (openTarget === "self") {
           window.location.href = MacroUtils.addExpandParams(
-            context.link.url,
-            context.expandParams
+            linkUrl,
+            expandParams
           );
         } else if (openTarget === "top") {
           window.open(
-            MacroUtils.addExpandParams(context.link.url, context.expandParams),
+            MacroUtils.addExpandParams(linkUrl, expandParams),
             "_top"
           );
         } else {
           window.open(
-            MacroUtils.addExpandParams(context.link.url, context.expandParams),
+            MacroUtils.addExpandParams(linkUrl, expandParams),
             "_blank"
           );
         }

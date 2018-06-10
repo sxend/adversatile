@@ -3,6 +3,11 @@ import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
+import { OpenRTB } from "../openrtb/OpenRTB";
+import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import ResAssets = OpenRTB.NativeAd.Response.Assets;
+import { AssetUtils } from "../openrtb/OpenRTBUtils";
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export class OptoutLinkMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -10,20 +15,23 @@ export class OptoutLinkMacro implements Macro {
     return "OptoutLinkMacro";
   }
   async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    if (!context || !context.asset) return;
+    const optoutId = AssetUtils.getAssetIdByAsset(AssetTypes.OPTOUT_IMG);
+    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
+    const image = assets.find(asset => asset.id === optoutId);
+    if (!image) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
       const optoutLink: HTMLAnchorElement = document.createElement("a");
-      optoutLink.href = context.asset.link.url;
+      optoutLink.href = image.link.url;
       optoutLink.target = "_blank";
       optoutLink.onclick = function(e) {
         e.stopPropagation();
       };
       const optoutImg: HTMLImageElement = document.createElement("img");
-      optoutImg.src = context.asset.img.url;
+      optoutImg.src = image.img.url;
       optoutImg.classList.add(this.config.optoutLink.markedClass);
       optoutLink.appendChild(optoutImg);
       target.parentElement.appendChild(optoutLink);
