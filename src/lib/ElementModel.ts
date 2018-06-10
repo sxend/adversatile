@@ -16,6 +16,7 @@ import { OpenRTB } from "./openrtb/OpenRTB";
 export class ElementModel {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
+  private isRendered: boolean = false;
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
@@ -32,7 +33,7 @@ export class ElementModel {
       ? this.update(ElementModel.DummyData)
       : Promise.resolve()
     ).then(_ => {
-      this.store.on(`change:${this.name}`, (bid) => {
+      this.store.on(`change`, () => {
         this.updateWithStore(this.name);
       });
       this.updateWithStore(this.name);
@@ -54,9 +55,9 @@ export class ElementModel {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   private async updateWithStore(qualifier: string) {
-    if (this.store.hasBid(qualifier)) {
-      return this.update(this.store.consumeBid(qualifier));
-    }
+    if (this.isRendered || this.store.getState().hasBid(qualifier)) return;
+    this.isRendered = true;
+    this.update(this.store.getState().getBid(qualifier));
   }
   private async update(bid: OpenRTB.Bid): Promise<void> {
     return this.renderer.render(

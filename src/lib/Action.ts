@@ -11,7 +11,7 @@ export class Action {
     const result = this.fetchDataWithJsonp(req);
     result
       .then(data => {
-        this.dispatcher.dispatch({ event: "FetchData", data: data });
+        this.dispatcher.dispatch({ event: "BidResponse", data: data });
         return Promise.resolve();
       })
       .catch(console.error);

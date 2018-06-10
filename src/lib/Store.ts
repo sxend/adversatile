@@ -4,32 +4,41 @@ import { Dispatcher, IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Store extends EventEmitter {
-  private state: any = {};
+  private internal: any = {};
+  private state: State = new State(this.internal);
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
-    this.dispatcher.onDispatch("FetchData", (response: OpenRTB.BidResponse) => {
+    this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
       response.seatbid.forEach(sbid => sbid.bid.forEach(bid => this.addBid(bid)));
+      this.emit("change");
     });
   }
   private addBidResponse(response: OpenRTB.BidResponse) {
-    (this.state[response.id] = this.state[response.id] || []).push(response);
-    this.emit(`change:${response.id}`, response);
+    (this.internal.responses = this.internal.responses || {});
+    (this.internal.responses[response.id] = this.internal.responses[response.id] || []).push(response);
   }
   private addBid(bid: OpenRTB.Bid) {
-    (this.state[bid.impid] = this.state[bid.impid] || []).push(bid);
-    this.emit(`change:${bid.impid}`, bid);
+    (this.internal.bids = this.internal.bids || {});
+    (this.internal.bids[bid.impid] = this.internal.bids[bid.impid] || []).push(bid);
   }
+  getState(): State {
+    return this.state;
+  }
+}
+
+export class State {
+  constructor(private internal: any) { }
   hasBidResponse(id: string): boolean {
-    return !!this.state[id] && this.state[id].length > 0;
+    return !!this.internal.responses && !!this.internal.responses[id] && this.internal.responses[id].length > 0;
   }
-  consumeBidResponse(id: string): OpenRTB.Bid {
-    return (this.state[id] || []).shift();
+  getBidResponse(id: string): OpenRTB.Bid {
+    return (this.internal[id] || []).shift();
   }
   hasBid(id: string): boolean {
-    return !!this.state[id] && this.state[id].length > 0;
+    return !!this.internal.bids && !!this.internal.bids[id] && this.internal.bids[id].length > 0;
   }
-  consumeBid(id: string): OpenRTB.Bid {
-    return (this.state[id] || []).shift();
+  getBid(id: string): OpenRTB.Bid {
+    return (this.internal[id] || []).shift();
   }
 }
