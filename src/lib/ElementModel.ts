@@ -12,7 +12,7 @@ import { MacroOps, MacroProps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
 import { Tracking } from "./misc/Tracking";
 import { OpenRTB } from "./openrtb/OpenRTB";
-import { AssetUtils } from "./openrtb/OpenRTBUtils";
+import { AssetUtils, OpenRTBUtils } from "./openrtb/OpenRTBUtils";
 
 export class ElementModel {
   private renderer: Renderer;
@@ -32,7 +32,7 @@ export class ElementModel {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
     (this.option.preRender
-      ? this.update(ElementModel.DummyData)
+      ? this.update(OpenRTBUtils.DummyBid)
       : Promise.resolve()
     ).then(_ => {
       this.store.on(`change`, () => {
@@ -89,19 +89,6 @@ export class ElementModel {
       addAssetOptions: _addAssetOptions
     };
   }
-  private static DummyData: OpenRTB.Bid = (() => {
-    const bid = new OpenRTB.Bid();
-    const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-    const dummyText: string = "...";
-    bid.ext.admNative.assets = [
-      new OpenRTB.NativeAd.Response.Assets(1, false, new OpenRTB.NativeAd.Response.Link(dummyImg), null, null, null),
-      new OpenRTB.NativeAd.Response.Assets(2, false, new OpenRTB.NativeAd.Response.Img(dummyImg), null, null, null),
-      new OpenRTB.NativeAd.Response.Assets(4, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
-      new OpenRTB.NativeAd.Response.Assets(5, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
-      new OpenRTB.NativeAd.Response.Assets(3, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
-    ];
-    return bid;
-  })();
 }
 
 class Renderer {

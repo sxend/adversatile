@@ -3,6 +3,8 @@ import { Dom } from "../misc/Dom";
 import Adversatile from "../../Adversatile";
 import { AssetOption } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
+import Response = OpenRTB.NativeAd.Response;
+import ResAssets = Response.Assets;
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -68,6 +70,22 @@ export namespace OpenRTBUtils {
       return Adversatile.plugin.bridge.ifa; // use bridge plugin
     }
   }
+
+  const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  const dummyText: string = "...";  
+  export const DummyBid: OpenRTB.Bid = (() => {
+    const bid = new OpenRTB.Bid();
+    bid.ext.admNative.assets = [
+      new ResAssets(1, false, new Response.Link(dummyImg), null, null, null),
+      new ResAssets(2, false, new Response.Img(dummyImg), null, null, null),
+      new ResAssets(3, false, null, null, new Response.Title(dummyText), null),
+      new ResAssets(4, false, null, null, new Response.Title(dummyText), null),
+      new ResAssets(5, false, null, null, new Response.Title(dummyText), null),
+      new ResAssets(9, false, null, null, new Response.Title(dummyText), null),
+      new ResAssets(10, false, null, null, new Response.Title(dummyText), null),
+    ];
+    return bid;
+  })();
 }
 export namespace AssetUtils {
   import AssetTypes = OpenRTB.NativeAd.AssetTypes;
