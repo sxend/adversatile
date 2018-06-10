@@ -3,7 +3,6 @@ import { EventEmitter } from "events";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { ElementData } from "../../generated-src/protobuf/messages";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Action {
@@ -11,14 +10,8 @@ export class Action {
   fetchData(req: OpenRTB.BidRequest): void {
     const result = this.fetchDataWithJsonp(req);
     result
-      .then(res => {
-        req.imp.forEach(imp => {
-          const data = new ElementData({
-            id: imp.id,
-            ...(<any>res)
-          });
-          this.dispatcher.dispatch({ event: "FetchData", data: data });
-        });
+      .then(data => {
+        this.dispatcher.dispatch({ event: "FetchData", data: data });
         return Promise.resolve();
       })
       .catch(console.error);
@@ -43,7 +36,8 @@ export class Action {
       cb
     );
     const res = new OpenRTB.BidResponse();
-    res.seatbid = result.payload;
+    res.id = req.id;
+    res.seatbid = [result];
     return res;
   }
 }

@@ -43,7 +43,9 @@ export namespace OpenRTB {
     request?: NativeAd.AdRequest;
   }
   export class BidResponse {
+    id: string;
     seatbid: SeatBid[] = [];
+    ext: Ext.BidResponseExt;
   }
   export class SeatBid {
     bid: Bid[] = [];
@@ -166,6 +168,7 @@ export namespace OpenRTB {
   }
   export namespace Ext {
     export class BidRequestExt { }
+    export class BidResponseExt { }
     export class ImpressionExt {
       excludedBidders: string[] = [];
       notrim: boolean = false;

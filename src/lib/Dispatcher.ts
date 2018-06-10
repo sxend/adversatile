@@ -1,9 +1,9 @@
 import { EventEmitter } from "events";
-import { ElementData } from "../../generated-src/protobuf/messages";
+import { OpenRTB } from "./openrtb/OpenRTB";
 
 export interface IDispatcher {
-  dispatch(action: { event: "FetchData"; data: ElementData }): void;
-  onDispatch(event: "FetchData", callback: (data: ElementData) => void): void;
+  dispatch(action: { event: "FetchData"; data: OpenRTB.BidResponse }): void;
+  onDispatch(event: "FetchData", callback: (data: OpenRTB.BidResponse) => void): void;
 }
 export class Dispatcher extends EventEmitter implements IDispatcher {
   dispatch(action: { event: string; data: any }): void {

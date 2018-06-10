@@ -2,6 +2,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { Dom } from "../misc/Dom";
 import Adversatile from "../../Adversatile";
 import { AssetOption } from "../Configuration";
+import { RandomId } from "../misc/RandomId";
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -34,7 +35,7 @@ export namespace OpenRTBUtils {
     device.ifa = ifa;
     const app = new OpenRTB.App();
     const req = new OpenRTB.BidRequest();
-    req.id = "1";
+    req.id = RandomId.gen();
     req.imp = imp;
     req.site = site;
     req.device = device;

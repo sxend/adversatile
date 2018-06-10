@@ -26,6 +26,7 @@ export class ViewModel {
         this.createBidReqFromElementOptions(options)
           .then(req => {
             this.action.fetchData(req);
+            this.store.once(`change:${req.id}`, (res) => console.log(res));
           })
           .catch(console.error);
       }
@@ -63,7 +64,13 @@ export class ViewModel {
       .then((models: ElementModel[]) => {
         this.createBidReqFromModels(
           models.filter(_ => this.isNotPrefetch(_.name))
-        ).then(req => this.action.fetchData(req));
+        ).then(req => {
+          this.action.fetchData(req);
+          console.log(req.id);
+          this.store.once(`change:${req.id}`, (res) => {
+            console.log(res);
+          });
+        });
       })
       .catch(console.error);
   }

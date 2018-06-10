@@ -7,11 +7,11 @@ import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { firstDefined, uniq, uniqBy } from "./misc/ObjectUtils";
 import { Store } from "./Store";
-import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
 import { Tracking } from "./misc/Tracking";
+import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class ElementModel {
   private renderer: Renderer;
@@ -32,9 +32,9 @@ export class ElementModel {
       ? this.update(ElementModel.DummyData)
       : Promise.resolve()
     ).then(_ => {
-      this.store.on(`change:${this.name}`, () =>
-        this.updateWithStore(this.name)
-      );
+      this.store.on(`change:${this.name}`, (bid) => {
+        this.updateWithStore(this.name);
+      });
       this.updateWithStore(this.name);
       this.props.onInit(this);
     });
@@ -54,20 +54,20 @@ export class ElementModel {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   private async updateWithStore(qualifier: string) {
-    if (this.store.hasElementData(qualifier)) {
-      return this.update(this.store.consumeElementData(qualifier));
+    if (this.store.hasBid(qualifier)) {
+      return this.update(this.store.consumeBid(qualifier));
     }
   }
-  private async update(data: IElementData): Promise<void> {
+  private async update(bid: OpenRTB.Bid): Promise<void> {
     return this.renderer.render(
       this.element,
-      this.createRenderContext(data),
+      this.createRenderContext(bid),
       this.createRenderProps()
     );
   }
-  private createRenderContext(data: IElementData): RendererContext {
+  private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
-      data: data
+      bid: bid
     };
   }
   private createRenderProps(): RendererProps {
@@ -79,7 +79,7 @@ export class ElementModel {
       trackingCall: Tracking.trackingCall
     };
   }
-  private static DummyData: IElementData = {
+  private static DummyData: OpenRTB.Bid = <any>{
     message: "..."
   };
 }

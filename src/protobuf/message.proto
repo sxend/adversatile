@@ -1,6 +1,1 @@
 syntax = "proto3";
-
-message ElementData {
-    string id = 1;
-    string message = 2;
-}
