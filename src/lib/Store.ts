@@ -19,6 +19,7 @@ export class Store extends EventEmitter {
     (this.internal.responses[response.id] = this.internal.responses[response.id] || []).push(response);
   }
   private addBid(bid: OpenRTB.Bid) {
+    console.log(bid);
     (this.internal.bids = this.internal.bids || {});
     (this.internal.bids[bid.impid] = this.internal.bids[bid.impid] || []).push(bid);
   }
@@ -33,12 +34,12 @@ export class State {
     return !!this.internal.responses && !!this.internal.responses[id] && this.internal.responses[id].length > 0;
   }
   getBidResponse(id: string): OpenRTB.Bid {
-    return (this.internal[id] || []).shift();
+    return (this.internal.responses[id] || []).shift();
   }
   hasBid(id: string): boolean {
     return !!this.internal.bids && !!this.internal.bids[id] && this.internal.bids[id].length > 0;
   }
   getBid(id: string): OpenRTB.Bid {
-    return (this.internal[id] || []).shift();
+    return (this.internal.bids[id] || []).shift();
   }
 }

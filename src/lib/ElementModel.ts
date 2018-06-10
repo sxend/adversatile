@@ -12,6 +12,7 @@ import { MacroOps, MacroProps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
 import { Tracking } from "./misc/Tracking";
 import { OpenRTB } from "./openrtb/OpenRTB";
+import { AssetUtils } from "./openrtb/OpenRTBUtils";
 
 export class ElementModel {
   private renderer: Renderer;
@@ -56,14 +57,18 @@ export class ElementModel {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   private async updateWithStore(qualifier: string) {
+    console.log(this.isRendered || this.store.getState().hasBid(qualifier));
     if (this.isRendered || this.store.getState().hasBid(qualifier)) return;
     this.isRendered = true;
-    this.update(this.store.getState().getBid(qualifier));
+    const bid = this.store.getState().getBid(qualifier);
+    console.log(bid);
+    this.update(bid);
   }
   private async update(bid: OpenRTB.Bid): Promise<void> {
+    const context = this.createRenderContext(bid);
     return this.renderer.render(
       this.element,
-      this.createRenderContext(bid),
+      context,
       this.createRenderProps()
     );
   }
@@ -86,9 +91,20 @@ export class ElementModel {
       addAssetOptions: _addAssetOptions
     };
   }
-  private static DummyData: OpenRTB.Bid = <any>{
-    message: "..."
-  };
+  private static DummyData: OpenRTB.Bid = (() => {
+    const bid = new OpenRTB.Bid();
+    const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    const dummyText: string = "...";
+    bid.ext.admNative.assets = [
+      new OpenRTB.NativeAd.Response.Assets(1, false, new OpenRTB.NativeAd.Response.Link(dummyImg), null, null, null),
+      new OpenRTB.NativeAd.Response.Assets(2, false, new OpenRTB.NativeAd.Response.Img(dummyImg), null, null, null),
+      new OpenRTB.NativeAd.Response.Assets(4, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
+      new OpenRTB.NativeAd.Response.Assets(5, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
+      new OpenRTB.NativeAd.Response.Assets(3, false, null, null, new OpenRTB.NativeAd.Response.Title(dummyText), null),
+    ];
+    console.log(bid);
+    return bid;
+  })();
 }
 
 class Renderer {

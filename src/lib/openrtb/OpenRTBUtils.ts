@@ -130,7 +130,7 @@ export namespace AssetUtils {
   }
   const defaultTextLength = 17;
   const defaultDescriptionLength = 32;
-  export function iconImage(widthMin: number, heightMin: number) {
+  function iconImage(widthMin: number, heightMin: number) {
     return image(
       getAssetIdByAsset(AssetTypes.ICON_URL),
       ImgTypes.ICON,
@@ -138,7 +138,7 @@ export namespace AssetUtils {
       heightMin
     );
   }
-  export function mainImage(widthMin: number, heightMin: number) {
+  function mainImage(widthMin: number, heightMin: number) {
     return image(
       getAssetIdByAsset(AssetTypes.IMAGE_URL),
       ImgTypes.MAIN,
@@ -146,17 +146,17 @@ export namespace AssetUtils {
       heightMin
     );
   }
-  export function titleText(length: number = defaultTextLength) {
+  function titleText(length: number = defaultTextLength) {
     return title(getAssetIdByAsset(AssetTypes.TITLE_SHORT), length);
   }
-  export function descriptiveText(length: number = defaultDescriptionLength) {
+  function descriptiveText(length: number = defaultDescriptionLength) {
     return data(
       getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT),
       DataTypes.DESC,
       length
     );
   }
-  export function sponsoredByMessage(length?: number) {
+  function sponsoredByMessage(length?: number) {
     return data(
       getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE),
       DataTypes.SPONSORED,

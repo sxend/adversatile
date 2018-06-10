@@ -59,7 +59,7 @@ export namespace OpenRTB {
     id?: string;
     adomain: string[] = [];
     attr: number[] = [];
-    ext?: Ext.BidExt;
+    ext?: Ext.BidExt = new Ext.BidExt();
     adm?: string;
     w?: number;
     h?: number;
@@ -132,24 +132,28 @@ export namespace OpenRTB {
 
     export namespace Response {
       export class Assets {
-        id: number = 1;
-        req: boolean = false;
-        img?: Img;
-        link?: Link;
-        title?: Title;
-        data?: Data;
-        video?: Video;
+        constructor(
+          public id: number = 1,
+          public req: boolean = false,
+          public img?: Img,
+          public link?: Link,
+          public title?: Title,
+          public data?: Data,
+          public video?: Video,
+        ) { }
       }
       export class Img {
-        url?: string;
+        constructor(public url?: string) { }
       }
       export class Link {
-        url?: string;
-        clktrck: string[] = [];
-        ext?: Ext.LinkExt;
+        constructor(
+          public url?: string,
+          public clktrck: string[] = [],
+          public ext?: Ext.LinkExt
+        ) { }
       }
       export class Title {
-        text?: string;
+        constructor(public text?: string) { }
       }
       export class Data {
         value?: string;
@@ -184,7 +188,7 @@ export namespace OpenRTB {
     }
     export class BidExt {
       tagid: string;
-      admNative?: NativeAd.AdResponse;
+      admNative?: NativeAd.AdResponse = new NativeAd.AdResponse();
       filler?: string;
       bidderName?: string;
       iMobileExtras?: Adhoc.IMobileExtras;
