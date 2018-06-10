@@ -11,13 +11,13 @@ import { OptoutLinkOnlyMacro } from "./macro/OptoutLinkOnlyMacro";
 import { SponsoredByMessageMacro } from "./macro/SponsoredByMessageMacro";
 import { TitleLongMacro } from "./macro/TitleLongMacro";
 import { TitleShortMacro } from "./macro/TitleShortMacro";
+import { EventEmitter } from "events";
 
 export class MacroOps {
   constructor(
     private config: MacroConf,
     private props: {
-      addAssetOptions: (...assets: AssetOption[]) => void;
-      trackingCall: (urls: string[], trackingName: string) => Promise<void>;
+      addAssetOptions: (...assets: AssetOption[]) => void
     }
   ) { }
   async applyTemplate(template: string, data: any): Promise<string> {
@@ -26,7 +26,13 @@ export class MacroOps {
   async applyElement(
     element: HTMLElement,
     data: any,
-    props: any
+    props: {
+      onImpression: () => void,
+      onInview: () => void,
+      onViewThrough: () => void,
+      onClick: () => void,
+      trackingCall: (urls: string[], trackingName: string) => Promise<void>;
+    }
   ): Promise<void> {
     data.macros = data.macros || {};
     const appliedMacros: string[] = (data.macros.appliedMacros = []);
@@ -37,7 +43,7 @@ export class MacroOps {
   }
   private macroStack(data: any, props: any): Macro[] {
     return [
-      new VideoMacro(this.config, {}),
+      new VideoMacro(this.config, props),
       new MarkupVideoMacro(this.config, {}),
       new MainImageMacro(this.config, {}),
       new IconImageMacro(this.config, {}),
@@ -47,11 +53,11 @@ export class MacroOps {
       new TitleLongMacro(this.config, {}),
       new TitleShortMacro(this.config, {}),
       new LinkJsMacro(this.config, {
-        addAssetOptions: props.addAssetOptions || this.props.addAssetOptions,
-        trackingCall: props.trackingCall || this.props.trackingCall
+        addAssetOptions: this.props.addAssetOptions,
+        trackingCall: props.trackingCall
       }),
       new LinkMacro(this.config, {
-        addAssetOptions: props.addAssetOptions || this.props.addAssetOptions
+        addAssetOptions: this.props.addAssetOptions
       })
     ];
   }

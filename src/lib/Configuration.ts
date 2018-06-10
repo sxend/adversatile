@@ -70,6 +70,7 @@ export class MacroConf {
 export class VideoMacroConf {
   selectorAttrName: string = "data-adv-macro-video";
   videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URI */" || "";
+  videoPlayerObjectName: string = "/* @echo VIDEO_PLAYER_OBJECT_NAME */" || "";
 }
 export class LinkMacroConf {
   selectorAttrName: string = "data-adv-macro-link";

@@ -52,7 +52,16 @@ export class ElementModel {
     }
   }
   private async update(data: IElementData): Promise<void> {
-    return this.renderer.render(this.element, data, {});
+    return this.renderer.render(this.element, data, this.createRenderProps());
+  }
+  private createRenderProps() {
+    return {
+      onImpression: () => console.log("impression"),
+      onInview: () => console.log("inview"),
+      onViewThrough: () => console.log("vt"),
+      onClick: () => console.log("click"),
+      trackingCall: Tracking.trackingCall
+    }
   }
   private static DummyData: IElementData = {
     message: "...",
@@ -64,18 +73,22 @@ class Renderer {
   private templateOps: TemplateOps;
   private assets: AssetOption[] = [];
   constructor(private config: ElementModelConf, private model: ElementModel, private props: {
-    trackingCall: (urls: string[], trackingName: string) => Promise<void>
   }) {
     this.macroOps = new MacroOps(this.config.macro, {
       addAssetOptions: (...assets: AssetOption[]) => this.addAssetOptions(...assets),
-      trackingCall: (urls: string[], trackingName: string) => this.props.trackingCall(urls, trackingName)
     });
     this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
   }
   private addAssetOptions(...assets: AssetOption[]): void {
     this.assets = uniqBy(this.assets.concat(assets), (a) => a.id);
   }
-  async render(element: HTMLElement, data: IElementData, props: any): Promise<void> {
+  async render(element: HTMLElement, data: IElementData, props: {
+    onImpression: () => void,
+    onInview: () => void,
+    onViewThrough: () => void,
+    onClick: () => void,
+    trackingCall: (urls: string[], trackingName: string) => Promise<void>
+  }): Promise<void> {
     this.assets = [];
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {

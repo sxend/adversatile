@@ -18,7 +18,7 @@ export class LinkMacro implements Macro {
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
     if (!data || !data.link || !data.link.url) return;
     const selector = this.selector();
-    const links: HTMLAnchorElement[] = [].slice.call(
+    const links: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
     );
     if (links.length === 0) return Promise.resolve();

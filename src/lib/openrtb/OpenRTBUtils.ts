@@ -79,7 +79,7 @@ export namespace AssetUtils {
     12: AssetTypes.VIDEO
   };
 
-  function getAssetByAssetId(id: number): AssetTypes {
+  export function getAssetByAssetId(id: number): AssetTypes {
     return assetIdMap[id];
   };
   function getAssetIdByAsset(asset: AssetTypes): number {
