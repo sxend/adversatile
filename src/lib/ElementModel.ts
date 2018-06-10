@@ -56,13 +56,13 @@ export class ElementModel {
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
-  private async updateWithStore(qualifier: string) {
-    if (this.isRendered || this.store.getState().hasBid(qualifier)) return;
+  private updateWithStore(qualifier: string) {
+    if (this.isRendered || !this.store.getState().hasBid(qualifier)) return;
     this.isRendered = true;
     const bid = this.store.getState().getBid(qualifier);
-    this.update(bid);
+    this.update(bid).catch(console.error);
   }
-  private async update(bid: OpenRTB.Bid): Promise<void> {
+  private update(bid: OpenRTB.Bid): Promise<void> {
     const context = this.createRenderContext(bid);
     return this.renderer.render(
       this.element,
