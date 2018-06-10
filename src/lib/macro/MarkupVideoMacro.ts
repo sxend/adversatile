@@ -10,7 +10,7 @@ export class MarkupVideoMacro implements Macro {
     private props: {
       trackingCall: (urls: string[], trackingName: string) => Promise<void>;
     }
-  ) {}
+  ) { }
   getName(): string {
     return "MarkupVideoMacro";
   }

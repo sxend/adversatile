@@ -44,11 +44,11 @@ export class MacroOps {
   private macroStack(data: any, props: any): Macro[] {
     return [
       new VideoMacro(this.config, props),
-      new MarkupVideoMacro(this.config, {}),
+      new MarkupVideoMacro(this.config, props),
       new MainImageMacro(this.config, {}),
       new IconImageMacro(this.config, {}),
-      new OptoutLinkMacro(this.config, {}),
-      new OptoutLinkOnlyMacro(this.config, {}),
+      new OptoutLinkMacro(this.config, props),
+      new OptoutLinkOnlyMacro(this.config, props),
       new SponsoredByMessageMacro(this.config, {}),
       new TitleLongMacro(this.config, {}),
       new TitleShortMacro(this.config, {}),

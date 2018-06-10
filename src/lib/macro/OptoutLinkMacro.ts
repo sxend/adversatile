@@ -14,16 +14,28 @@ export class OptoutLinkMacro implements Macro {
     return "OptoutLinkMacro";
   }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data) return;
-    const targets: HTMLAnchorElement[] = [].slice.call(
+    if (!data || !data.asset) return;
+    const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
+      const optoutLink: HTMLAnchorElement = document.createElement("a");
+      optoutLink.href = data.asset.link.url;
+      optoutLink.target = '_blank';
+      optoutLink.onclick = function(e) {
+        e.stopPropagation();
+      }
+      const optoutImg: HTMLImageElement = document.createElement("img");
+      optoutImg.src = data.asset.img.url;
+      optoutImg.classList.add(this.config.optoutLinkMacro.markedClass);
+      optoutLink.appendChild(optoutImg);
+      target.parentElement.appendChild(optoutLink);
+      target.parentElement.removeChild(target);
     }
     return Promise.resolve();
   }
   private selector(): string {
-    return "";
+    return `[${this.config.optoutLinkMacro.selectorAttrName}]`;
   }
 }
