@@ -10,14 +10,14 @@ export class MacroOps {
   async applyTemplate(template: string, data: any): Promise<string> {
     return nano(template, data);
   }
-  async applyElement(element: HTMLElement, data: any): Promise<void> {
-    for (let macro of this.macroStack(data)) {
+  async applyElement(element: HTMLElement, data: any, props: any): Promise<void> {
+    for (let macro of this.macroStack(data, props)) {
       await macro.applyMacro(element, data);
     }
   }
-  private macroStack(data: any): Macro[] {
+  private macroStack(data: any, props: any): Macro[] {
     return [
-      new LinkMacro(this.config, { addAssetOptions: this.props.addAssetOptions })
+      new LinkMacro(this.config, { addAssetOptions: props.addAssetOptions || this.props.addAssetOptions })
     ];
   }
 }

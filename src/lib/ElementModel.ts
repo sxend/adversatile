@@ -49,7 +49,7 @@ export class ElementModel {
     }
   }
   private async update(data: IElementData): Promise<void> {
-    return this.renderer.render(this.element, data);
+    return this.renderer.render(this.element, data, {});
   }
 
   private static DummyData: IElementData = {
@@ -70,12 +70,12 @@ class Renderer {
   private addAssetOptions(...assets: AssetOption[]): void {
     this.assets = uniqBy(this.assets.concat(assets), (a) => a.id);
   }
-  async render(element: HTMLElement, data: IElementData): Promise<void> {
+  async render(element: HTMLElement, data: IElementData, props: any): Promise<void> {
     this.assets = [];
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
       element.innerHTML = await this.macroOps.applyTemplate(template, data);
-      await this.macroOps.applyElement(element, data);
+      await this.macroOps.applyElement(element, data, props);
     } else {
       console.warn("missing template", this.model.name, data);
     }
