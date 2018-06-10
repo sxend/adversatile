@@ -63,11 +63,11 @@ class Renderer {
   private assets: AssetOption[] = [];
   constructor(private config: ElementModelConf, private model: ElementModel, private props: {}) {
     this.macroOps = new MacroOps(this.config.macro, {
-      useAssets: (...assets: AssetOption[]) => this.addAssets(...assets)
+      addAssetOptions: (...assets: AssetOption[]) => this.addAssetOptions(...assets)
     });
     this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
   }
-  private addAssets(...assets: AssetOption[]): void {
+  private addAssetOptions(...assets: AssetOption[]): void {
     this.assets = uniqBy(this.assets.concat(assets), (a) => a.id);
   }
   async render(element: HTMLElement, data: IElementData): Promise<void> {
