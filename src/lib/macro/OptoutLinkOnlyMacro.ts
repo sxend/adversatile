@@ -1,4 +1,4 @@
-import { Macro } from "../MacroOps";
+import { Macro, MacroProps } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -7,8 +7,7 @@ import { Dom } from "../misc/Dom";
 export class OptoutLinkOnlyMacro implements Macro {
   constructor(
     private config: MacroConf,
-    private props: {
-    }
+    private props: MacroProps
   ) { }
   getName(): string {
     return "OptoutLinkOnlyMacro";

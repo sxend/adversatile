@@ -118,19 +118,19 @@ export namespace AssetUtils {
   }
   const defaultTextLength = 17;
   const defaultDescriptionLength = 32;
-  function iconImage(widthMin: number, heightMin: number) {
+  export function iconImage(widthMin: number, heightMin: number) {
     return image(getAssetIdByAsset(AssetTypes.ICON_URL), ImgTypes.ICON, widthMin, heightMin);
   };
-  function mainImage(widthMin: number, heightMin: number) {
+  export function mainImage(widthMin: number, heightMin: number) {
     return image(getAssetIdByAsset(AssetTypes.IMAGE_URL), ImgTypes.MAIN, widthMin, heightMin);
   };
-  function titleText(length: number = defaultTextLength) {
+  export function titleText(length: number = defaultTextLength) {
     return title(getAssetIdByAsset(AssetTypes.TITLE_SHORT), length);
   };
-  function descriptiveText(length: number = defaultDescriptionLength) {
+  export function descriptiveText(length: number = defaultDescriptionLength) {
     return data(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), DataTypes.DESC, length);
   };
-  function sponsoredByMessage(length?: number) {
+  export function sponsoredByMessage(length?: number) {
     return data(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), DataTypes.SPONSORED, length);
   };
   function title(assetId: number, textLength: number = defaultTextLength): ReqAssets {

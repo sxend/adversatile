@@ -1,11 +1,15 @@
-import Configuration, { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
+import Configuration, {
+  ElementOption,
+  ElementModelConf,
+  AssetOption
+} from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { firstDefined, uniq, uniqBy } from "./misc/ObjectUtils";
 import { Store } from "./Store";
 import { IElementData } from "../../generated-src/protobuf/messages";
 import { TemplateOps } from "./TemplateOps";
-import { MacroOps } from "./MacroOps";
+import { MacroOps, MacroProps } from "./MacroOps";
 import { Dom } from "./misc/Dom";
 import { Tracking } from "./misc/Tracking";
 
@@ -17,17 +21,20 @@ export class ElementModel {
     private config: ElementModelConf,
     private store: Store,
     private props: {
-      onInit: (self: ElementModel) => void
+      onInit: (self: ElementModel) => void;
     }
   ) {
-    this.renderer = new Renderer(this.config, this, {
-      trackingCall: Tracking.trackingCall
-    });
+    this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
-    (this.option.preRender ? this.update(ElementModel.DummyData) : Promise.resolve()).then(_ => {
-      this.store.on(`change:${this.name}`, () => this.updateWithStore(this.name));
+    (this.option.preRender
+      ? this.update(ElementModel.DummyData)
+      : Promise.resolve()
+    ).then(_ => {
+      this.store.on(`change:${this.name}`, () =>
+        this.updateWithStore(this.name)
+      );
       this.updateWithStore(this.name);
       this.props.onInit(this);
     });
@@ -52,19 +59,28 @@ export class ElementModel {
     }
   }
   private async update(data: IElementData): Promise<void> {
-    return this.renderer.render(this.element, data, this.createRenderProps());
+    return this.renderer.render(
+      this.element,
+      this.createRenderContext(data),
+      this.createRenderProps()
+    );
   }
-  private createRenderProps() {
+  private createRenderContext(data: IElementData): RendererContext {
+    return {
+      data: data
+    };
+  }
+  private createRenderProps(): RendererProps {
     return {
       onImpression: () => console.log("impression"),
       onInview: () => console.log("inview"),
       onViewThrough: () => console.log("vt"),
       onClick: () => console.log("click"),
       trackingCall: Tracking.trackingCall
-    }
+    };
   }
   private static DummyData: IElementData = {
-    message: "...",
+    message: "..."
   };
 }
 
@@ -72,33 +88,33 @@ class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
   private assets: AssetOption[] = [];
-  constructor(private config: ElementModelConf, private model: ElementModel, private props: {
-  }) {
-    this.macroOps = new MacroOps(this.config.macro, {
-      addAssetOptions: (...assets: AssetOption[]) => this.addAssetOptions(...assets),
-    });
-    this.templateOps = new TemplateOps(this.config.templates, this.config.templateQualifierKey);
+  constructor(private config: ElementModelConf, private model: ElementModel) {
+    this.macroOps = new MacroOps(this.config.macro);
+    this.templateOps = new TemplateOps(
+      this.config.templates,
+      this.config.templateQualifierKey
+    );
   }
   private addAssetOptions(...assets: AssetOption[]): void {
-    this.assets = uniqBy(this.assets.concat(assets), (a) => a.id);
+    this.assets = uniqBy(this.assets.concat(assets), asset => asset.id);
   }
-  async render(element: HTMLElement, data: IElementData, props: {
-    onImpression: () => void,
-    onInview: () => void,
-    onViewThrough: () => void,
-    onClick: () => void,
-    trackingCall: (urls: string[], trackingName: string) => Promise<void>
-  }): Promise<void> {
+  async render(
+    element: HTMLElement,
+    context: RendererContext,
+    props: RendererProps
+  ): Promise<void> {
     this.assets = [];
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
-      element.innerHTML = await this.macroOps.applyTemplate(template, data);
-      await this.macroOps.applyElement(element, data, props);
+      element.innerHTML = await this.macroOps.applyTemplate(template, context);
+      await this.macroOps.applyElement(element, context, props);
     } else {
-      console.warn("missing template", this.model.name, data);
+      console.warn("missing template", this.model.name, context);
     }
   }
   getAssets(): AssetOption[] {
     return this.assets;
   }
 }
+interface RendererContext {}
+interface RendererProps extends MacroProps {}

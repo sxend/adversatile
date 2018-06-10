@@ -16,32 +16,24 @@ import { EventEmitter } from "events";
 export class MacroOps {
   constructor(
     private config: MacroConf,
-    private props: {
-      addAssetOptions: (...assets: AssetOption[]) => void
-    }
   ) { }
-  async applyTemplate(template: string, data: any): Promise<string> {
-    return nano(template, data);
+  async applyTemplate(template: string, context: any): Promise<string> {
+    return nano(template, context);
   }
   async applyElement(
     element: HTMLElement,
-    data: any,
-    props: {
-      onImpression: () => void,
-      onInview: () => void,
-      onViewThrough: () => void,
-      onClick: () => void,
-      trackingCall: (urls: string[], trackingName: string) => Promise<void>;
-    }
+    context: any,
+    props: MacroProps
   ): Promise<void> {
-    data.macros = data.macros || {};
-    const appliedMacros: string[] = (data.macros.appliedMacros = []);
-    for (let macro of this.macroStack(data, props)) {
-      await macro.applyMacro(element, data).catch(console.error);
-      appliedMacros.push(macro.getName());
+    context.macro = {};
+    context.macro.metadata = {};
+    context.macro.metadata.appliedMacroNames = [];
+    for (let macro of this.macroStack(props)) {
+      await macro.applyMacro(element, context).catch(console.error);
+      context.macro.metadata.appliedMacroNames.push(macro.getName());
     }
   }
-  private macroStack(data: any, props: any): Macro[] {
+  private macroStack(props: MacroProps): Macro[] {
     return [
       new VideoMacro(this.config, props),
       new MarkupVideoMacro(this.config, props),
@@ -52,18 +44,22 @@ export class MacroOps {
       new SponsoredByMessageMacro(this.config, props),
       new TitleLongMacro(this.config, props),
       new TitleShortMacro(this.config, props),
-      new LinkJsMacro(this.config, {
-        addAssetOptions: this.props.addAssetOptions,
-        trackingCall: props.trackingCall
-      }),
-      new LinkMacro(this.config, {
-        addAssetOptions: this.props.addAssetOptions
-      })
+      new LinkJsMacro(this.config, props),
+      new LinkMacro(this.config, props)
     ];
   }
 }
 
 export interface Macro {
   getName(): string;
-  applyMacro(element: HTMLElement, data: any): Promise<void>;
+  applyMacro(element: HTMLElement, context: any): Promise<void>;
+}
+
+export interface MacroProps {
+  onImpression?: () => void;
+  onInview?: () => void;
+  onViewThrough?: () => void;
+  onClick?: () => void;
+  onClickForSDKBridge?: (url: string, appId?: string) => void;
+  trackingCall?: (urls: string[], trackingName: string) => Promise<void>;
 }

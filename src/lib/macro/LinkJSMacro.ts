@@ -1,4 +1,4 @@
-import { Macro } from "../MacroOps";
+import { Macro, MacroProps } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -7,10 +7,7 @@ import { Dom } from "../misc/Dom";
 export class LinkJsMacro implements Macro {
   constructor(
     private config: MacroConf,
-    private props: {
-      addAssetOptions: (...asset: AssetOption[]) => void;
-      trackingCall: (urls: string[], trackingName: string) => Promise<void>;
-    }
+    private props: MacroProps
   ) { }
   getName(): string {
     return "LinkJsMacro";

@@ -1,4 +1,4 @@
-import { Macro } from "../MacroOps";
+import { Macro, MacroProps } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -11,10 +11,7 @@ import { EventEmitter } from "events";
 export class VideoMacro implements Macro {
   constructor(
     private config: MacroConf,
-    private props: {
-      event: EventEmitter
-      onAdClick?: (url: string, appId?: string) => void
-    }
+    private props: MacroProps
   ) { }
   getName(): string {
     return "VideoMacro";
@@ -40,15 +37,15 @@ export class VideoMacro implements Macro {
     })[0];
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(data.link.url, data.expandParams);
     let onVideoClickHandler: () => void = undefined;
-    if (!!this.props.onAdClick) {
-      onVideoClickHandler = () => this.props.onAdClick(
+    if (!!this.props.onClickForSDKBridge) {
+      onVideoClickHandler = () => this.props.onClickForSDKBridge(
         clickUrlWithExpandedParams,
         data.appId);
     }
 
     const videoPlayerHandler = new VideoPlayerWrapper(element, data, {
-      onImpression: () => this.props.event.emit("impression"),
-      onInview: () => this.props.event.emit("inview"),
+      onImpression: () => this.props.onImpression(),
+      onInview: () => this.props.onInview(),
       onClick: () => onVideoClickHandler()
     });
 
