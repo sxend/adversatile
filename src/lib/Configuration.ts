@@ -11,10 +11,11 @@ export default class Configuration {
 export class ActionConf {
   apiUrl: string = "/* @echo API_URL */";
   jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
-  jsonpFetchPath: string = "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
+  jsonpFetchPath: string =
+    "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
 }
 
-export class StoreConf { }
+export class StoreConf {}
 
 export class ViewModelConf {
   selector: string = ".adversatile";
@@ -49,7 +50,7 @@ export class ElementModelConf {
 }
 
 export class ElementOption {
-  constructor(public name: string) { }
+  constructor(public name: string) {}
   preRender: boolean = true;
   format: string = "native";
   assets: AssetOption[] = []; // FIXME use official asset
@@ -58,21 +59,25 @@ export class ElementOption {
 }
 
 export class AssetOption {
-  constructor(public id: number, public name?: string, public prop: any = {}) {
-  }
+  constructor(public id: number, public name?: string, public prop: any = {}) {}
 }
 
 export class MacroConf {
   link: LinkMacroConf = new LinkMacroConf();
+  linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
 
 export class LinkMacroConf {
-  selectorAttrName: string = 'data-adv-macro-link';
-  markedClass: string = 'adv-link-added';
+  selectorAttrName: string = "data-adv-macro-link";
+  markedClass: string = "adv-link-added";
   urlPlaceholder: string = "adv-url";
   encodedUrlPlaceholder: string = "adv-encoded-url";
   anchorMarkedClass: string = "adv-anchor-link";
-  anchorTargetAttrName: string = "data-adv-anchor-target"
+  anchorTargetAttrName: string = "data-adv-anchor-target";
+}
+export class LinkJsMacroConf {
+  selectorAttrName: string = "data-adv-macro-link-js";
+  openTargetAttrName: string = "data-adv-open-target";
 }
 
 export function isConfiguration(obj: any): boolean {
