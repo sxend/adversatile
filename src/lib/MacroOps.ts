@@ -1,5 +1,6 @@
 import Configuration, { MacroConf, AssetOption } from "./Configuration";
 import { nano } from "./misc/StringUtils";
+import { LinkMacro } from "./macro/LinkMacro";
 
 export class MacroOps {
   constructor(private config: MacroConf, private props: {
@@ -23,20 +24,4 @@ export class MacroOps {
 
 export interface Macro {
   applyMacro(element: HTMLElement, data: any): Promise<void>;
-}
-
-class LinkMacro implements Macro {
-  constructor(private config: MacroConf, private props: {
-    addAssetOptions: (...asset: AssetOption[]) => void
-  }) { }
-  applyMacro(element: HTMLElement, data: any): Promise<void> {
-    const selector = this.config.link.selector;
-    const links: HTMLAnchorElement[] = [].slice.call(element.querySelectorAll(selector));
-    if (links.length === 0) return Promise.resolve();
-    for (let link of links) {
-      if (!data || !data.link || !data.link.url) continue;
-      link.href = data.link.url;
-    }
-    return Promise.resolve();
-  }
 }

@@ -67,7 +67,12 @@ export class MacroConf {
 }
 
 export class LinkMacroConf {
-  selector: string = 'a[data-adv-macro-link]';
+  selectorAttrName: string = 'data-adv-macro-link';
+  markedClass: string = 'adv-link-added';
+  urlPlaceholder: string = "adv-url";
+  encodedUrlPlaceholder: string = "adv-encoded-url";
+  anchorMarkedClass: string = "adv-anchor-link";
+  anchorTargetAttrName: string = "data-adv-anchor-target"
 }
 
 export function isConfiguration(obj: any): boolean {

@@ -21,6 +21,14 @@ export namespace Dom {
   export const canViewportIntersectionMeasurement = TopLevelWindow.then(
     x => x === window.top
   );
+  export function isInIframe(w: Window): boolean {
+    try {
+      return w !== w.parent;
+    } catch (e) {
+      console.log('Failed to refer window.parent.');
+    }
+    return false;
+  }
   function hasFriendryParent(wdw: Window) {
     try {
       return (
