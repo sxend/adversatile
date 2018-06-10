@@ -32,7 +32,7 @@ export class Action {
   }
   private async fetchDataWithJsonp(req: OpenRTB.BidRequest): Promise<OpenRTB.BidResponse> {
     const cb = `__adv_cb_${RandomId.gen()}`;
-    const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonPFetchPath}?${reqToParams(req)}&callback=${cb}`, cb);
+    const result = await Jsonp.fetch(this.config.apiUrl + `${this.config.jsonpFetchPath}?${reqToParams(req)}&callback=${cb}`, cb);
     const res = new OpenRTB.BidResponse();
     res.seatbid = result.payload;
     return res;

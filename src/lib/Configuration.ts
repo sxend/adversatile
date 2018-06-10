@@ -11,7 +11,7 @@ export default class Configuration {
 export class ActionConf {
   apiUrl: string = "/* @echo API_URL */";
   jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
-  jsonPFetchPath: string = "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
+  jsonpFetchPath: string = "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
 }
 
 export class StoreConf { }
