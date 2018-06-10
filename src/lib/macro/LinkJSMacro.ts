@@ -14,7 +14,7 @@ export class LinkJsMacro implements Macro {
     const linkUrl = resultOrElse(() => context.bid.ext.admNative.link.url);
     const clktrckUrl = resultOrElse(() => context.bid.ext.admNative.link.clktrck);
     const expandParams = resultOrElse(() => context.expandParams);
-    if (!linkUrl || !linkUrl) return;
+    if (!linkUrl || !clktrckUrl) return;
     const selector = this.selector();
     const links: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
