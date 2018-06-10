@@ -11,7 +11,7 @@ export namespace OpenRTBUtils {
     imp.banner = format === "banner" ? await createBanner() : void 0;
     return imp;
   }
-  export async function createBidReqWithImp(imp: OpenRTB.Imp[], ext: OpenRTB.ReqExt, ifaAttrName?: string): Promise<OpenRTB.BidRequest> {
+  export async function createBidReqWithImp(imp: OpenRTB.Imp[], ext: OpenRTB.Ext.BidRequestExt, ifaAttrName?: string): Promise<OpenRTB.BidRequest> {
     const wdw = await Dom.TopLevelWindow;
     const siteLocation = wdw.location;
     const siteDocument = wdw.document;
