@@ -163,6 +163,21 @@ export namespace AssetUtils {
       length
     );
   }
+  export function iconImageOption(widthMin: number, heightMin: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.ICON_URL), "iconImage", { w: widthMin, h: heightMin });
+  }
+  export function mainImageOption(widthMin: number, heightMin: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.IMAGE_URL), "mainImage", { w: widthMin, h: heightMin });
+  }
+  export function titleTextOption(length: number = defaultTextLength): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.TITLE_SHORT), "titleText", { len: length });
+  }
+  export function descriptiveTextOption(length: number = defaultDescriptionLength): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), "descriptionText", { len: length });
+  }
+  export function sponsoredByMessageOption(length?: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), "iconImage", { len: length });
+  }
   function title(
     assetId: number,
     textLength: number = defaultTextLength

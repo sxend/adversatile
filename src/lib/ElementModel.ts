@@ -17,6 +17,7 @@ export class ElementModel {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   private isRendered: boolean = false;
+  private detectedAssets: AssetOption[] = [];
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
@@ -48,7 +49,7 @@ export class ElementModel {
   }
   get assets(): AssetOption[] {
     let assets: AssetOption[] = this.option.assets || [];
-    assets = assets.concat(this.renderer.getAssets());
+    assets = assets.concat(this.detectedAssets);
     return assets;
   }
   get excludedBidders(): string[] {
@@ -71,13 +72,18 @@ export class ElementModel {
       bid: bid
     };
   }
+  private addAssetOptions(assets: AssetOption[]) {
+    this.detectedAssets = uniqBy(this.detectedAssets.concat(assets), asset => asset.id);
+  }
   private createRenderProps(): RendererProps {
+    const _addAssetOptions = this.isRendered ? void 0 : (...options: AssetOption[]) => this.addAssetOptions(options);
     return {
       onImpression: () => console.log("impression"),
       onInview: () => console.log("inview"),
       onViewThrough: () => console.log("vt"),
       onClick: () => console.log("click"),
-      trackingCall: Tracking.trackingCall
+      trackingCall: Tracking.trackingCall,
+      addAssetOptions: _addAssetOptions
     };
   }
   private static DummyData: OpenRTB.Bid = <any>{
@@ -88,7 +94,6 @@ export class ElementModel {
 class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
-  private assets: AssetOption[] = [];
   constructor(private config: ElementModelConf, private model: ElementModel) {
     this.macroOps = new MacroOps(this.config.macro);
     this.templateOps = new TemplateOps(
@@ -96,15 +101,11 @@ class Renderer {
       this.config.templateQualifierKey
     );
   }
-  private addAssetOptions(...assets: AssetOption[]): void {
-    this.assets = uniqBy(this.assets.concat(assets), asset => asset.id);
-  }
   async render(
     element: HTMLElement,
     context: RendererContext,
     props: RendererProps
   ): Promise<void> {
-    this.assets = [];
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
       element.innerHTML = await this.macroOps.applyTemplate(template, context);
@@ -112,9 +113,6 @@ class Renderer {
     } else {
       console.warn("missing template", this.model.name, context);
     }
-  }
-  getAssets(): AssetOption[] {
-    return this.assets;
   }
 }
 interface RendererContext { }

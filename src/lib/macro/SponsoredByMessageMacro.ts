@@ -3,6 +3,7 @@ import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
+import { AssetUtils } from "../openrtb/OpenRTBUtils";
 
 export class SponsoredByMessageMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -17,6 +18,9 @@ export class SponsoredByMessageMacro implements Macro {
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
       MacroUtils.insertTextAsset(target, data.asset.title.text);
+      if (this.props.addAssetOptions) {
+        this.props.addAssetOptions(AssetUtils.sponsoredByMessageOption());
+      }
     }
     return Promise.resolve();
   }
