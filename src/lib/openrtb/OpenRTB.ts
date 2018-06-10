@@ -77,16 +77,30 @@ export namespace OpenRTB {
       jstracker?: string;
       ext?: Response.NativeExt;
     }
+    export enum AssetTypes {
+      ICON_URL,
+      IMAGE_URL,
+      LEGACY_SPONSORED_BY_MESSAGE, // Deprecated. Use SPONSORED_BY_MESSAGE for RTB request.
+      LEGACY_TITLE_LONG,           // Deprecated. Use DESCRIPTIVE_TEXT for RTB request.
+      TITLE_SHORT,
+      LOGO_URL,
+      OPTOUT_IMG,
+      OPTOUT_LINK,
+      DESCRIPTIVE_TEXT,
+      SPONSORED_BY_MESSAGE,
+      MARKUP_VIDEO,
+      VIDEO
+    }
     export namespace Request {
       export class Assets {
-        id: number = 1;
-        req: boolean = false;
+        constructor(public id: number = 1, public req: boolean = false) {
+        }
         img?: Img;
         title?: Title;
         data?: Data;
       }
       export class Title {
-        len: number = 0;
+        constructor(public len: number = 0) { }
       }
       export enum ImgTypes {
         ICON = 1,
@@ -94,19 +108,23 @@ export namespace OpenRTB {
         MAIN
       }
       export class Img {
-        type?: number;
-        w?: number;
-        h?: number;
-        wmin?: number;
-        hmin?: number;
+        constructor(
+          public type?: number,
+          public w?: number,
+          public h?: number,
+          public wmin?: number,
+          public hmin?: number,
+        ) { }
       }
       export enum DataTypes {
         SPONSORED = 1,
         DESC = 2
       }
       export class Data {
-        type?: number;
-        len?: number;
+        constructor(
+          public type?: number,
+          len?: number,
+        ) { }
       }
     }
 

@@ -5,7 +5,7 @@ import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
 import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
-import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
+import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class ViewModel {
@@ -88,7 +88,7 @@ export class ViewModel {
         return OpenRTBUtils.createImp(
           option.name,
           option.format,
-          option.assets.map(OpenRTBUtils.optionToNativeAsset),
+          option.assets.map(AssetUtils.optionToNativeAsset),
           impExt
         );
       })
@@ -96,7 +96,7 @@ export class ViewModel {
     return OpenRTBUtils.createBidReqWithImp(
       imp,
       new OpenRTB.Ext.BidRequestExt(),
-      this.config.deviceIfaAttrName
+      OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }
   private async createBidReqFromModels(
@@ -110,7 +110,7 @@ export class ViewModel {
         return OpenRTBUtils.createImp(
           model.name,
           model.option.format,
-          model.assets.map(OpenRTBUtils.optionToNativeAsset),
+          model.assets.map(AssetUtils.optionToNativeAsset),
           impExt
         );
       })
@@ -118,7 +118,7 @@ export class ViewModel {
     return OpenRTBUtils.createBidReqWithImp(
       imp,
       new OpenRTB.Ext.BidRequestExt(),
-      this.config.deviceIfaAttrName
+      OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }
 }
