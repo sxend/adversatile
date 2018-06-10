@@ -12,4 +12,10 @@ export namespace MacroUtils {
     }
     return url + params;
   };
+  export function insertTextAsset(element: HTMLElement, text: string) {
+    if (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+    element.appendChild(document.createTextNode(text));
+  }
 }

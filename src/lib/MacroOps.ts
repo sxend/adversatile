@@ -50,8 +50,8 @@ export class MacroOps {
       new OptoutLinkMacro(this.config, props),
       new OptoutLinkOnlyMacro(this.config, props),
       new SponsoredByMessageMacro(this.config, {}),
-      new TitleLongMacro(this.config, {}),
-      new TitleShortMacro(this.config, {}),
+      new TitleLongMacro(this.config, props),
+      new TitleShortMacro(this.config, props),
       new LinkJsMacro(this.config, {
         addAssetOptions: this.props.addAssetOptions,
         trackingCall: props.trackingCall

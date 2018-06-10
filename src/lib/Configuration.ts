@@ -65,8 +65,10 @@ export class AssetOption {
 export class MacroConf {
   video: VideoMacroConf = new VideoMacroConf();
   markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
-  optoutLinkMacro: OptoutLinkMacroConf = new OptoutLinkMacroConf();
-  optoutLinkOnlyMacro: OptoutLinkOnlyMacroConf = new OptoutLinkOnlyMacroConf();
+  optoutLink: OptoutLinkMacroConf = new OptoutLinkMacroConf();
+  optoutLinkOnly: OptoutLinkOnlyMacroConf = new OptoutLinkOnlyMacroConf();
+  titleLong: TitleLongMacroConf = new TitleLongMacroConf();
+  titleShort: TitleShortMacroConf = new TitleShortMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
@@ -87,6 +89,12 @@ export class OptoutLinkOnlyMacroConf {
   selectorAttrName: string = "data-adv-macro-optout-link-only";
   markedClass: string = "adv-optout-link-only-added";
   anchorTargetAttrName: string = "data-adv-anchor-target";
+}
+export class TitleLongMacroConf {
+  selectorAttrName: string = "data-adv-macro-title-long";
+}
+export class TitleShortMacroConf {
+  selectorAttrName: string = "data-adv-macro-title-short";
 }
 export class LinkMacroConf {
   selectorAttrName: string = "data-adv-macro-link";

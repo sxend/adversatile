@@ -14,16 +14,17 @@ export class TitleLongMacro implements Macro {
     return "TitleLongMacro";
   }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data) return;
-    const targets: HTMLAnchorElement[] = [].slice.call(
+    if (!data || !data.asset || !data.asset.title) return;
+    const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
+      MacroUtils.insertTextAsset(target, data.asset.title.text);
     }
     return Promise.resolve();
   }
   private selector(): string {
-    return "";
+    return `[${this.config.titleLong.selectorAttrName}]`;
   }
 }

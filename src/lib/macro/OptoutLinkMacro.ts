@@ -28,7 +28,7 @@ export class OptoutLinkMacro implements Macro {
       }
       const optoutImg: HTMLImageElement = document.createElement("img");
       optoutImg.src = data.asset.img.url;
-      optoutImg.classList.add(this.config.optoutLinkMacro.markedClass);
+      optoutImg.classList.add(this.config.optoutLink.markedClass);
       optoutLink.appendChild(optoutImg);
       target.parentElement.appendChild(optoutLink);
       target.parentElement.removeChild(target);
@@ -36,6 +36,6 @@ export class OptoutLinkMacro implements Macro {
     return Promise.resolve();
   }
   private selector(): string {
-    return `[${this.config.optoutLinkMacro.selectorAttrName}]`;
+    return `[${this.config.optoutLink.selectorAttrName}]`;
   }
 }

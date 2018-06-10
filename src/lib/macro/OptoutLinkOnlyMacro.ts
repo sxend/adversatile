@@ -22,7 +22,7 @@ export class OptoutLinkOnlyMacro implements Macro {
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       anchor.href = data.asset.link.url;
-      const anchorTarget = target.getAttribute(this.config.optoutLinkOnlyMacro.anchorTargetAttrName);
+      const anchorTarget = target.getAttribute(this.config.optoutLinkOnly.anchorTargetAttrName);
       if (anchorTarget) {
         anchor.target = anchorTarget;
       } else {
@@ -34,14 +34,14 @@ export class OptoutLinkOnlyMacro implements Macro {
       if (target.parentElement) {
         target.parentElement.insertBefore(anchor, target);
       }
-      target.classList.add(this.config.optoutLinkOnlyMacro.markedClass);
+      target.classList.add(this.config.optoutLinkOnly.markedClass);
       anchor.appendChild(target);
     }
     return Promise.resolve();
   }
   private selector(): string {
-    const selector = this.config.optoutLinkOnlyMacro.selectorAttrName;
-    const markedClass = this.config.optoutLinkOnlyMacro.markedClass;
+    const selector = this.config.optoutLinkOnly.selectorAttrName;
+    const markedClass = this.config.optoutLinkOnly.markedClass;
     return `[${selector}]:not(.${markedClass})`;
   }
 }
