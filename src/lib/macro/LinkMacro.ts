@@ -9,22 +9,22 @@ export class LinkMacro implements Macro {
   getName(): string {
     return "LinkMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.link || !data.link.url) return;
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.link || !context.link.url) return;
     const selector = this.selector();
     const links: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
     );
     if (links.length === 0) return Promise.resolve();
     const clickUrl: string = MacroUtils.addExpandParams(
-      data.link.url,
-      data.expandParams
+      context.link.url,
+      context.expandParams
     );
     for (let link of links) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       if (!!this.props.onClickForSDKBridge) {
         anchor.onclick = () => {
-          const passingAppId: string | null = !!data.appId ? data.appId : null;
+          const passingAppId: string | null = !!context.appId ? context.appId : null;
           this.props.onClickForSDKBridge(clickUrl, passingAppId);
         };
       } else {

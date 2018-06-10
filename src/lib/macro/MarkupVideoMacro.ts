@@ -9,8 +9,8 @@ export class MarkupVideoMacro implements Macro {
   getName(): string {
     return "MarkupVideoMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.asset || !data.asset.data || !data.asset.data.value)
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.asset || !context.asset.data || !context.asset.data.value)
       return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
@@ -24,9 +24,9 @@ export class MarkupVideoMacro implements Macro {
         target.removeChild(target.firstChild);
       }
       target.appendChild(divChildElement);
-      divChildElement.innerHTML = data.asset.data.value;
+      divChildElement.innerHTML = context.asset.data.value;
       divChildElement.onclick = () => {
-        this.props.trackingCall([data.link.url], "click-track-beacon");
+        this.props.trackingCall([context.link.url], "click-track-beacon");
       };
       // fireScript(divChildElements); // FIXME fire inner script tag
     }

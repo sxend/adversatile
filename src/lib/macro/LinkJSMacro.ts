@@ -9,8 +9,8 @@ export class LinkJsMacro implements Macro {
   getName(): string {
     return "LinkJsMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.link || !data.link.url || !data.link.clktrck) return;
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.link || !context.link.url || !context.link.clktrck) return;
     const selector = this.selector();
     const links: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
@@ -19,23 +19,23 @@ export class LinkJsMacro implements Macro {
     for (let link of links) {
       link.style.cursor = "auto";
       link.onclick = async () => {
-        await this.props.trackingCall(data.link.clktrck, "click-track-beacon");
+        await this.props.trackingCall(context.link.clktrck, "click-track-beacon");
         const openTarget = link.getAttribute(
           this.config.linkJs.openTargetAttrName
         );
         if (openTarget === "self") {
           window.location.href = MacroUtils.addExpandParams(
-            data.link.url,
-            data.expandParams
+            context.link.url,
+            context.expandParams
           );
         } else if (openTarget === "top") {
           window.open(
-            MacroUtils.addExpandParams(data.link.url, data.expandParams),
+            MacroUtils.addExpandParams(context.link.url, context.expandParams),
             "_top"
           );
         } else {
           window.open(
-            MacroUtils.addExpandParams(data.link.url, data.expandParams),
+            MacroUtils.addExpandParams(context.link.url, context.expandParams),
             "_blank"
           );
         }

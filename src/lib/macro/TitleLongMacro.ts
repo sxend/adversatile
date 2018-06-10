@@ -10,14 +10,14 @@ export class TitleLongMacro implements Macro {
   getName(): string {
     return "TitleLongMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.asset || !data.asset.title) return;
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.asset || !context.asset.title) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
-      MacroUtils.insertTextAsset(target, data.asset.title.text);
+      MacroUtils.insertTextAsset(target, context.asset.title.text);
       if (this.props.addAssetOptions) {
         this.props.addAssetOptions(AssetUtils.descriptiveTextOption());
       }

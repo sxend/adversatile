@@ -9,15 +9,15 @@ export class OptoutLinkOnlyMacro implements Macro {
   getName(): string {
     return "OptoutLinkOnlyMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.asset) return;
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.asset) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
-      anchor.href = data.asset.link.url;
+      anchor.href = context.asset.link.url;
       const anchorTarget = target.getAttribute(
         this.config.optoutLinkOnly.anchorTargetAttrName
       );

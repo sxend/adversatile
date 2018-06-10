@@ -13,8 +13,8 @@ export class VideoMacro implements Macro {
   getName(): string {
     return "VideoMacro";
   }
-  async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data || !data.link || !data.link.url) return;
+  async applyMacro(element: HTMLElement, context: any): Promise<void> {
+    if (!context || !context.link || !context.link.url) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
@@ -27,27 +27,27 @@ export class VideoMacro implements Macro {
       await this.loadVideoPlayer();
     }
     for (let target of targets) {
-      this.onVideoPlayerLoaded(target, data);
+      this.onVideoPlayerLoaded(target, context);
     }
     return Promise.resolve();
   }
-  private onVideoPlayerLoaded(element: HTMLElement, data: any) {
-    const mainImageAsset = data.assets.filter(
+  private onVideoPlayerLoaded(element: HTMLElement, context: any) {
+    const mainImageAsset = context.assets.filter(
       (a: OpenRTB.NativeAd.Response.Assets) => {
         return AssetUtils.getAssetByAssetId(a.id) === AssetTypes.IMAGE_URL;
       }
     )[0];
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
-      data.link.url,
-      data.expandParams
+      context.link.url,
+      context.expandParams
     );
     let onVideoClickHandler: () => void = undefined;
     if (!!this.props.onClickForSDKBridge) {
       onVideoClickHandler = () =>
-        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, data.appId);
+        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, context.appId);
     }
 
-    const videoPlayerHandler = new VideoPlayerWrapper(element, data, {
+    const videoPlayerHandler = new VideoPlayerWrapper(element, context, {
       onImpression: () => this.props.onImpression(),
       onInview: () => this.props.onInview(),
       onClick: () => onVideoClickHandler()
@@ -71,7 +71,7 @@ export class VideoMacro implements Macro {
 class VideoPlayerWrapper {
   constructor(
     private element: HTMLElement,
-    private data: any,
+    private context: any,
     private props: {
       onImpression: () => void;
       onInview: () => void;
