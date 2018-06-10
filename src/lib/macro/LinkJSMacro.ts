@@ -5,10 +5,7 @@ import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
 export class LinkJsMacro implements Macro {
-  constructor(
-    private config: MacroConf,
-    private props: MacroProps
-  ) { }
+  constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "LinkJsMacro";
   }
@@ -23,7 +20,9 @@ export class LinkJsMacro implements Macro {
       link.style.cursor = "auto";
       link.onclick = async () => {
         await this.props.trackingCall(data.link.clktrck, "click-track-beacon");
-        const openTarget = link.getAttribute(this.config.linkJs.openTargetAttrName);
+        const openTarget = link.getAttribute(
+          this.config.linkJs.openTargetAttrName
+        );
         if (openTarget === "self") {
           window.location.href = MacroUtils.addExpandParams(
             data.link.url,

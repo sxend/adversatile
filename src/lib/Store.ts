@@ -1,14 +1,14 @@
 import Configuration, { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
-import { IElementData, ElementData } from "../../generated-src/protobuf/messages";
+import {
+  IElementData,
+  ElementData
+} from "../../generated-src/protobuf/messages";
 
 export class Store extends EventEmitter {
   private state: any = {};
-  constructor(
-    private config: StoreConf,
-    private dispatcher: IDispatcher
-  ) {
+  constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
     this.dispatcher.onDispatch("FetchData", (data: ElementData) => {
       this.onElementData(data);

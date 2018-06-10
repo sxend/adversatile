@@ -9,10 +9,7 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { EventEmitter } from "events";
 
 export class VideoMacro implements Macro {
-  constructor(
-    private config: MacroConf,
-    private props: MacroProps
-  ) { }
+  constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "VideoMacro";
   }
@@ -23,7 +20,10 @@ export class VideoMacro implements Macro {
     );
     if (targets.length === 0) return Promise.resolve();
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
-    if (!(<any>window)[VideoPlayerObjectName] || !(<any>window)[VideoPlayerObjectName].VideoPlayer) {
+    if (
+      !(<any>window)[VideoPlayerObjectName] ||
+      !(<any>window)[VideoPlayerObjectName].VideoPlayer
+    ) {
       await this.loadVideoPlayer();
     }
     for (let target of targets) {
@@ -32,15 +32,19 @@ export class VideoMacro implements Macro {
     return Promise.resolve();
   }
   private onVideoPlayerLoaded(element: HTMLElement, data: any) {
-    const mainImageAsset = data.assets.filter((a: OpenRTB.NativeAd.Response.Assets) => {
-      return AssetUtils.getAssetByAssetId(a.id) === AssetTypes.IMAGE_URL
-    })[0];
-    const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(data.link.url, data.expandParams);
+    const mainImageAsset = data.assets.filter(
+      (a: OpenRTB.NativeAd.Response.Assets) => {
+        return AssetUtils.getAssetByAssetId(a.id) === AssetTypes.IMAGE_URL;
+      }
+    )[0];
+    const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
+      data.link.url,
+      data.expandParams
+    );
     let onVideoClickHandler: () => void = undefined;
     if (!!this.props.onClickForSDKBridge) {
-      onVideoClickHandler = () => this.props.onClickForSDKBridge(
-        clickUrlWithExpandedParams,
-        data.appId);
+      onVideoClickHandler = () =>
+        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, data.appId);
     }
 
     const videoPlayerHandler = new VideoPlayerWrapper(element, data, {
@@ -65,11 +69,15 @@ export class VideoMacro implements Macro {
   }
 }
 class VideoPlayerWrapper {
-  constructor(private element: HTMLElement, private data: any, private props: {
-    onImpression: () => void
-    onInview: () => void
-    onClick: () => void
-  }) { }
+  constructor(
+    private element: HTMLElement,
+    private data: any,
+    private props: {
+      onImpression: () => void;
+      onInview: () => void;
+      onClick: () => void;
+    }
+  ) { }
   render() {
     // FIXME implement video player
     this.props.onImpression();

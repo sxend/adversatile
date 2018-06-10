@@ -5,10 +5,7 @@ import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
 export class MarkupVideoMacro implements Macro {
-  constructor(
-    private config: MacroConf,
-    private props: MacroProps
-  ) { }
+  constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "MarkupVideoMacro";
   }

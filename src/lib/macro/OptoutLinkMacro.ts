@@ -5,10 +5,7 @@ import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
 export class OptoutLinkMacro implements Macro {
-  constructor(
-    private config: MacroConf,
-    private props: MacroProps
-  ) { }
+  constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "OptoutLinkMacro";
   }
@@ -21,10 +18,10 @@ export class OptoutLinkMacro implements Macro {
     for (let target of targets) {
       const optoutLink: HTMLAnchorElement = document.createElement("a");
       optoutLink.href = data.asset.link.url;
-      optoutLink.target = '_blank';
+      optoutLink.target = "_blank";
       optoutLink.onclick = function(e) {
         e.stopPropagation();
-      }
+      };
       const optoutImg: HTMLImageElement = document.createElement("img");
       optoutImg.src = data.asset.img.url;
       optoutImg.classList.add(this.config.optoutLink.markedClass);

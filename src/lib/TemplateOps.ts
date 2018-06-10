@@ -1,13 +1,17 @@
 import { firstDefined } from "./misc/ObjectUtils";
 
 export class TemplateOps {
-  constructor(private templates: { [id: string]: string }, private templateQualifierKey: string) {
-  }
+  constructor(
+    private templates: { [id: string]: string },
+    private templateQualifierKey: string
+  ) { }
   async resolveTemplate(...ids: string[]): Promise<string | undefined> {
-    const template = firstDefined([].concat(
-      ids.map(id => this.resolveExternalTemplate(id)),
-      ids.map(id => this.templates[id])
-    ));
+    const template = firstDefined(
+      [].concat(
+        ids.map(id => this.resolveExternalTemplate(id)),
+        ids.map(id => this.templates[id])
+      )
+    );
     return template;
   }
   resolveExternalTemplate(qualifier: string): string | undefined {

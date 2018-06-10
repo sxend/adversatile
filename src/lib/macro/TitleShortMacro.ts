@@ -5,11 +5,7 @@ import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 
 export class TitleShortMacro implements Macro {
-  constructor(
-    private config: MacroConf,
-    private props: {
-    }
-  ) { }
+  constructor(private config: MacroConf, private props: {}) { }
   getName(): string {
     return "TitleShortMacro";
   }

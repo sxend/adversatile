@@ -1,5 +1,8 @@
 export namespace MacroUtils {
-  export function addExpandParams(url: string, expandParams: [{ name: string; value: string | number }]): string {
+  export function addExpandParams(
+    url: string,
+    expandParams: [{ name: string; value: string | number }]
+  ): string {
     if (!expandParams) {
       return url;
     }
@@ -11,7 +14,7 @@ export namespace MacroUtils {
       }
     }
     return url + params;
-  };
+  }
   export function insertTextAsset(element: HTMLElement, text: string) {
     if (element.firstChild) {
       element.removeChild(element.firstChild);

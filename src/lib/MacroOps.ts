@@ -14,9 +14,7 @@ import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { EventEmitter } from "events";
 
 export class MacroOps {
-  constructor(
-    private config: MacroConf,
-  ) { }
+  constructor(private config: MacroConf) { }
   async applyTemplate(template: string, context: any): Promise<string> {
     return nano(template, context);
   }

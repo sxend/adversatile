@@ -6,9 +6,9 @@ export function uniq<A>(arr: A[]): A[] {
 }
 export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
   const flags: any = {};
-  return arr.filter((x) => {
+  return arr.filter(x => {
     const key = condition(x);
     if (flags[key]) return false;
-    return flags[key] = true;
+    return (flags[key] = true);
   });
 }

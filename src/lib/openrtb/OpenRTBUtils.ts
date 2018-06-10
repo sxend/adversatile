@@ -4,7 +4,12 @@ import Adversatile from "../../Adversatile";
 import { AssetOption } from "../Configuration";
 
 export namespace OpenRTBUtils {
-  export async function createImp(id: string, format: string, assets: OpenRTB.NativeAd.Request.Assets[], ext: OpenRTB.Ext.ImpressionExt) {
+  export async function createImp(
+    id: string,
+    format: string,
+    assets: OpenRTB.NativeAd.Request.Assets[],
+    ext: OpenRTB.Ext.ImpressionExt
+  ) {
     const imp = new OpenRTB.Imp();
     imp.id = id;
     imp.tagid = id;
@@ -13,14 +18,18 @@ export namespace OpenRTBUtils {
     imp.ext = ext;
     return imp;
   }
-  export async function createBidReqWithImp(imp: OpenRTB.Imp[], ext: OpenRTB.Ext.BidRequestExt, ifa?: string): Promise<OpenRTB.BidRequest> {
+  export async function createBidReqWithImp(
+    imp: OpenRTB.Imp[],
+    ext: OpenRTB.Ext.BidRequestExt,
+    ifa?: string
+  ): Promise<OpenRTB.BidRequest> {
     const wdw = await Dom.TopLevelWindow;
     const siteLocation = wdw.location;
     const siteDocument = wdw.document;
     const site = new OpenRTB.Site();
-    site.page = siteLocation.href,
-      site.domain = siteLocation.hostname,
-      site.ref = !!siteDocument ? siteDocument.referrer : void 0
+    (site.page = siteLocation.href),
+      (site.domain = siteLocation.hostname),
+      (site.ref = !!siteDocument ? siteDocument.referrer : void 0);
     const device = new OpenRTB.Device();
     device.ifa = ifa;
     const app = new OpenRTB.App();
@@ -33,7 +42,9 @@ export namespace OpenRTBUtils {
     req.ext = ext;
     return req;
   }
-  export async function createNative(assets: OpenRTB.NativeAd.Request.Assets[]): Promise<OpenRTB.Native> {
+  export async function createNative(
+    assets: OpenRTB.NativeAd.Request.Assets[]
+  ): Promise<OpenRTB.Native> {
     const native = new OpenRTB.Native();
     native.request = new OpenRTB.NativeAd.AdRequest();
     native.request.ver = "1";
@@ -47,9 +58,7 @@ export namespace OpenRTBUtils {
   }
   export function getIfa(ifaAttrName?: string): string {
     if (ifaAttrName) {
-      const element = document.querySelector(
-        `[${ifaAttrName}]`
-      );
+      const element = document.querySelector(`[${ifaAttrName}]`);
       if (element && element.getAttribute(ifaAttrName)) {
         return element.getAttribute(ifaAttrName);
       }
@@ -81,10 +90,10 @@ export namespace AssetUtils {
 
   export function getAssetByAssetId(id: number): AssetTypes {
     return assetIdMap[id];
-  };
+  }
   function getAssetIdByAsset(asset: AssetTypes): number {
     return asset + 1;
-  };
+  }
   function getImageTypeByAsset(assetId: AssetTypes): number {
     switch (assetId) {
       case AssetTypes.ICON_URL:
@@ -96,8 +105,10 @@ export namespace AssetUtils {
       default:
         return ImgTypes.ICON;
     }
-  };
-  export function optionToNativeAsset(option: AssetOption): ReqAssets | undefined {
+  }
+  export function optionToNativeAsset(
+    option: AssetOption
+  ): ReqAssets | undefined {
     const asset = new ReqAssets();
     if (option.name === "iconImage") {
       return iconImage(option.prop["w"], option.prop["h"]);
@@ -119,28 +130,60 @@ export namespace AssetUtils {
   const defaultTextLength = 17;
   const defaultDescriptionLength = 32;
   export function iconImage(widthMin: number, heightMin: number) {
-    return image(getAssetIdByAsset(AssetTypes.ICON_URL), ImgTypes.ICON, widthMin, heightMin);
-  };
+    return image(
+      getAssetIdByAsset(AssetTypes.ICON_URL),
+      ImgTypes.ICON,
+      widthMin,
+      heightMin
+    );
+  }
   export function mainImage(widthMin: number, heightMin: number) {
-    return image(getAssetIdByAsset(AssetTypes.IMAGE_URL), ImgTypes.MAIN, widthMin, heightMin);
-  };
+    return image(
+      getAssetIdByAsset(AssetTypes.IMAGE_URL),
+      ImgTypes.MAIN,
+      widthMin,
+      heightMin
+    );
+  }
   export function titleText(length: number = defaultTextLength) {
     return title(getAssetIdByAsset(AssetTypes.TITLE_SHORT), length);
-  };
+  }
   export function descriptiveText(length: number = defaultDescriptionLength) {
-    return data(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), DataTypes.DESC, length);
-  };
+    return data(
+      getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT),
+      DataTypes.DESC,
+      length
+    );
+  }
   export function sponsoredByMessage(length?: number) {
-    return data(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), DataTypes.SPONSORED, length);
-  };
-  function title(assetId: number, textLength: number = defaultTextLength): ReqAssets {
+    return data(
+      getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE),
+      DataTypes.SPONSORED,
+      length
+    );
+  }
+  function title(
+    assetId: number,
+    textLength: number = defaultTextLength
+  ): ReqAssets {
     var asset = new ReqAssets(assetId, true);
     asset.title = new OpenRTB.NativeAd.Request.Title(textLength);
     return asset;
   }
-  function image(assetId: number, typeId: number, widthMin: number, heightMin: number) {
+  function image(
+    assetId: number,
+    typeId: number,
+    widthMin: number,
+    heightMin: number
+  ) {
     var asset = new ReqAssets(assetId, true);
-    asset.img = new OpenRTB.NativeAd.Request.Img(typeId, undefined, undefined, widthMin, heightMin);
+    asset.img = new OpenRTB.NativeAd.Request.Img(
+      typeId,
+      undefined,
+      undefined,
+      widthMin,
+      heightMin
+    );
     return asset;
   }
   function data(assetId: number, typeId: number, length?: number) {

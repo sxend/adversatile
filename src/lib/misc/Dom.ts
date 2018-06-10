@@ -25,7 +25,7 @@ export namespace Dom {
     try {
       return w !== w.parent;
     } catch (e) {
-      console.log('Failed to refer window.parent.');
+      console.log("Failed to refer window.parent.");
     }
     return false;
   }

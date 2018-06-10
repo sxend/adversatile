@@ -116,5 +116,5 @@ class Renderer {
     return this.assets;
   }
 }
-interface RendererContext {}
-interface RendererProps extends MacroProps {}
+interface RendererContext { }
+interface RendererProps extends MacroProps { }
