@@ -69,6 +69,7 @@ export class MacroConf {
   optoutLinkOnly: OptoutLinkOnlyMacroConf = new OptoutLinkOnlyMacroConf();
   titleLong: TitleLongMacroConf = new TitleLongMacroConf();
   titleShort: TitleShortMacroConf = new TitleShortMacroConf();
+  sponsoredByMessage: SponsoredByMessageMacroConf = new SponsoredByMessageMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
@@ -95,6 +96,9 @@ export class TitleLongMacroConf {
 }
 export class TitleShortMacroConf {
   selectorAttrName: string = "data-adv-macro-title-short";
+}
+export class SponsoredByMessageMacroConf {
+  selectorAttrName: string = "data-adv-macro-sponsored-by-message";
 }
 export class LinkMacroConf {
   selectorAttrName: string = "data-adv-macro-link";

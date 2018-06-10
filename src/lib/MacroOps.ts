@@ -49,7 +49,7 @@ export class MacroOps {
       new IconImageMacro(this.config, {}),
       new OptoutLinkMacro(this.config, props),
       new OptoutLinkOnlyMacro(this.config, props),
-      new SponsoredByMessageMacro(this.config, {}),
+      new SponsoredByMessageMacro(this.config, props),
       new TitleLongMacro(this.config, props),
       new TitleShortMacro(this.config, props),
       new LinkJsMacro(this.config, {
