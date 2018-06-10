@@ -64,6 +64,7 @@ export class AssetOption {
 
 export class MacroConf {
   video: VideoMacroConf = new VideoMacroConf();
+  markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
@@ -71,6 +72,10 @@ export class VideoMacroConf {
   selectorAttrName: string = "data-adv-macro-video";
   videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URI */" || "";
   videoPlayerObjectName: string = "/* @echo VIDEO_PLAYER_OBJECT_NAME */" || "";
+}
+export class MarkupVideoMacroConf {
+  selectorAttrName: string = "data-adv-img";
+  markedId: string = "adv-markup-video";
 }
 export class LinkMacroConf {
   selectorAttrName: string = "data-adv-macro-link";
