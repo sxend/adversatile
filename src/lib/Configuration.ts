@@ -65,11 +65,13 @@ export class AssetOption {
 export class MacroConf {
   video: VideoMacroConf = new VideoMacroConf();
   markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
+  mainImage: MainImageMacroConf = new MainImageMacroConf();
+  iconImage: IconImageMacroConf = new IconImageMacroConf();
   optoutLink: OptoutLinkMacroConf = new OptoutLinkMacroConf();
   optoutLinkOnly: OptoutLinkOnlyMacroConf = new OptoutLinkOnlyMacroConf();
+  sponsoredByMessage: SponsoredByMessageMacroConf = new SponsoredByMessageMacroConf();
   titleLong: TitleLongMacroConf = new TitleLongMacroConf();
   titleShort: TitleShortMacroConf = new TitleShortMacroConf();
-  sponsoredByMessage: SponsoredByMessageMacroConf = new SponsoredByMessageMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
 }
@@ -81,6 +83,12 @@ export class VideoMacroConf {
 export class MarkupVideoMacroConf {
   selectorAttrName: string = "data-adv-macro-img";
   markedId: string = "adv-markup-video";
+}
+export class MainImageMacroConf {
+  selectorAttrName: string = "data-adv-macro-img";
+}
+export class IconImageMacroConf {
+  selectorAttrName: string = "data-adv-macro-icon";
 }
 export class OptoutLinkMacroConf {
   selectorAttrName: string = "data-adv-macro-optout-link";

@@ -45,8 +45,8 @@ export class MacroOps {
     return [
       new VideoMacro(this.config, props),
       new MarkupVideoMacro(this.config, props),
-      new MainImageMacro(this.config, {}),
-      new IconImageMacro(this.config, {}),
+      new MainImageMacro(this.config, props),
+      new IconImageMacro(this.config, props),
       new OptoutLinkMacro(this.config, props),
       new OptoutLinkOnlyMacro(this.config, props),
       new SponsoredByMessageMacro(this.config, props),

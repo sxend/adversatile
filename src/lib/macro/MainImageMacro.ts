@@ -14,16 +14,17 @@ export class MainImageMacro implements Macro {
     return "MainImageMacro";
   }
   async applyMacro(element: HTMLElement, data: any): Promise<void> {
-    if (!data) return;
-    const targets: HTMLAnchorElement[] = [].slice.call(
+    if (!data || !data.asset) return;
+    const targets: HTMLImageElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
     if (targets.length === 0) return Promise.resolve();
     for (let target of targets) {
+      target.src = data.asset.img.url;
     }
     return Promise.resolve();
   }
   private selector(): string {
-    return "";
+    return `img[${this.config.mainImage.selectorAttrName}]`;
   }
 }
