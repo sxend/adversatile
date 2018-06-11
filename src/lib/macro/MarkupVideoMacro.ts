@@ -1,17 +1,23 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
+import { AssetUtils } from "../openrtb/OpenRTBUtils";
+import { OpenRTB } from "../openrtb/OpenRTB";
+import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import ResAssets = OpenRTB.NativeAd.Response.Assets;
+
 
 export class MarkupVideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "MarkupVideoMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    if (!context || !context.asset || !context.asset.data || !context.asset.data.value)
-      return;
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const data = <ResAssets>AssetUtils.findAsset(context.assets, AssetTypes.MARKUP_VIDEO);
+    if (!data || !data.data || !context.admNative || !context.admNative.link) return;
+    const link = context.admNative.link;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
@@ -24,9 +30,9 @@ export class MarkupVideoMacro implements Macro {
         target.removeChild(target.firstChild);
       }
       target.appendChild(divChildElement);
-      divChildElement.innerHTML = context.asset.data.value;
+      divChildElement.innerHTML = data.data.value;
       divChildElement.onclick = () => {
-        this.props.trackingCall([context.link.url], "click-track-beacon");
+        this.props.trackingCall([link.url], "click-track-beacon");
       };
       // fireScript(divChildElements); // FIXME fire inner script tag
     }
