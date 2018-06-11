@@ -19,7 +19,6 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: [
-          "ts-loader",
           {
             loader: "preprocess-loader",
             options: (function() {
@@ -35,7 +34,8 @@ module.exports = {
               } catch (e) {}
               return context;
             })()
-          }
+          },
+          "ts-loader"
         ],
         exclude: /node_modules/
       }
