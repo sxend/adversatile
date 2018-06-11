@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -14,10 +14,8 @@ export class TitleLongMacro implements Macro {
   getName(): string {
     return "TitleLongMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const textId = AssetUtils.getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT);
-    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
-    const text = assets.find(asset => asset.id === textId);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const text = AssetUtils.findAsset(context.assets, AssetTypes.DESCRIPTIVE_TEXT);
     if (!text) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

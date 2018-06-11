@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -7,16 +7,15 @@ import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export class TitleShortMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "TitleShortMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const titleId = AssetUtils.getAssetIdByAsset(AssetTypes.TITLE_SHORT);
-    const assets: ResAssets[] = context.bid.ext.admNative.assets;
-    const title = assets.find(asset => asset.id === titleId);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const title = AssetUtils.findAsset(context.assets, AssetTypes.TITLE_SHORT);
     if (!title) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

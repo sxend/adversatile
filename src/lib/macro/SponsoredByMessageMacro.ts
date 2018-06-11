@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -14,10 +14,8 @@ export class SponsoredByMessageMacro implements Macro {
   getName(): string {
     return "SponsoredByMessageMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const messageId = AssetUtils.getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE);
-    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
-    const message = assets.find(asset => asset.id === messageId);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const message = AssetUtils.findAsset(context.assets, AssetTypes.SPONSORED_BY_MESSAGE);
     if (!message) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

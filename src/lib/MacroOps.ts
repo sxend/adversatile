@@ -12,23 +12,22 @@ import { SponsoredByMessageMacro } from "./macro/SponsoredByMessageMacro";
 import { TitleLongMacro } from "./macro/TitleLongMacro";
 import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { EventEmitter } from "events";
+import { OpenRTB } from "./openrtb/OpenRTB";
+import { resultOrElse } from "./misc/ObjectUtils";
 
 export class MacroOps {
   constructor(private config: MacroConf) { }
-  async applyTemplate(template: string, context: any): Promise<string> {
+  async applyTemplate(template: string, context: MacroContext): Promise<string> {
     return nano(template, context);
   }
   async applyElement(
     element: HTMLElement,
-    context: any,
-    props: MacroProps
+    context: MacroContext
   ): Promise<void> {
-    context.macro = {};
-    context.macro.metadata = {};
-    context.macro.metadata.appliedMacroNames = [];
-    for (let macro of this.macroStack(props)) {
+    context.ext.macro.metadata.appliedMacroNames = [];
+    for (let macro of this.macroStack(context.props)) {
       await macro.applyMacro(element, context).catch(console.error);
-      context.macro.metadata.appliedMacroNames.push(macro.getName());
+      context.ext.macro.metadata.appliedMacroNames.push(macro.getName());
     }
   }
   private macroStack(props: MacroProps): Macro[] {
@@ -50,7 +49,7 @@ export class MacroOps {
 
 export interface Macro {
   getName(): string;
-  applyMacro(element: HTMLElement, context: any): Promise<void>;
+  applyMacro(element: HTMLElement, context: MacroContext): Promise<void>;
 }
 
 export interface MacroProps {
@@ -61,4 +60,18 @@ export interface MacroProps {
   onClickForSDKBridge?: (url: string, appId?: string) => void;
   trackingCall?: (urls: string[], trackingName: string) => Promise<void>;
   addAssetOptions?: (...option: AssetOption[]) => void;
+}
+export class MacroContext {
+  public assets: OpenRTB.NativeAd.Response.Assets[];
+  public admNative: OpenRTB.NativeAd.AdResponse;
+  constructor(
+    public props: MacroProps,
+    public bid: OpenRTB.Bid,
+    public ext: any = {},
+  ) {
+    ext.macro = ext.macro || {};
+    ext.macro.metadata = ext.macro.metadata || {};
+    this.assets = resultOrElse(() => bid.ext.admNative.assets, []);
+    this.admNative = resultOrElse(() => bid.ext.admNative);
+  }
 }

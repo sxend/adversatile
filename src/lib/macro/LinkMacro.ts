@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -14,21 +14,21 @@ export class LinkMacro implements Macro {
   getName(): string {
     return "LinkMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const linkUrl = resultOrElse(() => context.bid.ext.admNative.link.url);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    if (!context.admNative || !context.admNative.link) return;
+    const link = context.admNative.link;
     const appId = resultOrElse(() => context.bid.ext.appId);
-    const expandParams = resultOrElse(() => context.expandParams);
-    if (!linkUrl) return;
+    const expandParams = resultOrElse(() => context.ext.expandParams);
     const selector = this.selector();
-    const links: HTMLElement[] = [].slice.call(
+    const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
     );
-    if (links.length === 0) return Promise.resolve();
+    if (targets.length === 0) return Promise.resolve();
     const clickUrl: string = MacroUtils.addExpandParams(
-      linkUrl,
+      link.url,
       expandParams
     );
-    for (let link of links) {
+    for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       if (!!this.props.onClickForSDKBridge) {
         anchor.onclick = () => {
@@ -36,20 +36,20 @@ export class LinkMacro implements Macro {
           this.props.onClickForSDKBridge(clickUrl, passingAppId);
         };
       } else {
-        const urlFormat = link.getAttribute(this.config.link.selectorAttrName);
+        const urlFormat = target.getAttribute(this.config.link.selectorAttrName);
         const nanoContext = {
           [this.config.link.urlPlaceholder]: clickUrl,
           [this.config.link.encodedUrlPlaceholder]: encodeURIComponent(clickUrl)
         };
         anchor.href = urlFormat === "" ? clickUrl : nano(urlFormat, nanoContext);
       }
-      anchor.target = this.detectAnchorTarget(link);
+      anchor.target = this.detectAnchorTarget(target);
       anchor.classList.add(this.config.link.anchorMarkedClass);
-      if (link.parentElement) {
-        link.parentElement.insertBefore(anchor, link);
+      if (target.parentElement) {
+        target.parentElement.insertBefore(anchor, target);
       }
-      link.classList.add(this.config.link.markedClass);
-      anchor.appendChild(link);
+      target.classList.add(this.config.link.markedClass);
+      anchor.appendChild(target);
     }
     return Promise.resolve();
   }

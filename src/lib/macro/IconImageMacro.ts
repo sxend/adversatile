@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -14,10 +14,8 @@ export class IconImageMacro implements Macro {
   getName(): string {
     return "IconImageMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const iconId = AssetUtils.getAssetIdByAsset(AssetTypes.ICON_URL);
-    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
-    const icon = assets.find(asset => asset.id === iconId);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return;
     const targets: HTMLImageElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

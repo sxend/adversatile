@@ -5,6 +5,7 @@ import { AssetOption } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
 import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -224,5 +225,8 @@ export namespace AssetUtils {
     var asset = new ReqAssets(assetId, true);
     asset.data = new OpenRTB.NativeAd.Request.Data(typeId, length);
     return asset;
+  }
+  export function findAsset(assets: ResAssets[], assetType: AssetTypes): ResAssets | undefined {
+    return assets.find(asset => asset.id === getAssetIdByAsset(assetType));
   }
 }

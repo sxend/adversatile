@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -14,10 +14,8 @@ export class OptoutLinkOnlyMacro implements Macro {
   getName(): string {
     return "OptoutLinkOnlyMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const optoutId = AssetUtils.getAssetIdByAsset(AssetTypes.OPTOUT_LINK);
-    const assets: ResAssets[] = resultOrElse(() => context.bid.ext.admNative.assets, []);
-    const optout = assets.find(asset => asset.id === optoutId);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    const optout = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_LINK);
     if (!optout) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

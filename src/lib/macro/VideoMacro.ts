@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -7,14 +7,15 @@ import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { EventEmitter } from "events";
+import { resultOrElse } from "../misc/ObjectUtils";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
   getName(): string {
     return "VideoMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    if (!context || !context.link || !context.link.url) return;
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    if (!context.admNative || !context.admNative.link) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
     );
@@ -31,20 +32,20 @@ export class VideoMacro implements Macro {
     }
     return Promise.resolve();
   }
-  private onVideoPlayerLoaded(element: HTMLElement, context: any) {
+  private onVideoPlayerLoaded(element: HTMLElement, context: MacroContext) {
     const mainImageAsset = context.assets.filter(
       (a: OpenRTB.NativeAd.Response.Assets) => {
         return AssetUtils.getAssetByAssetId(a.id) === AssetTypes.IMAGE_URL;
       }
     )[0];
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
-      context.link.url,
-      context.expandParams
+      context.admNative.link.url,
+      context.ext.expandParams
     );
     let onVideoClickHandler: () => void = undefined;
     if (!!this.props.onClickForSDKBridge) {
       onVideoClickHandler = () =>
-        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, context.appId);
+        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, resultOrElse(() => context.bid.ext.appId));
     }
 
     const videoPlayerHandler = new VideoPlayerWrapper(element, context, {

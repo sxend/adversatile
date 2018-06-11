@@ -1,4 +1,4 @@
-import { Macro, MacroProps } from "../MacroOps";
+import { Macro, MacroProps, MacroContext } from "../MacroOps";
 import { MacroConf, AssetOption } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
@@ -10,10 +10,12 @@ export class LinkJsMacro implements Macro {
   getName(): string {
     return "LinkJsMacro";
   }
-  async applyMacro(element: HTMLElement, context: any): Promise<void> {
-    const linkUrl = resultOrElse(() => context.bid.ext.admNative.link.url);
-    const clktrckUrl = resultOrElse(() => context.bid.ext.admNative.link.clktrck);
-    const expandParams = resultOrElse(() => context.expandParams);
+  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+    if (!context.admNative || !context.admNative.link) return;
+    const link = context.admNative.link;
+    const expandParams = resultOrElse(() => context.ext.expandParams);
+    const linkUrl = link.url;
+    const clktrckUrl = link.clktrck;
     if (!linkUrl || !clktrckUrl) return;
     const selector = this.selector();
     const links: HTMLElement[] = [].slice.call(

@@ -8,7 +8,7 @@ import { EventEmitter } from "events";
 import { firstDefined, uniq, uniqBy } from "./misc/ObjectUtils";
 import { Store } from "./Store";
 import { TemplateOps } from "./TemplateOps";
-import { MacroOps, MacroProps } from "./MacroOps";
+import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { Dom } from "./misc/Dom";
 import { Tracking } from "./misc/Tracking";
 import { OpenRTB } from "./openrtb/OpenRTB";
@@ -66,19 +66,22 @@ export class ElementModel {
     const context = this.createRenderContext(bid);
     return this.renderer.render(
       this.element,
-      context,
-      this.createRenderProps()
+      context
     );
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
-      bid: bid
+      macroContext: new MacroContext(
+        this.createRenderProps(),
+        bid,
+        {}
+      )
     };
   }
   private addAssetOptions(assets: AssetOption[]) {
     this.detectedAssets = uniqBy(this.detectedAssets.concat(assets), asset => asset.id);
   }
-  private createRenderProps(): RendererProps {
+  private createRenderProps(): MacroProps {
     const _addAssetOptions = this.isRendered ? void 0 : (...options: AssetOption[]) => this.addAssetOptions(options);
     return {
       onImpression: () => console.log("impression"),
@@ -103,17 +106,17 @@ class Renderer {
   }
   async render(
     element: HTMLElement,
-    context: RendererContext,
-    props: RendererProps
+    context: RendererContext
   ): Promise<void> {
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
-      element.innerHTML = await this.macroOps.applyTemplate(template, context);
-      await this.macroOps.applyElement(element, context, props);
+      element.innerHTML = await this.macroOps.applyTemplate(template, context.macroContext);
+      await this.macroOps.applyElement(element, context.macroContext);
     } else {
       console.warn("missing template", this.model.name, context);
     }
   }
 }
-interface RendererContext { }
-interface RendererProps extends MacroProps { }
+interface RendererContext {
+  macroContext: MacroContext
+}
