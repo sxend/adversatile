@@ -1,7 +1,6 @@
 import { ViewModel } from "./ViewModel";
-// const deepmerge = require("deepmerge").default;
-declare var deepmerge: Function;
-console.log(Promise);
+const deepmerge = require("deepmerge").default;
+
 export default class Configuration {
   version: number;
   action: ActionConf = new ActionConf();
