@@ -9,12 +9,18 @@ export function dummyBid(): OpenRTB.Bid {
 export function dummyMacroContext(): MacroContext {
   return new MacroContext(
     mockElementModel(),
-    {},
+    {
+      trackingCall: (urls: string[], trackingName: string) => {
+        return Promise.resolve()
+      }
+    },
     dummyBid()
   );
 }
 export function mockElementModel(): ElementModel {
   return <any> {
-    option: {}
+    option: {
+      expandedClickParams: [{"expand_key": "expand_value"}]
+    }
   };
 }

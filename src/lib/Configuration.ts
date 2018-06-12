@@ -53,7 +53,7 @@ export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
-  assets: AssetOption[] = []; // FIXME use official asset
+  assets: AssetOption[] = [];
   notrim: boolean = false;
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
