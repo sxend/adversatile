@@ -72,21 +72,24 @@ export namespace OpenRTBUtils {
     }
   }
 
-  const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-  const dummyText: string = "...";
-  export const DummyBid: OpenRTB.Bid = (() => {
+  export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  export const dummyText: string = "...";
+  export function dummyBid(): OpenRTB.Bid {
     const bid = new OpenRTB.Bid();
     bid.ext.admNative.assets = [
-      new ResAssets(1, false, new Response.Link(dummyImg), null, null, null),
-      new ResAssets(2, false, new Response.Img(dummyImg), null, null, null),
-      new ResAssets(3, false, null, null, new Response.Title(dummyText), null),
-      new ResAssets(4, false, null, null, new Response.Title(dummyText), null),
-      new ResAssets(5, false, null, null, new Response.Title(dummyText), null),
-      new ResAssets(9, false, null, null, new Response.Title(dummyText), null),
-      new ResAssets(10, false, null, null, new Response.Title(dummyText), null),
+      new ResAssets(1, false, new Response.Img(dummyImg), null, null, null, null),
+      new ResAssets(2, false, new Response.Img(dummyImg), null, null, null, null),
+      new ResAssets(3, false, null, null, new Response.Title(dummyText), null, null),
+      new ResAssets(4, false, null, null, new Response.Title(dummyText), null, null),
+      new ResAssets(5, false, null, null, new Response.Title(dummyText), null, null),
+      new ResAssets(7, false, new Response.Img(dummyImg), new Response.Link(""), null, null, null),
+      new ResAssets(8, false, null, new Response.Link(""), null, null, null),
+      new ResAssets(9, false, null, null, new Response.Title(dummyText), null, null),
+      new ResAssets(10, false, null, null, new Response.Title(dummyText), null, null),
     ];
+    bid.ext.admNative.link = new Response.Link("", []);
     return bid;
-  })();
+  };
 }
 export namespace AssetUtils {
   import AssetTypes = OpenRTB.NativeAd.AssetTypes;

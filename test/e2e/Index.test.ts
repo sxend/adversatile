@@ -1,7 +1,7 @@
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import { SSL_OP_CRYPTOPRO_TLSEXT_BUG } from 'constants';
-import { BrowserOps } from '../helpers/BrowserOps';
+import { BrowserLauncher } from '../helpers/BrowserLauncher';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,9 +11,9 @@ test('adds 1 + 2 to equal 3', () => {
 
 describe("puppeteer", () => {
   jest.setTimeout(10000);
-  let browser: BrowserOps;
+  let browser: BrowserLauncher;
   beforeEach(async () => {
-    browser = await BrowserOps.launch();
+    browser = await BrowserLauncher.launch();
     browser.proxy.intercept({
       phase: 'request',
       as: 'string'
@@ -36,9 +36,9 @@ describe("puppeteer", () => {
 });
 describe("adversatile.js", () => {
   jest.setTimeout(10000);
-  let browser: BrowserOps;
+  let browser: BrowserLauncher;
   beforeEach(async () => {
-    browser = await BrowserOps.launch();
+    browser = await BrowserLauncher.launch();
     browser.proxy.intercept({
       fullUrl: "http://example.com/index.html", phase: 'request', as: 'string'
     }, (req: any, resp: any, cycle: any) => {

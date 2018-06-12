@@ -1,7 +1,7 @@
 import Configuration, { MacroConf, AssetOption } from "./Configuration";
 import { nano } from "./misc/StringUtils";
 import { LinkMacro } from "./macro/LinkMacro";
-import { LinkJsMacro } from "./macro/LinkJSMacro";
+import { LinkJsMacro } from "./macro/LinkJsMacro";
 import { VideoMacro } from "./macro/VideoMacro";
 import { MarkupVideoMacro } from "./macro/MarkupVideoMacro";
 import { MainImageMacro } from "./macro/MainImageMacro";

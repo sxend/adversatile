@@ -6,15 +6,15 @@ import { Browser } from 'puppeteer';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class BrowserOps {
-  static async launch(): Promise<BrowserOps> {
+export class BrowserLauncher {
+  static async launch(): Promise<BrowserLauncher> {
     const proxyPort = await getPort();
-    const proxy = await BrowserOps.createProxyServer(proxyPort);
+    const proxy = await BrowserLauncher.createProxyServer(proxyPort);
     const browser = await puppeteer.launch({
       headless: process.env["HEADLESS"] !== void 0 ? JSON.parse(process.env["HEADLESS"]) : true,
       args: [`--proxy-server=localhost:${proxyPort}`]
     });
-    return new BrowserOps(browser, proxy);
+    return new BrowserLauncher(browser, proxy);
   }
   static async createProxyServer(proxyPort: number) {
     const proxy = hoxy.createServer();
@@ -39,8 +39,8 @@ export class BrowserOps {
   }
   async newPage(): Promise<puppeteer.Page> {
     return this.__browser.newPage()
-      .then(BrowserOps.bindConsole)
-      .then(BrowserOps.preload);
+      .then(BrowserLauncher.bindConsole)
+      .then(BrowserLauncher.preload);
   }
   static async preload(page: puppeteer.Page): Promise<puppeteer.Page> {
     await page.evaluateOnNewDocument(fs.readFileSync(path.join(__dirname, "js/preload.js")).toString());

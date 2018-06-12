@@ -32,7 +32,7 @@ export class ElementModel {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
     (this.option.preRender
-      ? this.update(OpenRTBUtils.DummyBid)
+      ? this.update(OpenRTBUtils.dummyBid())
       : Promise.resolve()
     ).then(_ => {
       this.store.on(`change`, () => {

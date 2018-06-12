@@ -17,15 +17,15 @@ export class LinkJsMacro implements Macro {
     const clktrckUrl = link.clktrck;
     if (!linkUrl || !clktrckUrl) return;
     const selector = this.selector();
-    const links: HTMLElement[] = [].slice.call(
+    const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
     );
-    if (links.length === 0) return Promise.resolve();
-    for (let link of links) {
-      link.style.cursor = "auto";
-      link.onclick = async () => {
+    if (targets.length === 0) return Promise.resolve();
+    for (let target of targets) {
+      target.style.cursor = "auto";
+      target.onclick = async () => {
         await this.props.trackingCall(clktrckUrl, "click-track-beacon");
-        const openTarget = link.getAttribute(
+        const openTarget = target.getAttribute(
           this.config.linkJs.openTargetAttrName
         );
         const expandedClickParams = context.model.option.expandedClickParams;

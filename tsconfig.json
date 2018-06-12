@@ -6,6 +6,6 @@
     "allowJs": true,
     "lib": ["es2015", "dom"]
   },
-  "include": ["src/*", "src/**/*", "test/*", "test/**/*" ],
+  "include": ["src/*", "src/**/*"],
   "exclude": ["node_modules"]
 }
