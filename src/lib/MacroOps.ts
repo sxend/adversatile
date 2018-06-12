@@ -25,10 +25,9 @@ export class MacroOps {
     element: HTMLElement,
     context: MacroContext
   ): Promise<void> {
-    context.ext.macro.metadata.appliedMacroNames = [];
     for (let macro of this.macroStack(context.props)) {
       await macro.applyMacro(element, context).catch(console.error);
-      context.ext.macro.metadata.appliedMacroNames.push(macro.getName());
+      context.metadata.appliedMacroNames.push(macro.getName());
     }
   }
   private macroStack(props: MacroProps): Macro[] {
@@ -63,17 +62,19 @@ export interface MacroProps {
   addAssetOptions?: (...option: AssetOption[]) => void;
 }
 export class MacroContext {
+  public metadata: MacroMetadata;
   public assets: OpenRTB.NativeAd.Response.Assets[];
   public admNative: OpenRTB.NativeAd.AdResponse;
   constructor(
     public model: ElementModel,
     public props: MacroProps,
     public bid: OpenRTB.Bid,
-    public ext: any = {},
   ) {
-    ext.macro = ext.macro || {};
-    ext.macro.metadata = ext.macro.metadata || {};
     this.assets = resultOrElse(() => bid.ext.admNative.assets, []);
     this.admNative = resultOrElse(() => bid.ext.admNative);
+    this.metadata = new MacroMetadata();
   }
+}
+class MacroMetadata {
+  public appliedMacroNames: string[] = [];
 }

@@ -74,8 +74,7 @@ export class ElementModel {
       macroContext: new MacroContext(
         this,
         this.createRenderProps(),
-        bid,
-        {}
+        bid
       )
     };
   }
