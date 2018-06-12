@@ -40,7 +40,7 @@ export class VideoMacro implements Macro {
     )[0];
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
       context.admNative.link.url,
-      context.ext.expandParams
+      context.model.option.expandedClickParams
     );
     let onVideoClickHandler: () => void = undefined;
     if (!!this.props.onClickForSDKBridge) {

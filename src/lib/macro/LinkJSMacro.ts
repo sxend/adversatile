@@ -13,7 +13,6 @@ export class LinkJsMacro implements Macro {
   async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
     if (!context.admNative || !context.admNative.link) return;
     const link = context.admNative.link;
-    const expandParams = resultOrElse(() => context.ext.expandParams);
     const linkUrl = link.url;
     const clktrckUrl = link.clktrck;
     if (!linkUrl || !clktrckUrl) return;
@@ -29,19 +28,20 @@ export class LinkJsMacro implements Macro {
         const openTarget = link.getAttribute(
           this.config.linkJs.openTargetAttrName
         );
+        const expandedClickParams = context.model.option.expandedClickParams;
         if (openTarget === "self") {
           window.location.href = MacroUtils.addExpandParams(
             linkUrl,
-            expandParams
+            expandedClickParams
           );
         } else if (openTarget === "top") {
           window.open(
-            MacroUtils.addExpandParams(linkUrl, expandParams),
+            MacroUtils.addExpandParams(linkUrl, expandedClickParams),
             "_top"
           );
         } else {
           window.open(
-            MacroUtils.addExpandParams(linkUrl, expandParams),
+            MacroUtils.addExpandParams(linkUrl, expandedClickParams),
             "_blank"
           );
         }

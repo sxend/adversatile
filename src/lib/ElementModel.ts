@@ -72,6 +72,7 @@ export class ElementModel {
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
       macroContext: new MacroContext(
+        this,
         this.createRenderProps(),
         bid,
         {}

@@ -56,6 +56,7 @@ export class ElementOption {
   assets: AssetOption[] = []; // FIXME use official asset
   notrim: boolean = false;
   excludedBidders: string[] = [];
+  expandedClickParams: [{ name: string; value: string | number }] = <any>[];
 }
 
 export class AssetOption {

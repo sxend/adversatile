@@ -18,7 +18,6 @@ export class LinkMacro implements Macro {
     if (!context.admNative || !context.admNative.link) return;
     const link = context.admNative.link;
     const appId = resultOrElse(() => context.bid.ext.appId);
-    const expandParams = resultOrElse(() => context.ext.expandParams);
     const selector = this.selector();
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(selector)
@@ -26,7 +25,7 @@ export class LinkMacro implements Macro {
     if (targets.length === 0) return Promise.resolve();
     const clickUrl: string = MacroUtils.addExpandParams(
       link.url,
-      expandParams
+      context.model.option.expandedClickParams
     );
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");

@@ -14,6 +14,7 @@ import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { EventEmitter } from "events";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { resultOrElse } from "./misc/ObjectUtils";
+import { ElementModel } from "./ElementModel";
 
 export class MacroOps {
   constructor(private config: MacroConf) { }
@@ -65,6 +66,7 @@ export class MacroContext {
   public assets: OpenRTB.NativeAd.Response.Assets[];
   public admNative: OpenRTB.NativeAd.AdResponse;
   constructor(
+    public model: ElementModel,
     public props: MacroProps,
     public bid: OpenRTB.Bid,
     public ext: any = {},

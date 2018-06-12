@@ -1,9 +1,9 @@
 export namespace MacroUtils {
   export function addExpandParams(
     url: string,
-    expandParams: [{ name: string; value: string | number }]
+    expandParams: { name: string; value: string | number }[]
   ): string {
-    if (!expandParams) {
+    if (!expandParams || expandParams.length === 0) {
       return url;
     }
     let params: string = url.match(/\?.*/) ? "&" : "?";
