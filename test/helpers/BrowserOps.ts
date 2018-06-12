@@ -1,5 +1,5 @@
 import * as getPort from "get-port";
-import * as hoxy from "hoxy";
+const hoxy = require("hoxy");
 import * as util from "util";
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';

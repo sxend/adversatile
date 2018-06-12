@@ -1,4 +1,4 @@
-import {MacroOps} from "../../src/lib/MacroOps";
+import { MacroOps } from "../../src/lib/MacroOps";
 import Configuration, { MacroConf } from "../../src/lib/Configuration";
 
 test("MacroOps", done => {

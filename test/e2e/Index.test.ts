@@ -40,18 +40,18 @@ describe("adversatile.js", () => {
   beforeEach(async () => {
     browser = await BrowserOps.launch();
     browser.proxy.intercept({
-      fullUrl: "http://adversatile.local/index.html", phase: 'request', as: 'string'
+      fullUrl: "http://example.com/index.html", phase: 'request', as: 'string'
     }, (req: any, resp: any, cycle: any) => {
       resp.string = fs.readFileSync(path.join(__dirname, "../helpers/html/index.html"));
     });
   });
   it("defined Adversatile object", async () => {
     const page = await browser.newPage();
-    await page.goto('http://adversatile.local/index.html');
-    const result = await page.evaluate(() => {
+    await page.goto('http://example.com/index.html');
+    const result = await page.evaluate(function() {
       return (<any>window)['E2EResult'];
     });
-    const adv = await page.evaluate(() => {
+    const adv = await page.evaluate(function() {
       return (<any>window)['Adversatile'];
     });
     await page.close();

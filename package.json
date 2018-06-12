@@ -12,14 +12,13 @@
     "gen:pb:ts": "pbts -o generated-src/protobuf/messages.d.ts generated-src/protobuf/messages.js",
     "gen:pb": "npm run gen:pb:clean && npm run gen:pb:js && npm run gen:pb:ts",
     "prebuild": "npm run gen:pb && npm run codeformat",
-    "build": "webpack --mode=production",
+    "build": "tsc --project ./tsconfig.json && webpack --mode=production",
     "build:watch": "npm run build -- --watch",
     "serve": "serve -l -C -p 3000"
   },
   "author": "sxend",
   "license": "MIT",
   "devDependencies": {
-    "@types/deepmerge": "^2.1.0",
     "@types/get-port": "^3.2.0",
     "@types/handlebars": "^4.0.37",
     "@types/jest": "^22.2.3",
@@ -45,7 +44,7 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": "/test/.*\\.(test|spec)\\.(jsx?|tsx?)$",
+    "testMatch": ["**/test/**/?(*.)+(spec|test).ts?(x)"],
     "moduleFileExtensions": [
       "ts",
       "tsx",
