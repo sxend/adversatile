@@ -50,8 +50,7 @@ export class ElementModel {
   }
   get assets(): AssetOption[] {
     let assets: AssetOption[] = this.option.assets || [];
-    assets = assets.concat(this.detectedAssets);
-    return assets;
+    return uniqBy(assets.concat(this.detectedAssets), asset => asset.id);
   }
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));

@@ -198,7 +198,7 @@ export namespace AssetUtils {
     return new AssetOption(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), "descriptionText", { len: length });
   }
   export function sponsoredByMessageOption(length?: number): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), "iconImage", { len: length });
+    return new AssetOption(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), "sponsoredByMessage", { len: length });
   }
   function title(
     assetId: number,
