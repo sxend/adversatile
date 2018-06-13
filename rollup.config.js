@@ -2,6 +2,7 @@ import typescript from "rollup-plugin-typescript2";
 import builtins from "rollup-plugin-node-builtins";
 import {uglify} from "rollup-plugin-uglify";
 import preprocess from "rollup-plugin-preprocess";
+import commonjs from 'rollup-plugin-commonjs';
 import deepmerge from "deepmerge";
 import * as fs from "fs";
 
@@ -38,6 +39,11 @@ export default {
       })()
     }),
     builtins(),
+    commonjs({
+      namedExports: {
+        'node_modules/deepmerge/index.js': [ 'deepmerge' ]
+      }
+    }),
     typescript({
       tsconfig: "tsconfig.json"
     }),
