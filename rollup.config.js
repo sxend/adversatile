@@ -3,13 +3,20 @@ import builtins from "rollup-plugin-node-builtins";
 import {uglify} from "rollup-plugin-uglify";
 import preprocess from "rollup-plugin-preprocess";
 import deepmerge from "deepmerge";
+import * as fs from "fs";
 
 export default {
   input: 'src/Adversatile.ts',
   output: {
     file: 'dist/adversatile.js',
     format: 'iife',
-    name: "__adv__"
+    name: "__adv__",
+    intro: [ // inject Promise polyfill rollup-plugin-inject notwork in typescript.
+      "var Promise = (function() {",
+      fs.readFileSync(require.resolve('es6-promise')).toString(),
+      "return this;",
+      "}).call({}).ES6Promise;",
+    ].join("\n")
   },
   plugins: [
     preprocess({
@@ -31,7 +38,9 @@ export default {
       })()
     }),
     builtins(),
-    typescript(),
+    typescript({
+      tsconfig: "tsconfig.json"
+    }),
     uglify()
   ]
 };

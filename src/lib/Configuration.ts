@@ -1,7 +1,5 @@
 import { ViewModel } from "./ViewModel";
-import deepmerge from "deepmerge/dist/es";
-
-console.log(deepmerge);
+import deepmerge from "deepmerge";
 
 export default class Configuration {
   version: number;
