@@ -27,7 +27,6 @@
     "get-port": "^3.2.0",
     "hoxy": "^3.2.2",
     "jest": "^22.4.4",
-    "preprocess-loader": "^0.2.2",
     "protobufjs": "^6.8.6",
     "puppeteer": "^1.4.0",
     "rollup": "^0.60.4",
@@ -38,7 +37,6 @@
     "rollup-plugin-uglify": "^4.0.0",
     "serve": "^6.5.8",
     "ts-jest": "^22.4.6",
-    "ts-loader": "^4.3.0",
     "typescript": "^2.9.1",
     "typescript-formatter": "^7.2.2"
   },
