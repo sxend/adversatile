@@ -9,6 +9,8 @@ import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class ViewModel {
+  private ems: { [name: string]: ElementModel[] } = {};
+  private emQualifier: { [name: string]: number } = {};
   constructor(
     private config: ViewModelConf,
     private store: Store,
@@ -59,10 +61,10 @@ export class ViewModel {
     return `${selector}:not(.${markedClass})`;
   }
   private initNewElements(elements: HTMLElement[]): void {
-    Promise.all(elements.map(el => this.createElementModel(el)))
-      .then((models: ElementModel[]) => {
+    Promise.all(elements.map(element => this.createElementModel(element)))
+      .then((ems: ElementModel[]) => {
         this.createBidReqFromModels(
-          models.filter(_ => this.isNotPrefetch(_.name))
+          ems.filter(_ => this.isNotPrefetch(_.name))
         ).then(req => {
           this.action.fetchData(req);
         });
@@ -72,7 +74,7 @@ export class ViewModel {
   private createElementModel(element: HTMLElement): Promise<ElementModel> {
     return new Promise(resolve => {
       new ElementModel(element, this.config.em, this.store, {
-        onInit: model => resolve(model)
+        onInit: em => resolve(em)
       });
     });
   }
@@ -80,10 +82,10 @@ export class ViewModel {
     return !this.config.prefetch.find(_ => _.name === name);
   }
   private async createBidReqFromElementOptions(
-    emOptions: ElementOption[]
+    elementOptions: ElementOption[]
   ): Promise<OpenRTB.BidRequest> {
     const imp: OpenRTB.Imp[] = await Promise.all(
-      emOptions.map(async option => {
+      elementOptions.map(async option => {
         const impExt = new OpenRTB.Ext.ImpressionExt();
         impExt.excludedBidders = option.excludedBidders;
         impExt.notrim = option.notrim;
@@ -102,17 +104,17 @@ export class ViewModel {
     );
   }
   private async createBidReqFromModels(
-    models: ElementModel[]
+    ems: ElementModel[]
   ): Promise<OpenRTB.BidRequest> {
     const imp: OpenRTB.Imp[] = await Promise.all(
-      models.map(async model => {
+      ems.map(async em => {
         const impExt = new OpenRTB.Ext.ImpressionExt();
-        impExt.excludedBidders = model.excludedBidders;
-        impExt.notrim = model.option.notrim;
+        impExt.excludedBidders = em.excludedBidders;
+        impExt.notrim = em.option.notrim;
         return OpenRTBUtils.createImp(
-          model.name,
-          model.option.format,
-          model.assets.map(AssetUtils.optionToNativeAsset),
+          em.name,
+          em.option.format,
+          em.assets.map(AssetUtils.optionToNativeAsset),
           impExt
         );
       })
