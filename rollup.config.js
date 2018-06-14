@@ -55,6 +55,7 @@ export default {
         'https://raw.githubusercontent.com/Gozala/events/master/LICENSE',
         'https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE',
         'https://raw.githubusercontent.com/KyleAMathews/deepmerge/master/license.txt',
+        'https://raw.githubusercontent.com/trix/nano/master/MIT-LICENSE'
       ].join('\n')
     })
   ]
