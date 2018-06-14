@@ -50,7 +50,12 @@ export default {
     }),
     uglify(),
     license({
-      banner: `See OSS Licenses: ./dist/licenses.txt`
+      banner: [
+        'See OSS Licenses',
+        'https://raw.githubusercontent.com/Gozala/events/master/LICENSE',
+        'https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE',
+        'https://raw.githubusercontent.com/KyleAMathews/deepmerge/master/license.txt',
+      ].join('\n')
     })
   ]
 };

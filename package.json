@@ -14,7 +14,6 @@
     "prebuild": "npm run gen:pb && npm run codeformat",
     "build": "tsc --project ./tsconfig.json && rollup -c",
     "build:watch": "npm run build -- --watch",
-    "postbuild": "bash -c 'cd node_modules && tail -n +1 ./deepmerge/license.txt ./es6-promise/LICENSE' > ./dist/licenses.txt",
     "serve": "serve -l -C -p 3000"
   },
   "author": "sxend",
@@ -64,6 +63,7 @@
   },
   "dependencies": {
     "deepmerge": "^2.1.1",
-    "es6-promise": "^4.2.4"
+    "es6-promise": "^4.2.4",
+    "events": "^3.0.0"
   }
 }
