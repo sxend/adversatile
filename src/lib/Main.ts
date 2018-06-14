@@ -95,30 +95,42 @@ function upgradeElement(element: HTMLElement, config: Configuration, oldconfig: 
   element.classList.add("adversatile");
   const name = oldconfig.tagId;
   element.setAttribute(config.vm.em.nameAttributeName, name);
+  const qualifier = oldconfig.spotId;
+  if (qualifier) {
+    element.setAttribute(config.vm.em.qualifierAttributeName, qualifier);
+  }
+  let template: string = "";
   if (oldconfig.templateId) {
     const templateEl = document.getElementById(oldconfig.templateId);
     if (templateEl) {
-      let template = templateEl.innerHTML || "";
-      template = template.replace(/data-pfx-link/g, config.vm.em.macro.link.selectorAttrName);
-      template = template.replace(/data-pfx-link-js/g, config.vm.em.macro.linkJs.selectorAttrName);
-      template = template.replace(/data-pfx-img/g, config.vm.em.macro.mainImage.selectorAttrName);
-      template = template.replace(/data-pfx-icon/g, config.vm.em.macro.iconImage.selectorAttrName);
-      template = template.replace(/data-pfx-title-long/g, config.vm.em.macro.titleLong.selectorAttrName);
-      template = template.replace(/data-pfx-title-short/g, config.vm.em.macro.titleShort.selectorAttrName);
-      template = template.replace(/data-pfx-optout-link-only/g, config.vm.em.macro.optoutLinkOnly.selectorAttrName);
-      template = template.replace(/data-pfx-optout-link/g, config.vm.em.macro.optoutLink.selectorAttrName);
-      template = template.replace(/data-pfx-sponsored-by-message/g, config.vm.em.macro.sponsoredByMessage.selectorAttrName);
-      template = template.replace(/data-pfx-video/g, config.vm.em.macro.video.selectorAttrName);
+      template = templateEl.innerHTML;
+    }
+  } else if (oldconfig.templateHtml) {
+    template = oldconfig.templateHtml;
+  }
+  template = template.replace(/data-pfx-link/g, config.vm.em.macro.link.selectorAttrName);
+  template = template.replace(/data-pfx-link-js/g, config.vm.em.macro.linkJs.selectorAttrName);
+  template = template.replace(/data-pfx-img/g, config.vm.em.macro.mainImage.selectorAttrName);
+  template = template.replace(/data-pfx-icon/g, config.vm.em.macro.iconImage.selectorAttrName);
+  template = template.replace(/data-pfx-title-long/g, config.vm.em.macro.titleLong.selectorAttrName);
+  template = template.replace(/data-pfx-title-short/g, config.vm.em.macro.titleShort.selectorAttrName);
+  template = template.replace(/data-pfx-optout-link-only/g, config.vm.em.macro.optoutLinkOnly.selectorAttrName);
+  template = template.replace(/data-pfx-optout-link/g, config.vm.em.macro.optoutLink.selectorAttrName);
+  template = template.replace(/data-pfx-sponsored-by-message/g, config.vm.em.macro.sponsoredByMessage.selectorAttrName);
+  template = template.replace(/data-pfx-video/g, config.vm.em.macro.video.selectorAttrName);
 
-      template = template.replace(/data-pfx-link-self/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_self"`);
-      template = template.replace(/data-pfx-link-top/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_top"`);
-      template = template.replace(/data-pfx-link-blank/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_blank"`);
-      template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_parent"`);
-
+  template = template.replace(/data-pfx-link-self/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_self"`);
+  template = template.replace(/data-pfx-link-top/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_top"`);
+  template = template.replace(/data-pfx-link-blank/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_blank"`);
+  template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_parent"`);
+  if (template) {
+    if (!config.vm.em.templates[name]){
       config.vm.em.templates[name] = template;
     }
+    if (qualifier) {
+      config.vm.em.templates[`${name}-${qualifier}`] = template;
+    }
   }
-
 }
 
 export function use(plugin: Plugin, options?: any) {
