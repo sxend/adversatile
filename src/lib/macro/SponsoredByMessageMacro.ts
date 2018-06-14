@@ -15,7 +15,7 @@ export class SponsoredByMessageMacro implements Macro {
     return "SponsoredByMessageMacro";
   }
   async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
-    const message = AssetUtils.findAsset(context.assets, AssetTypes.SPONSORED_BY_MESSAGE);
+    const message = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_SPONSORED_BY_MESSAGE);
     if (!message) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())
