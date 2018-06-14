@@ -37,6 +37,7 @@ export class PrefetchConf {
 
 export class ElementModelConf {
   nameAttributeName: string = "data-adv-em-name";
+  qualifierAttributeName: string = "data-adv-em-qualifier";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(name) {

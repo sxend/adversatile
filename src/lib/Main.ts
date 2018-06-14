@@ -124,7 +124,7 @@ function upgradeElement(element: HTMLElement, config: Configuration, oldconfig: 
   template = template.replace(/data-pfx-link-blank/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_blank"`);
   template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_parent"`);
   if (template) {
-    if (!config.vm.em.templates[name]){
+    if (!config.vm.em.templates[name]) {
       config.vm.em.templates[name] = template;
     }
     if (qualifier) {
