@@ -3,6 +3,9 @@ const ProtoToString = Object.prototype.toString;
 export function isObject(o: any): boolean {
   return matchToString("[object Object]", o);
 }
+export function isString(o: any): boolean {
+  return matchToString("[object String]", o);
+}
 export function isArray(o: any): boolean {
   return matchToString("[object Array]", o);
 }
