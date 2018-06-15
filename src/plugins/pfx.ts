@@ -72,6 +72,7 @@ export default {
     function setup(className: string, oldconfigs: OldConfiguration[], pageId: number) {
       const config = new Configuration();
       config.version = 1;
+      config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
       [].slice.call(document.querySelectorAll(`.${className}`)).forEach((oldElement: HTMLElement) => {
         const element = document.createElement("div");
         [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
