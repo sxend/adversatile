@@ -4,7 +4,6 @@ import { AssetOption } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
 import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
-import { resultOrElse } from "../misc/ObjectUtils";
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -70,6 +69,7 @@ export namespace OpenRTBUtils {
     if (Adversatile && Adversatile.plugin && Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
       return Adversatile.plugin.bridge.ifa; // use bridge plugin
     }
+    return void 0;
   }
 
   export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -126,18 +126,6 @@ export namespace AssetUtils {
   }
   export function getAssetIdByAsset(asset: AssetTypes): number {
     return asset + 1;
-  }
-  function getImageTypeByAsset(assetId: AssetTypes): number {
-    switch (assetId) {
-      case AssetTypes.ICON_URL:
-        return ImgTypes.ICON;
-      case AssetTypes.LOGO_URL:
-        return ImgTypes.LOGO;
-      case AssetTypes.IMAGE_URL:
-        return ImgTypes.MAIN;
-      default:
-        return ImgTypes.ICON;
-    }
   }
   export function optionToNativeAsset(
     option: AssetOption

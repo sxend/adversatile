@@ -1,13 +1,9 @@
-import Configuration, { ViewModelConf, ElementOption } from "./Configuration";
-import { RandomId } from "./misc/RandomId";
+import { ViewModelConf, ElementOption } from "./Configuration";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
-import { Dom } from "./misc/Dom";
-import Adversatile from "../Adversatile";
 import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
-import { Tracking } from "./misc/Tracking";
 
 export class ViewModel {
   private ems: { [name: string]: ElementModel[] } = {};
@@ -98,7 +94,7 @@ export class ViewModel {
     });
   }
   private createElementModel(element: HTMLElement): ElementModel {
-    return new ElementModel(element, this.config.em, this.store, {});
+    return new ElementModel(element, this.config.em, this.store);
   }
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);

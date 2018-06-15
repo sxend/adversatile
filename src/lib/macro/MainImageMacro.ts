@@ -1,14 +1,8 @@
 import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf, AssetOption } from "../Configuration";
-import { MacroUtils } from "./MacroUtils";
-import { nano } from "../misc/StringUtils";
-import { Dom } from "../misc/Dom";
-import { OpenRTBUtils, AssetUtils } from "../openrtb/OpenRTBUtils";
+import { MacroConf } from "../Configuration";
+import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import ResAssets = OpenRTB.NativeAd.Response.Assets;
-import { resultOrElse } from "../misc/ObjectUtils";
-
 
 export class MainImageMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }

@@ -1,6 +1,6 @@
-import Configuration, { StoreConf } from "./Configuration";
+import { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
-import { Dispatcher, IDispatcher } from "./Dispatcher";
+import { IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Store extends EventEmitter {
@@ -8,6 +8,7 @@ export class Store extends EventEmitter {
   private state: State = new State(this.internal);
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
+    this.config.toString(); // FIXME
     this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
       response.seatbid.forEach(sbid => sbid.bid.forEach(bid => this.addBid(bid)));

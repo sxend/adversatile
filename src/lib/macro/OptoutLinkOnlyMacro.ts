@@ -1,16 +1,11 @@
-import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf, AssetOption } from "../Configuration";
-import { MacroUtils } from "./MacroUtils";
-import { nano } from "../misc/StringUtils";
-import { Dom } from "../misc/Dom";
+import { Macro, MacroContext } from "../MacroOps";
+import { MacroConf } from "../Configuration";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import ResAssets = OpenRTB.NativeAd.Response.Assets;
 import { AssetUtils } from "../openrtb/OpenRTBUtils";
-import { resultOrElse } from "../misc/ObjectUtils";
 
 export class OptoutLinkOnlyMacro implements Macro {
-  constructor(private config: MacroConf, private props: MacroProps) { }
+  constructor(private config: MacroConf) { }
   getName(): string {
     return "OptoutLinkOnlyMacro";
   }

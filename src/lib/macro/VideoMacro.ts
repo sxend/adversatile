@@ -1,12 +1,9 @@
 import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf, AssetOption } from "../Configuration";
+import { MacroConf } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
-import { nano } from "../misc/StringUtils";
-import { Dom } from "../misc/Dom";
 import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { EventEmitter } from "events";
 import { resultOrElse } from "../misc/ObjectUtils";
 
 export class VideoMacro implements Macro {

@@ -1,7 +1,6 @@
 import Configuration, { ElementOption, AssetOption } from "../lib/Configuration";
 import { OpenRTB } from "../lib/openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import deepmerge from "deepmerge";
 import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
@@ -54,22 +53,26 @@ export default {
     };
     const oldcontext: {
       config: Configuration
+      oldconfigs: OldConfiguration[]
+      assets: OpenRTB.NativeAd.Request.Assets[][]
     } = <any>{};
     function init(names: any[], assets?: OpenRTB.NativeAd.Request.Assets[][]) {
       names = names.map(name => name.toString());
       if (!oldcontext.config) {
         oldcontext.config = new Configuration();
         oldcontext.config.version = 1;
+        oldcontext.assets = assets;
       }
     };
-    function render(oldconfigs: OldConfiguration) {
+    function render(oldconfigs: OldConfiguration[]) {
       if (!oldcontext.config) {
+        oldcontext.oldconfigs = oldconfigs;
         return;
       }
     }
     function preRender() {
     }
-    function setup(className: string, oldconfigs: OldConfiguration[], pageId: number) {
+    function setup(className: string, oldconfigs: OldConfiguration[] /*, pageId: number*/) {
       const config = new Configuration();
       config.version = 1;
       config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
@@ -151,7 +154,7 @@ export default {
     }
   }
 };
-function getAssetIdByName(name: string): number {
+function getAssetIdByName(name: string): number | undefined {
   if (name === "iconImage") {
     return AssetUtils.getAssetIdByAsset(AssetTypes.ICON_URL);
   }
@@ -167,6 +170,7 @@ function getAssetIdByName(name: string): number {
   if (name === "sponsoredByMessage") {
     return AssetUtils.getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE);
   }
+  return void 0;
 }
 
 interface OldConfiguration {

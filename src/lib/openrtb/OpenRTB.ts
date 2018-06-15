@@ -125,7 +125,7 @@ export namespace OpenRTB {
       export class Data {
         constructor(
           public type?: number,
-          len?: number,
+          public len?: number,
         ) { }
       }
     }

@@ -1,4 +1,4 @@
-import Configuration, { MacroConf, AssetOption } from "./Configuration";
+import { MacroConf, AssetOption } from "./Configuration";
 import { nano } from "./misc/StringUtils";
 import { LinkMacro } from "./macro/LinkMacro";
 import { LinkJsMacro } from "./macro/LinkJsMacro";
@@ -11,7 +11,6 @@ import { OptoutLinkOnlyMacro } from "./macro/OptoutLinkOnlyMacro";
 import { SponsoredByMessageMacro } from "./macro/SponsoredByMessageMacro";
 import { TitleLongMacro } from "./macro/TitleLongMacro";
 import { TitleShortMacro } from "./macro/TitleShortMacro";
-import { EventEmitter } from "events";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { resultOrElse } from "./misc/ObjectUtils";
 import { ElementModel } from "./ElementModel";
@@ -33,15 +32,15 @@ export class MacroOps {
   private macroStack(props: MacroProps): Macro[] {
     return [
       new VideoMacro(this.config, props),
-      new MarkupVideoMacro(this.config, props),
+      new MarkupVideoMacro(this.config),
       new MainImageMacro(this.config, props),
       new IconImageMacro(this.config, props),
-      new OptoutLinkMacro(this.config, props),
-      new OptoutLinkOnlyMacro(this.config, props),
+      new OptoutLinkMacro(this.config),
+      new OptoutLinkOnlyMacro(this.config),
       new SponsoredByMessageMacro(this.config, props),
       new TitleLongMacro(this.config, props),
       new TitleShortMacro(this.config, props),
-      new LinkJsMacro(this.config, props),
+      new LinkJsMacro(this.config),
       new LinkMacro(this.config, props)
     ];
   }

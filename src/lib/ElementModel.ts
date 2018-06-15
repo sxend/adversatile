@@ -1,31 +1,28 @@
-import Configuration, {
+import {
   ElementOption,
   ElementModelConf,
   AssetOption
 } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
-import { firstDefined, uniq, uniqBy } from "./misc/ObjectUtils";
+import { uniq, uniqBy } from "./misc/ObjectUtils";
 import { Store } from "./Store";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
-import { Dom } from "./misc/Dom";
-import { Tracking } from "./misc/Tracking";
 import { OpenRTB } from "./openrtb/OpenRTB";
-import { AssetUtils, OpenRTBUtils } from "./openrtb/OpenRTBUtils";
+import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
-  private isRendered: boolean = false;
   private detectedAssets: AssetOption[] = [];
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
     private store: Store,
-    private props: {}
   ) {
     super();
+    this.store.toString(); // FIXME
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());

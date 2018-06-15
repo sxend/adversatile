@@ -1,8 +1,7 @@
-import Configuration, { ActionConf } from "./Configuration";
-import { EventEmitter } from "events";
+import { ActionConf } from "./Configuration";
 import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
-import { Dispatcher, IDispatcher } from "./Dispatcher";
+import { IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { Tracking } from "./misc/Tracking";
 
@@ -23,16 +22,6 @@ export class Action {
         this.dispatcher.dispatch({ event: "Tracked", data: { name: trackingName, urls } });
       }
     });
-  }
-  private async fetchDataWithJson(
-    req: OpenRTB.BidRequest
-  ): Promise<OpenRTB.BidResponse> {
-    const result = await (await fetch(
-      this.config.apiUrl + this.config.jsonFetchPath + `?${reqToParams(req)}`
-    )).json();
-    const res = new OpenRTB.BidResponse();
-    res.seatbid = result.payload;
-    return res;
   }
   private async fetchDataWithJsonp(
     req: OpenRTB.BidRequest

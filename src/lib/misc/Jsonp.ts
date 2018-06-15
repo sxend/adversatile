@@ -1,4 +1,3 @@
-import { RandomId } from "./RandomId";
 import { Dom } from "./Dom";
 export namespace Jsonp {
   export function fetch(url: string, callbackName: string): Promise<any> {

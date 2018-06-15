@@ -1,4 +1,3 @@
-import { ViewModel } from "./ViewModel";
 import deepmerge from "deepmerge";
 
 export default class Configuration {
@@ -40,10 +39,10 @@ export class ElementModelConf {
   qualifierAttributeName: string = "data-adv-em-qualifier";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
-  hasOption: (name: string) => boolean = function(name) {
+  hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
     return Object.keys(this.options).indexOf(name) !== -1;
   };
-  option: (name: string) => ElementOption = function(name) {
+  option: (name: string) => ElementOption = function(this: ElementModelConf, name) {
     return deepmerge(new ElementOption(name), this.options[name] || {});
   };
   templates: { [name: string]: string } = {};

@@ -20,5 +20,6 @@ export class TemplateOps {
     if (templateEl) {
       return templateEl.innerHTML;
     }
+    return void 0;
   }
 }
