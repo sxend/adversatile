@@ -31,12 +31,12 @@ export class ViewModel {
             .once("impression", () => {
               const tracked = this.store.getState().getTrackedUrls("imp-tracking");
               const urls = bid.ext.imptrackers.filter(i => tracked.indexOf(i) === -1);
-              this.action.tracking(urls, "imp-tracking");
+              this.action.tracking(urls, "imp-tracking", true);
             })
             .once("viewable_impression", () => {
               const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
               const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-              this.action.tracking(urls, "viewable-imp-tracking");
+              this.action.tracking(urls, "viewable-imp-tracking", true);
             })
             .update(bid)
         });
