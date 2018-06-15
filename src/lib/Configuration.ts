@@ -61,7 +61,7 @@ export class ElementOption {
 }
 
 export class AssetOption {
-  constructor(public id?: number, public name?: string, public prop: any = {}) { }
+  constructor(public id: number, public prop: any = {}) { }
 }
 
 export class MacroConf {

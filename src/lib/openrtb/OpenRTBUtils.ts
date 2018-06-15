@@ -1,6 +1,5 @@
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { Dom } from "../misc/Dom";
-import Adversatile from "../../Adversatile";
 import { AssetOption } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
 import Response = OpenRTB.NativeAd.Response;
@@ -67,7 +66,8 @@ export namespace OpenRTBUtils {
         return element.getAttribute(ifaAttrName);
       }
     }
-    if (Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
+    const Adversatile = (<any>window).Adversatile;
+    if (Adversatile && Adversatile.plugin && Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
       return Adversatile.plugin.bridge.ifa; // use bridge plugin
     }
   }
@@ -133,26 +133,41 @@ export namespace AssetUtils {
     option: AssetOption
   ): ReqAssets | undefined {
     const asset = new ReqAssets();
-    if (option.name === "iconImage") {
+    if (option.id === getAssetIdByAsset(AssetTypes.ICON_URL)) {
       return iconImage(option.prop["w"], option.prop["h"]);
     }
-    if (option.name === "mainImage") {
+    if (option.id === getAssetIdByAsset(AssetTypes.IMAGE_URL)) {
       return mainImage(option.prop["w"], option.prop["h"]);
     }
-    if (option.name === "titleText") {
+    if (option.id === getAssetIdByAsset(AssetTypes.TITLE_SHORT)) {
       return titleText(option.prop["len"]);
     }
-    if (option.name === "descriptionText") {
+    if (option.id === getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT)) {
       return descriptiveText(option.prop["len"]);
     }
-    if (option.name === "sponsoredByMessage") {
+    if (option.id === getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE)) {
       return sponsoredByMessage(option.prop["len"]);
     }
     return asset;
   }
   const defaultTextLength = 17;
   const defaultDescriptionLength = 32;
-  function iconImage(widthMin: number, heightMin: number) {
+  export function iconImageOption(widthMin: number, heightMin: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.ICON_URL), { w: widthMin, h: heightMin });
+  }
+  export function mainImageOption(widthMin: number, heightMin: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.IMAGE_URL), { w: widthMin, h: heightMin });
+  }
+  export function titleTextOption(length: number = defaultTextLength): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.TITLE_SHORT), { len: length });
+  }
+  export function descriptiveTextOption(length: number = defaultDescriptionLength): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), { len: length });
+  }
+  export function sponsoredByMessageOption(length?: number): AssetOption {
+    return new AssetOption(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), { len: length });
+  }
+  export function iconImage(widthMin: number, heightMin: number) {
     return image(
       getAssetIdByAsset(AssetTypes.ICON_URL),
       ImgTypes.ICON,
@@ -160,7 +175,7 @@ export namespace AssetUtils {
       heightMin
     );
   }
-  function mainImage(widthMin: number, heightMin: number) {
+  export function mainImage(widthMin: number, heightMin: number) {
     return image(
       getAssetIdByAsset(AssetTypes.IMAGE_URL),
       ImgTypes.MAIN,
@@ -168,37 +183,22 @@ export namespace AssetUtils {
       heightMin
     );
   }
-  function titleText(length: number = defaultTextLength) {
+  export function titleText(length: number = defaultTextLength) {
     return title(getAssetIdByAsset(AssetTypes.TITLE_SHORT), length);
   }
-  function descriptiveText(length: number = defaultDescriptionLength) {
+  export function descriptiveText(length: number = defaultDescriptionLength) {
     return data(
       getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT),
       DataTypes.DESC,
       length
     );
   }
-  function sponsoredByMessage(length?: number) {
+  export function sponsoredByMessage(length?: number) {
     return data(
       getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE),
       DataTypes.SPONSORED,
       length
     );
-  }
-  export function iconImageOption(widthMin: number, heightMin: number): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.ICON_URL), "iconImage", { w: widthMin, h: heightMin });
-  }
-  export function mainImageOption(widthMin: number, heightMin: number): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.IMAGE_URL), "mainImage", { w: widthMin, h: heightMin });
-  }
-  export function titleTextOption(length: number = defaultTextLength): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.TITLE_SHORT), "titleText", { len: length });
-  }
-  export function descriptiveTextOption(length: number = defaultDescriptionLength): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.DESCRIPTIVE_TEXT), "descriptionText", { len: length });
-  }
-  export function sponsoredByMessageOption(length?: number): AssetOption {
-    return new AssetOption(getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE), "sponsoredByMessage", { len: length });
   }
   function title(
     assetId: number,
