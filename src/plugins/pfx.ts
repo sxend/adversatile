@@ -3,11 +3,12 @@ import { OpenRTB } from "../lib/openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import deepmerge from "deepmerge";
 import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
+import { Dom } from "../lib/misc/Dom";
 
 declare var window: {
   ProFitX: {
     Global: {
-      ready: Function
+      ready: (fn: Function) => Promise<void>
     }
     NativeAd: {
       RequestAssets: {
@@ -30,7 +31,7 @@ export default {
   install: function(Adversatile: any) {
     window.ProFitX = window.ProFitX || {
       Global: {
-        ready: <Function>ready
+        ready: (fn: Function) => Dom.ready(fn)
       },
       NativeAd: {
         RequestAssets: {
@@ -143,9 +144,6 @@ export default {
           config.vm.em.templates[`${name}-${qualifier}`] = template;
         }
       }
-    }
-    function ready() {
-
     }
   }
 };
