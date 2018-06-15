@@ -23,6 +23,7 @@ export class TitleLongMacro implements Macro {
         this.props.addAssetOptions(AssetUtils.descriptiveTextOption());
       }
     }
+    context.model.emit("impression");
     return Promise.resolve();
   }
   private selector(): string {

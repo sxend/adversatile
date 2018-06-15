@@ -22,6 +22,7 @@ export class IconImageMacro implements Macro {
         this.props.addAssetOptions(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
       }
     }
+    context.model.emit("impression");
     return Promise.resolve();
   }
   private selector(): string {

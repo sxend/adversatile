@@ -90,6 +90,16 @@ export namespace OpenRTBUtils {
     bid.ext.admNative.link = new Response.Link("", []);
     return bid;
   };
+  export function concatImpTrackers(bid: OpenRTB.Bid): string[] {
+    let imptrackers: string[] = [];
+    if (!!bid.ext && !!bid.ext.imptrackers) {
+      imptrackers = imptrackers.concat(bid.ext.imptrackers);
+    }
+    if (!!bid.ext && !!bid.ext.admNative && !!bid.ext.admNative.imptracker) {
+      imptrackers = imptrackers.concat(bid.ext.admNative.imptracker);
+    }
+    return imptrackers
+  }
   export function concatVimpTrackers(bid: OpenRTB.Bid): string[] {
     let vimpTrackers: string[] = [];
     if (!!bid && !!bid.ext && !!bid.ext.viewableImptrackers) {
@@ -99,6 +109,13 @@ export namespace OpenRTBUtils {
       vimpTrackers = vimpTrackers.concat(bid.ext.admNative.ext.viewableImptrackers);
     }
     return vimpTrackers;
+  }
+  export function concatViewThroughTrackers(bid: OpenRTB.Bid): string[] {
+    let viewThroughUrls: string[] = [];
+    if (!!bid && !!bid.ext && !!bid.ext.viewThroughUrls) {
+      viewThroughUrls = viewThroughUrls.concat(bid.ext.viewThroughUrls);
+    }
+    return viewThroughUrls;
   }
 }
 export namespace AssetUtils {

@@ -6,7 +6,6 @@ import {
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { uniq, uniqBy } from "./misc/ObjectUtils";
-import { Store } from "./Store";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { OpenRTB } from "./openrtb/OpenRTB";
@@ -19,10 +18,8 @@ export class ElementModel extends EventEmitter {
   constructor(
     private element: HTMLElement,
     private config: ElementModelConf,
-    private store: Store,
   ) {
     super();
-    this.store.toString(); // FIXME
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());

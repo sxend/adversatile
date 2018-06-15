@@ -23,6 +23,7 @@ export class TitleShortMacro implements Macro {
         this.props.addAssetOptions(AssetUtils.titleTextOption());
       }
     }
+    context.model.emit("impression");
     return Promise.resolve();
   }
   private selector(): string {

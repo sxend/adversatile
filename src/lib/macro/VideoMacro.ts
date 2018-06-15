@@ -58,7 +58,7 @@ export class VideoMacro implements Macro {
       () => context.model.emit("video complete")
     );
     player.load();
-    console.log("video load started.");
+    context.model.emit("impression");
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {
