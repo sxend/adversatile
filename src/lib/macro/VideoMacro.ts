@@ -49,8 +49,8 @@ export class VideoMacro implements Macro {
     }
 
     const videoPlayerHandler = new VideoPlayerWrapper(element, context, {
-      onImpression: () => this.props.onImpression(),
-      onInview: () => this.props.onInview(),
+      onImpression: () => context.model.emit("impression"),
+      onInview: () => context.model.emit("inview"),
       onClick: () => onVideoClickHandler()
     });
 

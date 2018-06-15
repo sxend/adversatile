@@ -4,6 +4,7 @@ import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
 import { resultOrElse } from "../misc/ObjectUtils";
+import { Tracking } from "../misc/Tracking";
 
 export class LinkJsMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -24,7 +25,7 @@ export class LinkJsMacro implements Macro {
     for (let target of targets) {
       target.style.cursor = "auto";
       target.onclick = async () => {
-        await this.props.trackingCall(clktrckUrl, "click-track-beacon");
+        await Tracking.trackingCall(clktrckUrl, "click-track-beacon");
         const openTarget = target.getAttribute(
           this.config.linkJs.openTargetAttrName
         );

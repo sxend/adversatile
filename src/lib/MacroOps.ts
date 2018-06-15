@@ -53,12 +53,7 @@ export interface Macro {
 }
 
 export interface MacroProps {
-  onImpression?: () => void;
-  onInview?: () => void;
-  onViewThrough?: () => void;
-  onClick?: () => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
-  trackingCall?: (urls: string[], trackingName: string) => Promise<void>;
   addAssetOptions?: (...option: AssetOption[]) => void;
 }
 export class MacroContext {

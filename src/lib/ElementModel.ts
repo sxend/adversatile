@@ -14,7 +14,7 @@ import { Tracking } from "./misc/Tracking";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { AssetUtils, OpenRTBUtils } from "./openrtb/OpenRTBUtils";
 
-export class ElementModel {
+export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   private isRendered: boolean = false;
@@ -23,24 +23,23 @@ export class ElementModel {
     private element: HTMLElement,
     private config: ElementModelConf,
     private store: Store,
-    private props: {
-      onInit: (self: ElementModel) => void;
-    }
+    private props: {}
   ) {
+    super();
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
-    (this.option.preRender
-      ? this.update(OpenRTBUtils.dummyBid())
-      : Promise.resolve()
-    ).then(_ => {
-      this.store.on(`change`, () => {
-        this.updateWithStore(this.name);
-      });
-      this.updateWithStore(this.name);
-      this.props.onInit(this);
-    });
+  }
+  init(): ElementModel {
+    if (this.option.preRender) {
+      this.once("rendered", () => {
+        this.emit("init");
+      }).update(OpenRTBUtils.dummyBid());
+    } else {
+      this.emit("init");
+    }
+    return this;
   }
   get name(): string {
     return this.element.getAttribute(this.config.nameAttributeName);
@@ -55,18 +54,14 @@ export class ElementModel {
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
-  private updateWithStore(qualifier: string) {
-    if (this.isRendered || !this.store.getState().hasBid(qualifier)) return;
-    this.isRendered = true;
-    const bid = this.store.getState().getBid(qualifier);
-    this.update(bid).catch(console.error);
-  }
-  private update(bid: OpenRTB.Bid): Promise<void> {
+  update(bid: OpenRTB.Bid): Promise<void> {
     const context = this.createRenderContext(bid);
     return this.renderer.render(
       this.element,
       context
-    );
+    ).then(_ => {
+      this.emit("rendered");
+    }).catch(console.error);
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
@@ -77,18 +72,13 @@ export class ElementModel {
       )
     };
   }
+
   private addAssetOptions(assets: AssetOption[]) {
     this.detectedAssets = uniqBy(this.detectedAssets.concat(assets), asset => asset.id);
   }
   private createRenderProps(): MacroProps {
-    const _addAssetOptions = this.isRendered ? void 0 : (...options: AssetOption[]) => this.addAssetOptions(options);
     return {
-      onImpression: () => console.log("impression"),
-      onInview: () => console.log("inview"),
-      onViewThrough: () => console.log("vt"),
-      onClick: () => console.log("click"),
-      trackingCall: Tracking.trackingCall,
-      addAssetOptions: _addAssetOptions
+      addAssetOptions: (...options: AssetOption[]) => this.addAssetOptions(options)
     };
   }
 }
