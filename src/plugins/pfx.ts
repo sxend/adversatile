@@ -4,6 +4,7 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import deepmerge from "deepmerge";
 import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
+import Analytics from "../lib/misc/Analytics";
 
 declare var window: {
   ProFitX: {
@@ -24,7 +25,8 @@ declare var window: {
         preRender: Function
         setup: Function,
       }
-    }
+    },
+    pa: Function
   }
 }
 export default {
@@ -47,7 +49,8 @@ export default {
           preRender: preRender,
           setup: setup
         }
-      }
+      },
+      pa: Analytics
     };
     const oldcontext: {
       config: Configuration
@@ -113,13 +116,13 @@ export default {
         element.setAttribute(config.vm.em.qualifierAttributeName, qualifier);
       }
       let template: string = "";
-      if (oldconfig.templateId) {
+      if (oldconfig.templateHtml) {
+        template = oldconfig.templateHtml;
+      } else if (oldconfig.templateId) {
         const templateEl = document.getElementById(oldconfig.templateId);
         if (templateEl) {
           template = templateEl.innerHTML;
         }
-      } else if (oldconfig.templateHtml) {
-        template = oldconfig.templateHtml;
       }
       template = template.replace(/data-pfx-link/g, config.vm.em.macro.link.selectorAttrName);
       template = template.replace(/data-pfx-link-js/g, config.vm.em.macro.linkJs.selectorAttrName);
