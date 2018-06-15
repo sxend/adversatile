@@ -48,7 +48,7 @@ export default {
     typescript({
       tsconfig: "tsconfig.json"
     }),
-    uglify(),
+    // uglify(),
     license({
       banner: [
         'See OSS Licenses',

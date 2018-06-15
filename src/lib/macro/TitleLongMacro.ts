@@ -15,7 +15,7 @@ export class TitleLongMacro implements Macro {
     return "TitleLongMacro";
   }
   async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
-    const text = AssetUtils.findAsset(context.assets, AssetTypes.DESCRIPTIVE_TEXT);
+    const text = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_TITLE_LONG);
     if (!text) return;
     const targets: HTMLElement[] = [].slice.call(
       element.querySelectorAll(this.selector())

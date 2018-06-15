@@ -47,4 +47,30 @@ export namespace Dom {
   export function createScriptElement(): HTMLScriptElement {
     return document.createElement("script");
   }
+  let _ready: Promise<void> = (async () => {
+    const topLevelWindow: Window = await Dom.TopLevelWindow;
+    const readyState = topLevelWindow.document.readyState;
+    if (readyState === "complete" || (readyState !== "loading" && !(<any>topLevelWindow.document.documentElement)['doScroll'])) {
+      return Promise.resolve(void 0);
+    } else {
+      return new Promise(resolve => {
+        function loaded() {
+          topLevelWindow.document.removeEventListener("DOMContentLoaded", loaded);
+          window.removeEventListener("load", loaded);
+          resolve(void 0);
+        }
+        topLevelWindow.document.addEventListener("DOMContentLoaded", loaded);
+        window.addEventListener("load", loaded);
+      });
+    }
+  })();
+  export function ready(fn: Function): Promise<void> {
+    return _ready = _ready.then(_ => {
+      try {
+        fn();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  };
 }

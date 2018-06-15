@@ -10,7 +10,6 @@ import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class ViewModel {
   private ems: { [name: string]: ElementModel[] } = {};
-  private emQualifier: { [name: string]: number } = {};
   constructor(
     private config: ViewModelConf,
     private store: Store,
@@ -18,6 +17,21 @@ export class ViewModel {
   ) {
     this.prefetch();
     this.polling();
+    this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
+      const sbid = response.seatbid[0];
+      if (!sbid) return;
+      sbid.bid.forEach(bid => {
+        const ems = this.ems[bid.impid];
+        if (!ems || ems.length === 0) return;
+        ems.forEach(em => {
+          em
+            .once("rendered", () => console.log("rendered"))
+            .once("impression", () => console.log("impression"))
+            .once("inview", () => console.log("inview"))
+            .update(bid)
+        });
+      });
+    });
   }
   private prefetch(): void {
     if (!this.config.prefetch || this.config.prefetch.length === 0) return;
@@ -26,9 +40,7 @@ export class ViewModel {
       if (option.assets.length > 0) {
         const options = Array(target.size).fill(option);
         this.createBidReqFromElementOptions(options)
-          .then(req => {
-            this.action.fetchData(req);
-          })
+          .then(req => this.action.fetchData(req))
           .catch(console.error);
       }
     }
@@ -61,22 +73,22 @@ export class ViewModel {
     return `${selector}:not(.${markedClass})`;
   }
   private initNewElements(elements: HTMLElement[]): void {
-    Promise.all(elements.map(element => this.createElementModel(element)))
-      .then((ems: ElementModel[]) => {
-        this.createBidReqFromModels(
-          ems.filter(_ => this.isNotPrefetch(_.name))
-        ).then(req => {
-          this.action.fetchData(req);
-        });
-      })
-      .catch(console.error);
-  }
-  private createElementModel(element: HTMLElement): Promise<ElementModel> {
-    return new Promise(resolve => {
-      new ElementModel(element, this.config.em, this.store, {
-        onInit: em => resolve(em)
+    const ems = elements.map(element => this.createElementModel(element));
+    Promise.all(ems.map(em => new Promise(resolve => {
+      em.once("init", resolve).init();
+    }))).then(_ => {
+      this.createBidReqFromModels(
+        ems.filter(_ => this.isNotPrefetch(_.name))
+      ).then(req => {
+        this.action.fetchData(req);
+      });
+      ems.forEach(em => {
+        (this.ems[em.name] = this.ems[em.name] || []).push(em);
       });
     });
+  }
+  private createElementModel(element: HTMLElement): ElementModel {
+    return new ElementModel(element, this.config.em, this.store, {});
   }
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);

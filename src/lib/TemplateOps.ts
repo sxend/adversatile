@@ -1,4 +1,4 @@
-import { firstDefined } from "./misc/ObjectUtils";
+import { firstDefined, resultOrElse } from "./misc/ObjectUtils";
 
 export class TemplateOps {
   constructor(
@@ -16,7 +16,7 @@ export class TemplateOps {
   }
   resolveExternalTemplate(qualifier: string): string | undefined {
     const query = `[${this.templateQualifierKey}="${qualifier}"]`;
-    const templateEl = document.querySelector(query);
+    const templateEl = resultOrElse(() => document.querySelector(query));
     if (templateEl) {
       return templateEl.innerHTML;
     }

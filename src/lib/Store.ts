@@ -11,16 +11,17 @@ export class Store extends EventEmitter {
     this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
       response.seatbid.forEach(sbid => sbid.bid.forEach(bid => this.addBid(bid)));
-      this.emit("change");
     });
   }
   private addBidResponse(response: OpenRTB.BidResponse) {
     (this.internal.responses = this.internal.responses || {});
     (this.internal.responses[response.id] = this.internal.responses[response.id] || []).push(response);
+    this.emit("AddBidResponse", response);
   }
   private addBid(bid: OpenRTB.Bid) {
     (this.internal.bids = this.internal.bids || {});
     (this.internal.bids[bid.impid] = this.internal.bids[bid.impid] || []).push(bid);
+    this.emit("AddBid", bid);
   }
   getState(): State {
     return this.state;

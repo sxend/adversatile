@@ -7,6 +7,7 @@ import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
+import { Tracking } from "../misc/Tracking";
 
 
 export class MarkupVideoMacro implements Macro {
@@ -32,7 +33,7 @@ export class MarkupVideoMacro implements Macro {
       target.appendChild(divChildElement);
       divChildElement.innerHTML = data.data.value;
       divChildElement.onclick = () => {
-        this.props.trackingCall([link.url], "click-track-beacon");
+        Tracking.trackingCall([link.url], "click-track-beacon");
       };
       // fireScript(divChildElements); // FIXME fire inner script tag
     }

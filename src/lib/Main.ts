@@ -1,14 +1,19 @@
 import Configuration, {
   isConfiguration,
-  asConfituration
+  asConfituration,
+  ElementOption,
+  AssetOption
 } from "./Configuration";
 import { Plugin } from "./Plugin";
-import { isObject } from "./misc/TypeCheck";
+import { isObject, isString } from "./misc/TypeCheck";
 import { ViewModel } from "./ViewModel";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { EventEmitter } from "events";
 import { Dispatcher } from "./Dispatcher";
+import { OpenRTB } from "./openrtb/OpenRTB";
+import Adversatile from "../Adversatile";
+import pfx from "../plugins/pfx";
 
 export async function main(...args: any[]) {
   if (isObject(args[0]) && isConfiguration(args[0])) {
@@ -31,8 +36,9 @@ export function use(plugin: Plugin, options?: any) {
 
 export function initialize(): Plugin {
   return {
-    install: function(Adversatile: any, options: any) {
+    install: function(Adversatile: { use: (plugin: Plugin) => void, plugin: any }, options: any) {
       Adversatile.plugin = Adversatile.plugin || {};
+      Adversatile.use(pfx);
     }
   };
 }
