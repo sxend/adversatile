@@ -3,7 +3,9 @@ import { OpenRTB } from "./openrtb/OpenRTB";
 
 export interface IDispatcher {
   dispatch(action: { event: "BidResponse"; data: OpenRTB.BidResponse }): void;
+  dispatch(action: { event: "Tracked"; data: { name: string, urls: string[] } }): void;
   onDispatch(event: "BidResponse", callback: (data: OpenRTB.BidResponse) => void): void;
+  onDispatch(event: "Tracked", callback: (data: { name: string, urls: string[] }) => void): void;
 }
 export class Dispatcher extends EventEmitter implements IDispatcher {
   dispatch(action: { event: string; data: any }): void {

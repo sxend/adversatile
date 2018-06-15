@@ -12,6 +12,10 @@ export class Store extends EventEmitter {
       this.addBidResponse(response);
       response.seatbid.forEach(sbid => sbid.bid.forEach(bid => this.addBid(bid)));
     });
+    this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
+      this.internal.trackedUrls = this.internal.trackedUrls || {};
+      this.internal.trackedUrls[data.name] = (this.internal.trackedUrls[data.name] || []).concat(data.urls);
+    });
   }
   private addBidResponse(response: OpenRTB.BidResponse) {
     (this.internal.responses = this.internal.responses || {});
@@ -41,5 +45,11 @@ export class State {
   }
   getBid(id: string): OpenRTB.Bid {
     return (this.internal.bids[id] || []).shift();
+  }
+  getTrackedUrls(name: string): string[] {
+    if (this.internal.trackedUrls) {
+      return this.internal.trackedUrls[name] || [];
+    }
+    return [];
   }
 }

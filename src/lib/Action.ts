@@ -4,6 +4,7 @@ import { Jsonp } from "./misc/Jsonp";
 import { RandomId } from "./misc/RandomId";
 import { Dispatcher, IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
+import { Tracking } from "./misc/Tracking";
 
 export class Action {
   constructor(private config: ActionConf, private dispatcher: IDispatcher) { }
@@ -15,6 +16,13 @@ export class Action {
         return Promise.resolve();
       })
       .catch(console.error);
+  }
+  tracking(urls: string[], trackingName: string, historied: boolean = false) {
+    Tracking.trackingCall(urls, trackingName).then(_ => {
+      if (historied) {
+        this.dispatcher.dispatch({ event: "Tracked", data: { name: trackingName, urls } });
+      }
+    });
   }
   private async fetchDataWithJson(
     req: OpenRTB.BidRequest

@@ -58,6 +58,11 @@ export class ElementOption {
   notrim: boolean = false;
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
+  video: ElementVideoOption = new ElementVideoOption();
+}
+export class ElementVideoOption {
+  autoReplay: boolean = true;
+  replayDelayMillis: number = 3000;
 }
 
 export class AssetOption {

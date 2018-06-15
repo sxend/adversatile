@@ -7,6 +7,7 @@ import { Dom } from "./misc/Dom";
 import Adversatile from "../Adversatile";
 import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
+import { Tracking } from "./misc/Tracking";
 
 export class ViewModel {
   private ems: { [name: string]: ElementModel[] } = {};
@@ -25,9 +26,18 @@ export class ViewModel {
         if (!ems || ems.length === 0) return;
         ems.forEach(em => {
           em
-            .once("rendered", () => console.log("rendered"))
-            .once("impression", () => console.log("impression"))
-            .once("inview", () => console.log("inview"))
+            .once("rendered", () => {
+            })
+            .once("impression", () => {
+              const tracked = this.store.getState().getTrackedUrls("imp-tracking");
+              const urls = bid.ext.imptrackers.filter(i => tracked.indexOf(i) === -1);
+              this.action.tracking(urls, "imp-tracking");
+            })
+            .once("viewable_impression", () => {
+              const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
+              const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+              this.action.tracking(urls, "viewable-imp-tracking");
+            })
             .update(bid)
         });
       });

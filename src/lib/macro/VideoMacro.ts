@@ -33,11 +33,10 @@ export class VideoMacro implements Macro {
     return Promise.resolve();
   }
   private onVideoPlayerLoaded(element: HTMLElement, context: MacroContext) {
-    const mainImageAsset = context.assets.filter(
-      (a: OpenRTB.NativeAd.Response.Assets) => {
-        return AssetUtils.getAssetByAssetId(a.id) === AssetTypes.IMAGE_URL;
-      }
-    )[0];
+    const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
+    const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
+    if (!video) return;
+
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
       context.admNative.link.url,
       context.model.option.expandedClickParams
@@ -47,14 +46,22 @@ export class VideoMacro implements Macro {
       onVideoClickHandler = () =>
         this.props.onClickForSDKBridge(clickUrlWithExpandedParams, resultOrElse(() => context.bid.ext.appId));
     }
-
-    const videoPlayerHandler = new VideoPlayerWrapper(element, context, {
-      onImpression: () => context.model.emit("impression"),
-      onInview: () => context.model.emit("inview"),
-      onClick: () => onVideoClickHandler()
-    });
-
-    videoPlayerHandler.render();
+    const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
+      video.video.vasttag,
+      element,
+      function() { player.play(); },
+      function() { },
+      clickUrlWithExpandedParams,
+      (!!image && !!image.img) ? image.img.url : void 0,
+      onVideoClickHandler,
+      context.model.option.video,
+      onContinuousVideoPlayHandler(2000, () => {
+        context.model.emit("viewable_impression");
+      }),
+      () => context.model.emit("video complete")
+    );
+    player.load();
+    console.log("video load started.");
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {
@@ -69,22 +76,21 @@ export class VideoMacro implements Macro {
     return `[${this.config.video.selectorAttrName}]`;
   }
 }
-class VideoPlayerWrapper {
-  constructor(
-    private element: HTMLElement,
-    private context: any,
-    private props: {
-      onImpression: () => void;
-      onInview: () => void;
-      onClick: () => void;
+function onContinuousVideoPlayHandler(seconds: number, callback: () => void): (state: number) => void {
+  const STATE_PLAYING = 4; // state "4" is PlayingState.playing
+  let finished = false;
+  let timer: any;
+  return (state: number) => {
+    if (!finished) {
+      if (state === STATE_PLAYING && !timer) {
+        timer = setTimeout(() => {
+          finished = true;
+          callback();
+        }, seconds);
+      } else {
+        clearTimeout(timer);
+        timer = null;
+      }
     }
-  ) { }
-  render() {
-    // FIXME implement video player
-    this.props.onImpression();
-    setTimeout(() => {
-      this.props.onInview();
-    }, 2000);
-    this.element.onclick = () => this.props.onClick();
   }
 }
