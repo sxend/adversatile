@@ -21,13 +21,12 @@ export class MacroOps {
     config.plugins.forEach(plugin => plugin.install(this));
   }
   async applyMacro(context: MacroContext): Promise<void> {
-    for (let macro of this.macroStack(context.props)) {
-      context = await macro.applyMacro(context);
-      context.metadata.appliedMacroNames.push(macro.getName());
-    }
+    await this.construct(context.props).applyMacro(context);
   }
-  private macroStack(props: MacroProps): Macro[] {
-    return [
+  private construct(
+    props: MacroProps
+  ): Macro {
+    const macros: Macro[] = [
       new NanoTemplateMacro(),
       new InjectMacro(this.config),
       new VideoMacro(this.config, props),
@@ -42,11 +41,17 @@ export class MacroOps {
       new LinkJsMacro(this.config),
       new LinkMacro(this.config, props)
     ];
+    return macros.reduce((prev: Macro, next: Macro) => {
+      return {
+        async applyMacro(context: MacroContext): Promise<MacroContext> {
+          return next.applyMacro(await prev.applyMacro(context))
+        }
+      };
+    });
   }
 }
 
 export interface Macro {
-  getName(): string;
   applyMacro(context: MacroContext): Promise<MacroContext>;
 }
 
@@ -66,7 +71,7 @@ export class MacroContext {
     public element: HTMLElement,
     public props: MacroProps,
     public template: string,
-    public bid: OpenRTB.Bid,
+    public bid: OpenRTB.Bid
   ) {
     this.assets = getOrElse(() => bid.ext.admNative.assets, []);
     this.admNative = getOrElse(() => bid.ext.admNative);
