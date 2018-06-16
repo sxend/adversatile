@@ -23,6 +23,8 @@ export class InjectMacro implements Macro {
     }
     if (method === "iframe") {
       return this.injectIframe(target, context);
+    } else if (method === "sibling") {
+      return this.injectSibling(target, context);
     } else {
       return this.injectInnerHTML(target, context);
     }
@@ -53,6 +55,19 @@ export class InjectMacro implements Macro {
   }
   private async injectInnerHTML(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
     target.innerHTML = context.template;
+    return context;
+  }
+  private async injectSibling(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
+    context = await this.injectInnerHTML(target, context);
+    const childNodes = [].slice.call(target.childNodes);
+    context.model.once("updated", () => {
+      childNodes.forEach((node: Node) => {
+        target.parentElement.insertBefore(node, target.nextSibling || target);
+      });
+      context.model.once("update", () => {
+        childNodes.forEach((node: ChildNode) => node.remove());
+      });
+    });
     return context;
   }
 }

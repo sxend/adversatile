@@ -35,6 +35,7 @@ declare var window: {
 }
 export default {
   install: function(Adversatile: any) {
+    window.ProFitX = window.ProFitX || <any>{};
     Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, deepmerge(window.ProFitX, {
       Global: {
         ready: (fn: Function) => Dom.ready(fn)
