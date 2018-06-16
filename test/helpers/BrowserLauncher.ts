@@ -1,6 +1,5 @@
 import * as getPort from "get-port";
 const hoxy = require("hoxy");
-import * as util from "util";
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import * as fs from 'fs';
@@ -21,7 +20,7 @@ export class BrowserLauncher {
     await new Promise(resolve => proxy.listen(proxyPort, resolve));
     proxy.intercept({
       url: "adversatile.js", phase: 'request', as: 'string'
-    }, (req: any, resp: any, cycle: any) => {
+    }, (_req: any, resp: any, _cycle: any) => {
       resp.string = fs.readFileSync(path.join(__dirname, "../../dist/adversatile.js"));
     });
     return proxy;

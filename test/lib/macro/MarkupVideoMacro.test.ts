@@ -1,6 +1,5 @@
 import { MarkupVideoMacro } from "../../../src/lib/macro/MarkupVideoMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
-import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 
 describe("MarkupVideoMacro", () => {
   describe("applyMacro", () => {

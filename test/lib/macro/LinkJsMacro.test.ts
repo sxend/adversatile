@@ -16,8 +16,6 @@ describe("LinkJsMacro", () => {
     });
   });
   it("getName", () => {
-    const element = document.createElement("div");
-    const context = dummyMacroContext(element, "");
     expect(new LinkJsMacro(new MacroConf()).getName()).toBe("LinkJsMacro");
   });
 });

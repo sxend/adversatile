@@ -1,6 +1,3 @@
-import * as puppeteer from 'puppeteer';
-import { Browser } from 'puppeteer';
-import { SSL_OP_CRYPTOPRO_TLSEXT_BUG } from 'constants';
 import { BrowserLauncher } from '../helpers/BrowserLauncher';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -17,7 +14,7 @@ describe("puppeteer", () => {
     browser.proxy.intercept({
       phase: 'request',
       as: 'string'
-    }, function(req: any, resp: any, cycle: any) {
+    }, function(_req: any, resp: any, _cycle: any) {
       resp.string = "intercept";
     });
   });
@@ -41,7 +38,7 @@ describe("adversatile.js", () => {
     browser = await BrowserLauncher.launch();
     browser.proxy.intercept({
       fullUrl: "http://example.com/index.html", phase: 'request', as: 'string'
-    }, (req: any, resp: any, cycle: any) => {
+    }, (_req: any, resp: any, _cycle: any) => {
       resp.string = fs.readFileSync(path.join(__dirname, "../helpers/html/index.html"));
     });
   });

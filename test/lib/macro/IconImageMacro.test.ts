@@ -2,7 +2,6 @@ import { IconImageMacro } from "../../../src/lib/macro/IconImageMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 import { OpenRTBUtils } from "../../../src/lib/openrtb/OpenRTBUtils";
-import { dummyProps } from "../../helpers/fixtures/Macro";
 
 describe("IconImageMacro", () => {
   describe("applyMacro", () => {
@@ -13,7 +12,7 @@ describe("IconImageMacro", () => {
       target.setAttribute(config.iconImage.selectorAttrName, "");
       element.appendChild(target);
       const context = dummyMacroContext(element, "");
-      await new IconImageMacro(config , context.props).applyMacro(context);
+      await new IconImageMacro(config, context.props).applyMacro(context);
       expect(target.src).toBe(OpenRTBUtils.dummyImg);
     });
   });

@@ -17,7 +17,7 @@ describe("SponsoredByMessageMacro", () => {
   });
   it("getName", () => {
     const element = document.createElement("div");
-const context = dummyMacroContext(element, "");
+    const context = dummyMacroContext(element, "");
     expect(new SponsoredByMessageMacro(new MacroConf(), context.props).getName()).toBe("SponsoredByMessageMacro");
   });
 });

@@ -7,7 +7,7 @@ import { dummyProps } from "./Macro";
 export function dummyBid(): OpenRTB.Bid {
   return OpenRTBUtils.dummyBid();
 }
-export function dummyMacroContext(element: HTMLElement, template): MacroContext {
+export function dummyMacroContext(element: HTMLElement, template: string): MacroContext {
   return new MacroContext(
     mockElementModel(),
     element,
@@ -17,9 +17,9 @@ export function dummyMacroContext(element: HTMLElement, template): MacroContext 
   );
 }
 export function mockElementModel(): ElementModel {
-  return <any> {
+  return <any>{
     option: {
-      expandedClickParams: [{"expand_key": "expand_value"}]
+      expandedClickParams: [{ "expand_key": "expand_value" }]
     }
   };
 }
