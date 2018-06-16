@@ -8,17 +8,17 @@ export class LinkJsMacro implements Macro {
   getName(): string {
     return "LinkJsMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
-    if (!context.admNative || !context.admNative.link) return;
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
+    if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const linkUrl = link.url;
     const clktrckUrl = link.clktrck;
-    if (!linkUrl || !clktrckUrl) return;
+    if (!linkUrl || !clktrckUrl) return context;
     const selector = this.selector();
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(selector)
+      context.element.querySelectorAll(selector)
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     for (let target of targets) {
       target.style.cursor = "auto";
       target.onclick = async () => {
@@ -46,7 +46,7 @@ export class LinkJsMacro implements Macro {
         return false;
       };
     }
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     const selector = this.config.linkJs.selectorAttrName;

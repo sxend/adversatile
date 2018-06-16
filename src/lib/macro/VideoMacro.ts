@@ -11,12 +11,12 @@ export class VideoMacro implements Macro {
   getName(): string {
     return "VideoMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
-    if (!context.admNative || !context.admNative.link) return;
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
+    if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(this.selector())
+      context.element.querySelectorAll(this.selector())
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
     if (
       !(<any>window)[VideoPlayerObjectName] ||
@@ -27,7 +27,7 @@ export class VideoMacro implements Macro {
     for (let target of targets) {
       this.onVideoPlayerLoaded(target, context);
     }
-    return Promise.resolve();
+    return context;
   }
   private onVideoPlayerLoaded(element: HTMLElement, context: MacroContext) {
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);

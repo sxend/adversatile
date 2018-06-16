@@ -116,14 +116,13 @@ export default {
       emoption.notrim = oldconfig.notrim;
       emoption.preRender = oldconfig.preRender;
       emoption.format = oldconfig.adFormat;
-      emoption.renderer.injectIframe = emoption.format === "banner" ? true : emoption.renderer.injectIframe;
       emoption.assets = (oldconfig.assets || []).map(asset => {
         return new AssetOption(getAssetIdByName(asset.name), asset.prop);
       });
       emoption.plugins.push({
         install: function(model: ElementModel) {
           try {
-            model.on("rendered", function rendered(bid: OpenRTB.Bid) {
+            model.on("updated", function updated(bid: OpenRTB.Bid) {
               if (bid.id === "DUMMY") return;
               if (oldconfig.onpfxadrendered) {
                 oldconfig.onpfxadrendered(bid, null, model.element);
@@ -131,7 +130,7 @@ export default {
               if (window.onpfxadrendered) {
                 window.onpfxadrendered(qualifier);
               }
-              model.removeListener("rendered", rendered);
+              model.removeListener("updated", updated);
             });
             model.once("impression", () => {
               window.postMessage('onpfximpression', '*');
@@ -150,7 +149,7 @@ export default {
       emoption.renderer.plugins.push({
         install: function(renderer: Renderer) {
           const original = renderer.render;
-          renderer.render = function(element: HTMLElement, context: RendererContext) {
+          renderer.render = function(context: RendererContext) {
             try {
               let html = resultOrElse(() => context.bid.ext.bannerHtml);
               if (html) {
@@ -175,26 +174,36 @@ export default {
             } catch (e) {
               console.error(e);
             }
-            return original.call(renderer, element, context);
+            return original.call(renderer, context);
           };
         }
       });
       config.vm.em.macro.plugins.push({
         install: function(macroops: MacroOps) {
-          const original = macroops.applyTemplate;
-          macroops.applyTemplate = function(template: string, context: MacroContext) {
-            try {
-              let html = resultOrElse(() => context.bid.ext.bannerHtml);
-              if (html) {
-                template = upgradeTemplate(template.replace("${PFX_BANNER_HTML}", html), config);
-              }
-            } catch (e) {
-              console.error(e);
+          const original = macroops.applyMacro;
+          macroops.applyMacro = function(context: MacroContext) {
+            if (emoption.format === "banner") {
+              context.element.setAttribute(config.vm.em.macro.inject.selectorAttrName, "iframe");
             }
-            return original.call(macroops, template, context);
+            return original.call(macroops, context);
           };
         }
-      });
+      }, {
+          install: function(macroops: MacroOps) {
+            const original = macroops.applyMacro;
+            macroops.applyMacro = function(context: MacroContext) {
+              try {
+                let html = resultOrElse(() => context.bid.ext.bannerHtml);
+                if (html) {
+                  context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", html), config);
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              return original.call(macroops, context);
+            };
+          }
+        });
       config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
       config.vm.em.macro.link.markedClass = "pfx-link-added";
       config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";

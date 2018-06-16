@@ -12,14 +12,14 @@ export class MarkupVideoMacro implements Macro {
   getName(): string {
     return "MarkupVideoMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
     const data = <ResAssets>AssetUtils.findAsset(context.assets, AssetTypes.MARKUP_VIDEO);
-    if (!data || !data.data || !context.admNative || !context.admNative.link) return;
+    if (!data || !data.data || !context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(this.selector())
+      context.element.querySelectorAll(this.selector())
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     for (let target of targets) {
       const divChildElement: HTMLElement = document.createElement("div");
       divChildElement.className = target.className;
@@ -34,7 +34,7 @@ export class MarkupVideoMacro implements Macro {
       };
       // fireScript(divChildElements); // FIXME fire inner script tag
     }
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     return `[${this.config.markupVideo.markedId}]`;

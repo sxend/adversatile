@@ -6,7 +6,6 @@ import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
-import { Async } from "./misc/Async";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
@@ -22,7 +21,7 @@ export class ElementModel extends EventEmitter {
   }
   init(): ElementModel {
     if (this.option.preRender) {
-      this.once("rendered", () => {
+      this.once("updated", () => {
         this.emit("init");
       }).update(OpenRTBUtils.dummyBid());
     } else {
@@ -44,16 +43,19 @@ export class ElementModel extends EventEmitter {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   update(bid: OpenRTB.Bid): Promise<void> {
+    this.emit("update", bid);
     const context = this.createRenderContext(bid);
     return this.renderer
-      .render(this.element, context)
+      .render(context)
       .then(_ => {
-        this.emit("rendered", bid);
+        this.emit("updated", bid);
       })
       .catch(console.error);
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
+      model: this,
+      element: this.element,
       bid,
       props: this.createMacroProps(bid)
     };
@@ -93,51 +95,22 @@ export class Renderer {
     );
     model.option.renderer.plugins.forEach(plugin => plugin.install(this));
   }
-  async render(element: HTMLElement, context: RendererContext): Promise<void> {
+  async render(context: RendererContext): Promise<void> {
+    const template = (await this.templateOps.resolveTemplate(this.model.name)) ||
+      resultOrElse(() => context.bid.ext.bannerHtml);
     const macroContext = new MacroContext(
-      this.model,
+      context.model,
+      context.element,
       context.props,
+      template,
       context.bid
     );
-    const template = await this.macroOps.applyTemplate(
-      (await this.templateOps.resolveTemplate(this.model.name)) ||
-      resultOrElse(() => context.bid.ext.bannerHtml),
-      macroContext
-    );
-    let applyTarget: HTMLElement;
-    if (this.model.option.renderer.injectIframe) {
-      const iframe = await this.renderIframe(template, context);
-      element.appendChild(iframe);
-      applyTarget = iframe.contentDocument.body;
-    } else {
-      element.innerHTML = template;
-      applyTarget = element;
-    }
-    await this.macroOps.applyElement(applyTarget, macroContext);
-  }
-  private async renderIframe(template: string, context: RendererContext): Promise<HTMLIFrameElement> {
-    const iframe = document.createElement("iframe");
-    const attributes: { [attr: string]: string } = {
-      "style": "display:block;margin:0 auto;border:0pt;",
-      "width": context.bid.w.toString(),
-      "height": context.bid.h.toString(),
-      "scrolling": "no"
-    };
-    Object.keys(attributes).forEach(attr => {
-      iframe.setAttribute(attr, attributes[attr]);
-    });
-    Async.wait(() => !!iframe.contentDocument).then(_ => {
-      try {
-        iframe.contentDocument.open();
-        iframe.contentDocument.write(template);
-      } finally {
-        iframe.contentDocument.close();
-      }
-    });
-    return iframe;
+    await this.macroOps.applyMacro(macroContext);
   }
 }
 export interface RendererContext {
+  model: ElementModel,
+  element: HTMLElement,
   bid: OpenRTB.Bid;
   props: MacroProps;
 }

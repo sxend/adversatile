@@ -9,13 +9,13 @@ export class MainImageMacro implements Macro {
   getName(): string {
     return "MainImageMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
-    if (!image) return;
+    if (!image) return context;
     const targets: HTMLImageElement[] = [].slice.call(
-      element.querySelectorAll(this.selector())
+      context.element.querySelectorAll(this.selector())
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     for (let target of targets) {
       target.src = image.img.url;
       if (this.props.addAssetOptions) {
@@ -23,7 +23,7 @@ export class MainImageMacro implements Macro {
       }
     }
     context.props.impress();
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     return `img[${this.config.mainImage.selectorAttrName}]`;

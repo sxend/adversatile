@@ -9,13 +9,13 @@ export class OptoutLinkOnlyMacro implements Macro {
   getName(): string {
     return "OptoutLinkOnlyMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
     const optout = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_LINK);
-    if (!optout) return;
+    if (!optout) return context;
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(this.selector())
+      context.element.querySelectorAll(this.selector())
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       anchor.href = optout.link.url;
@@ -36,7 +36,7 @@ export class OptoutLinkOnlyMacro implements Macro {
       target.classList.add(this.config.optoutLinkOnly.markedClass);
       anchor.appendChild(target);
     }
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     const selector = this.config.optoutLinkOnly.selectorAttrName;

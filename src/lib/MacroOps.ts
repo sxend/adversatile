@@ -1,5 +1,4 @@
 import { MacroConf, AssetOption } from "./Configuration";
-import { nano } from "./misc/StringUtils";
 import { LinkMacro } from "./macro/LinkMacro";
 import { LinkJsMacro } from "./macro/LinkJsMacro";
 import { VideoMacro } from "./macro/VideoMacro";
@@ -14,25 +13,23 @@ import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { resultOrElse } from "./misc/ObjectUtils";
 import { ElementModel } from "./ElementModel";
+import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
+import { InjectMacro } from "./macro/InjectMacro";
 
 export class MacroOps {
   constructor(private config: MacroConf) {
     config.plugins.forEach(plugin => plugin.install(this));
   }
-  async applyTemplate(template: string, context: MacroContext): Promise<string> {
-    return nano(template, context);
-  }
-  async applyElement(
-    element: HTMLElement,
-    context: MacroContext
-  ): Promise<void> {
+  async applyMacro(context: MacroContext): Promise<void> {
     for (let macro of this.macroStack(context.props)) {
-      await macro.applyMacro(element, context).catch(console.error);
+      context = await macro.applyMacro(context);
       context.metadata.appliedMacroNames.push(macro.getName());
     }
   }
   private macroStack(props: MacroProps): Macro[] {
     return [
+      new NanoTemplateMacro(),
+      new InjectMacro(this.config),
       new VideoMacro(this.config, props),
       new MarkupVideoMacro(this.config),
       new MainImageMacro(this.config, props),
@@ -50,7 +47,7 @@ export class MacroOps {
 
 export interface Macro {
   getName(): string;
-  applyMacro(element: HTMLElement, context: MacroContext): Promise<void>;
+  applyMacro(context: MacroContext): Promise<MacroContext>;
 }
 
 export interface MacroProps {
@@ -66,7 +63,9 @@ export class MacroContext {
   public admNative: OpenRTB.NativeAd.AdResponse;
   constructor(
     public model: ElementModel,
+    public element: HTMLElement,
     public props: MacroProps,
+    public template: string,
     public bid: OpenRTB.Bid,
   ) {
     this.assets = resultOrElse(() => bid.ext.admNative.assets, []);

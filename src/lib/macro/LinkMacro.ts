@@ -10,15 +10,15 @@ export class LinkMacro implements Macro {
   getName(): string {
     return "LinkMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
-    if (!context.admNative || !context.admNative.link) return;
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
+    if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const appId = resultOrElse(() => context.bid.ext.appId);
     const selector = this.selector();
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(selector)
+      context.element.querySelectorAll(selector)
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     const clickUrl: string = MacroUtils.addExpandParams(
       link.url,
       context.model.option.expandedClickParams
@@ -46,7 +46,7 @@ export class LinkMacro implements Macro {
       target.classList.add(this.config.link.markedClass);
       anchor.appendChild(target);
     }
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     const selector = this.config.link.selectorAttrName;

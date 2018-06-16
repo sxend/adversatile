@@ -10,13 +10,13 @@ export class TitleShortMacro implements Macro {
   getName(): string {
     return "TitleShortMacro";
   }
-  async applyMacro(element: HTMLElement, context: MacroContext): Promise<void> {
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
     const title = AssetUtils.findAsset(context.assets, AssetTypes.TITLE_SHORT);
-    if (!title) return;
+    if (!title) return context;
     const targets: HTMLElement[] = [].slice.call(
-      element.querySelectorAll(this.selector())
+      context.element.querySelectorAll(this.selector())
     );
-    if (targets.length === 0) return Promise.resolve();
+    if (targets.length === 0) return context;
     for (let target of targets) {
       MacroUtils.insertTextAsset(target, title.title.text);
       if (this.props.addAssetOptions) {
@@ -24,7 +24,7 @@ export class TitleShortMacro implements Macro {
       }
     }
     context.props.impress();
-    return Promise.resolve();
+    return context;
   }
   private selector(): string {
     return `[${this.config.titleShort.selectorAttrName}]`;

@@ -23,7 +23,7 @@ export class ViewModel {
         if (!ems || ems.length === 0) return;
         ems.forEach(em => {
           em
-            .once("rendered", () => {
+            .once("updated", () => {
             })
             .once("impression", () => {
               const tracked = this.store.getState().getTrackedUrls("imp-tracking");

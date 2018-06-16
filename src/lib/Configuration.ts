@@ -62,12 +62,12 @@ export class ElementOption {
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
+  injectMethod: string = "inner";
   plugins: {
     install: (model: ElementModel) => void
   }[] = [];
 }
 export class RendererOption {
-  injectIframe: boolean = false;
   plugins: {
     install: (renderer: Renderer) => void
   }[] = [];
@@ -82,6 +82,7 @@ export class AssetOption {
 }
 
 export class MacroConf {
+  inject: InjectMacroConf = new InjectMacroConf();
   video: VideoMacroConf = new VideoMacroConf();
   markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
   mainImage: MainImageMacroConf = new MainImageMacroConf();
@@ -96,6 +97,9 @@ export class MacroConf {
   plugins: {
     install: (macro: MacroOps) => void
   }[] = [];
+}
+export class InjectMacroConf {
+  selectorAttrName: string = "data-adv-macro-inject-method";
 }
 export class VideoMacroConf {
   selectorAttrName: string = "data-adv-macro-video";
