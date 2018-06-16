@@ -1,10 +1,10 @@
-import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
+import { Macro, MacroProps, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
-import { AssetUtils } from "../openrtb/OpenRTBUtils";
-import { OpenRTB } from "../openrtb/OpenRTB";
+import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
+import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { getOrElse } from "../misc/ObjectUtils";
+import { getOrElse } from "../../../misc/ObjectUtils";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }

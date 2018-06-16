@@ -1,4 +1,4 @@
-import { LinkJsMacro } from "../../../src/lib/macro/LinkJsMacro";
+import { LinkJsMacro } from "../../../src/lib/em/renderer/macro/LinkJsMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 

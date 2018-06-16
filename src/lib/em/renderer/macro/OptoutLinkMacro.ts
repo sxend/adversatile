@@ -1,8 +1,8 @@
-import { Macro, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
-import { OpenRTB } from "../openrtb/OpenRTB";
+import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
+import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils } from "../openrtb/OpenRTBUtils";
+import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
 
 export class OptoutLinkMacro implements Macro {
   constructor(private config: MacroConf) { }

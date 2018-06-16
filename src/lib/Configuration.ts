@@ -1,6 +1,7 @@
 import deepmerge from "deepmerge";
-import { ElementModel, Renderer } from "./ElementModel";
-import { MacroOps } from "./MacroOps";
+import { ElementModel } from "./ElementModel";
+import { MacroOps } from "./em/renderer/MacroOps";
+import { Renderer } from "./em/Renderer";
 
 export default class Configuration {
   version: number;
@@ -56,6 +57,15 @@ export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
+  isBanner = function(this: ElementOption): boolean {
+    return this.formatIs("banner");
+  };
+  isNative = function(this: ElementOption): boolean {
+    return this.formatIs("native");
+  };
+  private formatIs = function(this: ElementOption, format: string): boolean {
+    return this.format === format;
+  };
   assets: AssetOption[] = [];
   notrim: boolean = false;
   renderer: RendererOption = new RendererOption();

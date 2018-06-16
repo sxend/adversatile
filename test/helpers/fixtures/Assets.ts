@@ -1,6 +1,6 @@
 import { OpenRTB } from "../../../src/lib/openrtb/OpenRTB";
 import { OpenRTBUtils } from "../../../src/lib/openrtb/OpenRTBUtils";
-import { MacroContext } from "../../../src/lib/MacroOps";
+import { MacroContext } from "../../../src/lib/em/renderer/Macro";
 import { ElementModel } from "../../../src/lib/ElementModel";
 import { dummyProps } from "./Macro";
 

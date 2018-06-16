@@ -1,10 +1,10 @@
-import { Macro, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
-import { AssetUtils } from "../openrtb/OpenRTBUtils";
-import { OpenRTB } from "../openrtb/OpenRTB";
+import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
+import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
+import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
-import { Tracking } from "../misc/Tracking";
+import { Tracking } from "../../../misc/Tracking";
 
 
 export class MarkupVideoMacro implements Macro {

@@ -1,5 +1,5 @@
-import { Macro, MacroContext } from "../MacroOps";
-import { nano } from "../misc/StringUtils";
+import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { nano } from "../../../misc/StringUtils";
 
 export class NanoTemplateMacro implements Macro {
   constructor() { }

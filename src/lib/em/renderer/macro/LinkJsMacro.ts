@@ -1,7 +1,7 @@
-import { Macro, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
+import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
-import { Tracking } from "../misc/Tracking";
+import { Tracking } from "../../../misc/Tracking";
 
 export class LinkJsMacro implements Macro {
   constructor(private config: MacroConf) { }

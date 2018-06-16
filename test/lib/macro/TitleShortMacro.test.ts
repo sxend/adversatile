@@ -1,4 +1,4 @@
-import { TitleShortMacro } from "../../../src/lib/macro/TitleShortMacro";
+import { TitleShortMacro } from "../../../src/lib/em/renderer/macro/TitleShortMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 

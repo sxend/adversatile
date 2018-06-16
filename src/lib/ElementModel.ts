@@ -1,11 +1,11 @@
 import { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
-import { uniq, uniqBy, getOrElse, onceFunction } from "./misc/ObjectUtils";
-import { TemplateOps } from "./TemplateOps";
-import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
+import { Renderer, RendererContext } from "./em/Renderer";
+import { MacroProps } from "./em/renderer/Macro";
+import { uniqBy, uniq, onceFunction } from "./misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
   public id: string;
@@ -84,35 +84,4 @@ export class ElementModel extends EventEmitter {
         this.addAssetOptions(options)
     };
   }
-}
-
-export class Renderer {
-  private macroOps: MacroOps;
-  private templateOps: TemplateOps;
-  constructor(private config: ElementModelConf, private model: ElementModel) {
-    this.macroOps = new MacroOps(this.config.macro);
-    this.templateOps = new TemplateOps(
-      this.config.templates,
-      this.config.templateQualifierKey
-    );
-    model.option.renderer.plugins.forEach(plugin => plugin.install(this));
-  }
-  async render(context: RendererContext): Promise<void> {
-    const template = (await this.templateOps.resolveTemplate(this.model.name)) ||
-      getOrElse(() => context.bid.ext.bannerHtml);
-    const macroContext = new MacroContext(
-      context.model,
-      context.element,
-      context.props,
-      template,
-      context.bid
-    );
-    await this.macroOps.applyMacro(macroContext);
-  }
-}
-export interface RendererContext {
-  model: ElementModel,
-  element: HTMLElement,
-  bid: OpenRTB.Bid;
-  props: MacroProps;
 }

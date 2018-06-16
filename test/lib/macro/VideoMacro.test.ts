@@ -1,4 +1,4 @@
-import { VideoMacro } from "../../../src/lib/macro/VideoMacro";
+import { VideoMacro } from "../../../src/lib/em/renderer/macro/VideoMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 

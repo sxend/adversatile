@@ -1,4 +1,4 @@
-import { SponsoredByMessageMacro } from "../../../src/lib/macro/SponsoredByMessageMacro";
+import { SponsoredByMessageMacro } from "../../../src/lib/em/renderer/macro/SponsoredByMessageMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 

@@ -1,6 +1,6 @@
-import { Macro, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
-import { Async } from "../misc/Async";
+import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
+import { Async } from "../../../misc/Async";
 
 export class InjectMacro implements Macro {
   constructor(private config: MacroConf) { }

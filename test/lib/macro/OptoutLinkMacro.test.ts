@@ -1,4 +1,4 @@
-import { OptoutLinkMacro } from "../../../src/lib/macro/OptoutLinkMacro";
+import { OptoutLinkMacro } from "../../../src/lib/em/renderer/macro/OptoutLinkMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 

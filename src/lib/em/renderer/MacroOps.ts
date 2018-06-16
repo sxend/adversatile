@@ -1,4 +1,5 @@
-import { MacroConf, AssetOption } from "./Configuration";
+import { MacroConf } from "../../Configuration";
+import { MacroContext, Macro, MacroProps } from "./Macro";
 import { LinkMacro } from "./macro/LinkMacro";
 import { LinkJsMacro } from "./macro/LinkJsMacro";
 import { VideoMacro } from "./macro/VideoMacro";
@@ -10,9 +11,6 @@ import { OptoutLinkOnlyMacro } from "./macro/OptoutLinkOnlyMacro";
 import { SponsoredByMessageMacro } from "./macro/SponsoredByMessageMacro";
 import { TitleLongMacro } from "./macro/TitleLongMacro";
 import { TitleShortMacro } from "./macro/TitleShortMacro";
-import { OpenRTB } from "./openrtb/OpenRTB";
-import { getOrElse } from "./misc/ObjectUtils";
-import { ElementModel } from "./ElementModel";
 import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
 import { InjectMacro } from "./macro/InjectMacro";
 
@@ -20,8 +18,8 @@ export class MacroOps {
   constructor(private config: MacroConf) {
     config.plugins.forEach(plugin => plugin.install(this));
   }
-  async applyMacro(context: MacroContext): Promise<void> {
-    await this.construct(context.props).applyMacro(context);
+  async applyMacro(context: MacroContext): Promise<MacroContext> {
+    return this.construct(context.props).applyMacro(context);
   }
   private construct(
     props: MacroProps
@@ -49,35 +47,4 @@ export class MacroOps {
       };
     });
   }
-}
-
-export interface Macro {
-  applyMacro(context: MacroContext): Promise<MacroContext>;
-}
-
-export interface MacroProps {
-  impress: () => void;
-  vimp: () => void;
-  viewThrough: () => void;
-  onClickForSDKBridge?: (url: string, appId?: string) => void;
-  addAssetOptions?: (...option: AssetOption[]) => void;
-}
-export class MacroContext {
-  public metadata: MacroMetadata;
-  public assets: OpenRTB.NativeAd.Response.Assets[];
-  public admNative: OpenRTB.NativeAd.AdResponse;
-  constructor(
-    public model: ElementModel,
-    public element: HTMLElement,
-    public props: MacroProps,
-    public template: string,
-    public bid: OpenRTB.Bid
-  ) {
-    this.assets = getOrElse(() => bid.ext.admNative.assets, []);
-    this.admNative = getOrElse(() => bid.ext.admNative);
-    this.metadata = new MacroMetadata();
-  }
-}
-class MacroMetadata {
-  public appliedMacroNames: string[] = [];
 }

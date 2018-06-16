@@ -1,9 +1,9 @@
-import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
+import { Macro, MacroProps, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
-import { nano } from "../misc/StringUtils";
-import { Dom } from "../misc/Dom";
-import { getOrElse } from "../misc/ObjectUtils";
+import { nano } from "../../../misc/StringUtils";
+import { Dom } from "../../../misc/Dom";
+import { getOrElse } from "../../../misc/ObjectUtils";
 
 export class LinkMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }

@@ -1,7 +1,7 @@
-import { Macro, MacroProps, MacroContext } from "../MacroOps";
-import { MacroConf } from "../Configuration";
-import { AssetUtils } from "../openrtb/OpenRTBUtils";
-import { OpenRTB } from "../openrtb/OpenRTB";
+import { Macro, MacroProps, MacroContext } from "../../../em/renderer/Macro";
+import { MacroConf } from "../../../Configuration";
+import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
+import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 
 export class MainImageMacro implements Macro {

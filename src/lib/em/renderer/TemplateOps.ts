@@ -1,4 +1,4 @@
-import { firstDefined, getOrElse } from "./misc/ObjectUtils";
+import { firstDefined, getOrElse } from "../../misc/ObjectUtils";
 
 export class TemplateOps {
   constructor(

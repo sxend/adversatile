@@ -1,4 +1,4 @@
-import { MarkupVideoMacro } from "../../../src/lib/macro/MarkupVideoMacro";
+import { MarkupVideoMacro } from "../../../src/lib/em/renderer/macro/MarkupVideoMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 
 describe("MarkupVideoMacro", () => {
