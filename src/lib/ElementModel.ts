@@ -1,8 +1,4 @@
-import {
-  ElementOption,
-  ElementModelConf,
-  AssetOption
-} from "./Configuration";
+import { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
 import { uniq, uniqBy } from "./misc/ObjectUtils";
@@ -15,15 +11,17 @@ export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   private detectedAssets: AssetOption[] = [];
-  constructor(
-    private element: HTMLElement,
-    private config: ElementModelConf,
-  ) {
+  constructor(private element: HTMLElement, private config: ElementModelConf) {
     super();
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
+    Object.keys(this.option.events).forEach((name: string) => {
+      this.option.event(name).forEach((callback: (...args: any[]) => void) => {
+        this.on(name, callback.bind(this));
+      });
+    });
   }
   init(): ElementModel {
     if (this.option.preRender) {
@@ -50,29 +48,29 @@ export class ElementModel extends EventEmitter {
   }
   update(bid: OpenRTB.Bid): Promise<void> {
     const context = this.createRenderContext(bid);
-    return this.renderer.render(
-      this.element,
-      context
-    ).then(_ => {
-      this.emit("rendered");
-    }).catch(console.error);
+    return this.renderer
+      .render(this.element, context)
+      .then(_ => {
+        this.emit("rendered", bid);
+      })
+      .catch(console.error);
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
-      macroContext: new MacroContext(
-        this,
-        this.createRenderProps(),
-        bid
-      )
+      macroContext: new MacroContext(this, this.createRenderProps(), bid)
     };
   }
 
   private addAssetOptions(assets: AssetOption[]) {
-    this.detectedAssets = uniqBy(this.detectedAssets.concat(assets), asset => asset.id);
+    this.detectedAssets = uniqBy(
+      this.detectedAssets.concat(assets),
+      asset => asset.id
+    );
   }
   private createRenderProps(): MacroProps {
     return {
-      addAssetOptions: (...options: AssetOption[]) => this.addAssetOptions(options)
+      addAssetOptions: (...options: AssetOption[]) =>
+        this.addAssetOptions(options)
     };
   }
 }
@@ -87,13 +85,13 @@ class Renderer {
       this.config.templateQualifierKey
     );
   }
-  async render(
-    element: HTMLElement,
-    context: RendererContext
-  ): Promise<void> {
+  async render(element: HTMLElement, context: RendererContext): Promise<void> {
     const template = await this.templateOps.resolveTemplate(this.model.name);
     if (template) {
-      element.innerHTML = await this.macroOps.applyTemplate(template, context.macroContext);
+      element.innerHTML = await this.macroOps.applyTemplate(
+        template,
+        context.macroContext
+      );
       await this.macroOps.applyElement(element, context.macroContext);
     } else {
       console.warn("missing template", this.model.name, context);
@@ -101,5 +99,5 @@ class Renderer {
   }
 }
 interface RendererContext {
-  macroContext: MacroContext
+  macroContext: MacroContext;
 }

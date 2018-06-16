@@ -58,6 +58,10 @@ export class ElementOption {
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
+  events: { [name: string]: ((...args: any[]) => void)[] } = {};
+  event: (name: string) => ((...args: any[]) => void)[] = function(this: ElementOption, name: string) {
+    return this.events[name] || [];
+  };
 }
 export class ElementVideoOption {
   autoReplay: boolean = true;
