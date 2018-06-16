@@ -1,6 +1,5 @@
-import { MacroContext, MacroProps } from "./renderer/Macro";
-import { MacroOps } from "./renderer/MacroOps";
-import { TemplateOps } from "./renderer/TemplateOps";
+import { MacroContext, MacroProps, MacroOps } from "./renderer/Macro";
+import { TemplateOps } from "./renderer/Template";
 import { ElementModelConf } from "../Configuration";
 import { ElementModel } from "../ElementModel";
 import { getOrElse } from "../misc/ObjectUtils";

@@ -6,8 +6,7 @@ import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel } from "../lib/ElementModel";
 import { getOrElse } from "../lib/misc/ObjectUtils";
-import { MacroOps } from "../lib/em/renderer/MacroOps";
-import { MacroContext } from "../lib/em/renderer/Macro";
+import { MacroOps, MacroContext } from "../lib/em/renderer/Macro";
 import { Renderer, RendererContext } from "../lib/em/Renderer";
 
 declare var window: {

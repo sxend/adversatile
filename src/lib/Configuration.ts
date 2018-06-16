@@ -1,6 +1,6 @@
 import deepmerge from "deepmerge";
 import { ElementModel } from "./ElementModel";
-import { MacroOps } from "./em/renderer/MacroOps";
+import { MacroOps } from "./em/renderer/Macro";
 import { Renderer } from "./em/Renderer";
 
 export default class Configuration {
