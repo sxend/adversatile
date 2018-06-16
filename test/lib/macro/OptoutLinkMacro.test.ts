@@ -10,7 +10,8 @@ describe("OptoutLinkMacro", () => {
       const target = document.createElement("div");
       target.setAttribute(config.optoutLink.selectorAttrName, "");
       element.appendChild(target);
-      await new OptoutLinkMacro(config, {}).applyMacro(element, dummyMacroContext());
+      const context = dummyMacroContext(element, "");
+      await new OptoutLinkMacro(config).applyMacro(context);
       const anchor = element.querySelector("a");
       expect(anchor).toBeDefined();
       const img = anchor.querySelector("img");
@@ -18,6 +19,6 @@ describe("OptoutLinkMacro", () => {
     });
   });
   it("getName", () => {
-    expect(new OptoutLinkMacro(new MacroConf(), {}).getName()).toBe("OptoutLinkMacro");
+    expect(new OptoutLinkMacro(new MacroConf()).getName()).toBe("OptoutLinkMacro");
   });
 });

@@ -10,11 +10,14 @@ describe("TitleLongMacro", () => {
       const target = document.createElement("div");
       target.setAttribute(config.titleLong.selectorAttrName, "");
       element.appendChild(target);
-      await new TitleLongMacro(config, {}).applyMacro(element, dummyMacroContext());
+const context = dummyMacroContext(element, "");
+      await new TitleLongMacro(config, context.props).applyMacro(context);
       expect(target.textContent).toBe("...");
     });
   });
   it("getName", () => {
-    expect(new TitleLongMacro(new MacroConf(), {}).getName()).toBe("TitleLongMacro");
+    const element = document.createElement("div");
+const context = dummyMacroContext(element, "");
+    expect(new TitleLongMacro(new MacroConf(), context.props).getName()).toBe("TitleLongMacro");
   });
 });

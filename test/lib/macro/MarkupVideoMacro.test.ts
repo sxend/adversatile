@@ -15,6 +15,6 @@ describe("MarkupVideoMacro", () => {
     });
   });
   it("getName", () => {
-    expect(new MarkupVideoMacro(new MacroConf(), {}).getName()).toBe("MarkupVideoMacro");
+    expect(new MarkupVideoMacro(new MacroConf()).getName()).toBe("MarkupVideoMacro");
   });
 });

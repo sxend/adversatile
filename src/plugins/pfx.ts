@@ -5,7 +5,6 @@ import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel, Renderer, RendererContext } from "../lib/ElementModel";
-import deepmerge from "deepmerge";
 import { resultOrElse } from "../lib/misc/ObjectUtils";
 import { MacroOps, MacroContext } from "../lib/MacroOps";
 declare var window: {
@@ -36,7 +35,7 @@ declare var window: {
 export default {
   install: function(Adversatile: any) {
     window.ProFitX = window.ProFitX || <any>{};
-    Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, deepmerge(window.ProFitX, {
+    Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, {
       Global: {
         ready: (fn: Function) => Dom.ready(fn)
       },
@@ -56,7 +55,7 @@ export default {
         }
       },
       pa: Analytics
-    }));
+    });
     const oldcontext: {
       config: Configuration
       oldconfigs: OldConfiguration[]

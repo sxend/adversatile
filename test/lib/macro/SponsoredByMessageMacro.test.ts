@@ -10,11 +10,14 @@ describe("SponsoredByMessageMacro", () => {
       const target = document.createElement("div");
       target.setAttribute(config.sponsoredByMessage.selectorAttrName, "");
       element.appendChild(target);
-      await new SponsoredByMessageMacro(config, {}).applyMacro(element, dummyMacroContext());
+      const context = dummyMacroContext(element, "");
+      await new SponsoredByMessageMacro(config, context.props).applyMacro(context);
       expect(target.innerHTML).toBe("...");
     });
   });
   it("getName", () => {
-    expect(new SponsoredByMessageMacro(new MacroConf(), {}).getName()).toBe("SponsoredByMessageMacro");
+    const element = document.createElement("div");
+const context = dummyMacroContext(element, "");
+    expect(new SponsoredByMessageMacro(new MacroConf(), context.props).getName()).toBe("SponsoredByMessageMacro");
   });
 });

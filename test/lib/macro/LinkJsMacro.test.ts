@@ -10,11 +10,14 @@ describe("LinkJsMacro", () => {
       const target = document.createElement("div");
       target.setAttribute(config.linkJs.selectorAttrName, "");
       element.appendChild(target);
-      await new LinkJsMacro(config, {}).applyMacro(element, dummyMacroContext());
+      const context = dummyMacroContext(element, "");
+      await new LinkJsMacro(config).applyMacro(context);
       // expect(element.outerHTML).toBe("..."); // FIXME
     });
   });
   it("getName", () => {
-    expect(new LinkJsMacro(new MacroConf(), {}).getName()).toBe("LinkJsMacro");
+    const element = document.createElement("div");
+    const context = dummyMacroContext(element, "");
+    expect(new LinkJsMacro(new MacroConf()).getName()).toBe("LinkJsMacro");
   });
 });

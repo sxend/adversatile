@@ -10,13 +10,14 @@ describe("OptoutLinkOnlyMacro", () => {
       const target = document.createElement("div");
       target.setAttribute(config.optoutLinkOnly.selectorAttrName, "");
       element.appendChild(target);
-      await new OptoutLinkOnlyMacro(config, {}).applyMacro(element, dummyMacroContext());
+      const context = dummyMacroContext(element, "");
+      await new OptoutLinkOnlyMacro(config).applyMacro(context);
       const anchor = element.querySelector("a");
       expect(anchor).toBeDefined();
       expect(anchor.firstChild).toBeDefined();
     });
   });
   it("getName", () => {
-    expect(new OptoutLinkOnlyMacro(new MacroConf(), {}).getName()).toBe("OptoutLinkOnlyMacro");
+    expect(new OptoutLinkOnlyMacro(new MacroConf()).getName()).toBe("OptoutLinkOnlyMacro");
   });
 });

@@ -11,11 +11,14 @@ describe("MainImageMacro", () => {
       const target = document.createElement("img");
       target.setAttribute(config.mainImage.selectorAttrName, "");
       element.appendChild(target);
-      await new MainImageMacro(config, {}).applyMacro(element, dummyMacroContext());
+      const context = dummyMacroContext(element, "");
+      await new MainImageMacro(config, context.props).applyMacro(context);
       expect(target.src).toBe(OpenRTBUtils.dummyImg);
     });
   });
   it("getName", () => {
-    expect(new MainImageMacro(new MacroConf(), {}).getName()).toBe("MainImageMacro");
+    const element = document.createElement("div");
+    const context = dummyMacroContext(element, "");
+    expect(new MainImageMacro(new MacroConf(), context.props).getName()).toBe("MainImageMacro");
   });
 });

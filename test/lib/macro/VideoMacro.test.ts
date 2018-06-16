@@ -15,6 +15,8 @@ describe("VideoMacro", () => {
     });
   });
   it("getName", () => {
-    expect(new VideoMacro(new MacroConf(), {}).getName()).toBe("VideoMacro");
+    const element = document.createElement("div");
+    const context = dummyMacroContext(element, "");
+    expect(new VideoMacro(new MacroConf(), context.props).getName()).toBe("VideoMacro");
   });
 });
