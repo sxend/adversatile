@@ -48,7 +48,7 @@ export namespace Dom {
     return document.createElement("script");
   }
   export function setGlobalCallback(id: string, callback: Function): string {
-    (<any> window)[id] = callback;
+    (<any>window)[id] = callback;
     return id;
   }
   let _ready: Promise<void> = (async () => {
