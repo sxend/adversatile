@@ -76,6 +76,7 @@ export namespace OpenRTBUtils {
   export const dummyText: string = "...";
   export function dummyBid(): OpenRTB.Bid {
     const bid = new OpenRTB.Bid();
+    bid.id = "DUMMY";
     bid.ext.admNative.assets = [
       new ResAssets(1, false, new Response.Img(dummyImg), null, null, null, null),
       new ResAssets(2, false, new Response.Img(dummyImg), null, null, null, null),

@@ -1,4 +1,6 @@
 import deepmerge from "deepmerge";
+import { ElementModel, Renderer } from "./ElementModel";
+import { MacroOps } from "./MacroOps";
 
 export default class Configuration {
   version: number;
@@ -12,6 +14,7 @@ export class ActionConf {
   jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
   jsonpFetchPath: string =
     "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
+  fetchCallbackPrefix: string = "__adv_cb_";
 }
 
 export class StoreConf { }
@@ -55,13 +58,19 @@ export class ElementOption {
   format: string = "native";
   assets: AssetOption[] = [];
   notrim: boolean = false;
+  renderer: RendererOption = new RendererOption();
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
-  events: { [name: string]: ((...args: any[]) => void)[] } = {};
-  event: (name: string) => ((...args: any[]) => void)[] = function(this: ElementOption, name: string) {
-    return this.events[name] || [];
-  };
+  plugins: {
+    install: (model: ElementModel) => void
+  }[] = [];
+}
+export class RendererOption {
+  injectIframe: boolean = false;
+  plugins: {
+    install: (renderer: Renderer) => void
+  }[] = [];
 }
 export class ElementVideoOption {
   autoReplay: boolean = true;
@@ -84,6 +93,9 @@ export class MacroConf {
   titleShort: TitleShortMacroConf = new TitleShortMacroConf();
   link: LinkMacroConf = new LinkMacroConf();
   linkJs: LinkJsMacroConf = new LinkJsMacroConf();
+  plugins: {
+    install: (macro: MacroOps) => void
+  }[] = [];
 }
 export class VideoMacroConf {
   selectorAttrName: string = "data-adv-macro-video";

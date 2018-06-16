@@ -18,3 +18,12 @@ export function resultOrElse<A>(fn: () => A, el?: A): A {
   } catch (e) { }
   return el;
 }
+export function onceFunction(fn: Function): () => void {
+  let first = true;
+  return () => {
+    if (first) {
+      first = false;
+      fn();
+    }
+  };
+}

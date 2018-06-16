@@ -22,7 +22,7 @@ export class MainImageMacro implements Macro {
         this.props.addAssetOptions(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
       }
     }
-    context.model.emit("impression");
+    context.props.impress();
     return Promise.resolve();
   }
   private selector(): string {

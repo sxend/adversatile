@@ -47,6 +47,10 @@ export namespace Dom {
   export function createScriptElement(): HTMLScriptElement {
     return document.createElement("script");
   }
+  export function setGlobalCallback(id: string, callback: Function): string {
+    (<any> window)[id] = callback;
+    return id;
+  }
   let _ready: Promise<void> = (async () => {
     const topLevelWindow: Window = await Dom.TopLevelWindow;
     const readyState = topLevelWindow.document.readyState;

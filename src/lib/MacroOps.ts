@@ -16,7 +16,9 @@ import { resultOrElse } from "./misc/ObjectUtils";
 import { ElementModel } from "./ElementModel";
 
 export class MacroOps {
-  constructor(private config: MacroConf) { }
+  constructor(private config: MacroConf) {
+    config.plugins.forEach(plugin => plugin.install(this));
+  }
   async applyTemplate(template: string, context: MacroContext): Promise<string> {
     return nano(template, context);
   }
@@ -52,6 +54,9 @@ export interface Macro {
 }
 
 export interface MacroProps {
+  impress: () => void;
+  vimp: () => void;
+  viewThrough: () => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
   addAssetOptions?: (...option: AssetOption[]) => void;
 }

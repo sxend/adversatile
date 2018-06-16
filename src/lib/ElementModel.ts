@@ -1,27 +1,24 @@
 import { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
-import { uniq, uniqBy } from "./misc/ObjectUtils";
+import { uniq, uniqBy, resultOrElse, onceFunction } from "./misc/ObjectUtils";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
+import { Async } from "./misc/Async";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   private detectedAssets: AssetOption[] = [];
-  constructor(private element: HTMLElement, private config: ElementModelConf) {
+  constructor(public element: HTMLElement, private config: ElementModelConf) {
     super();
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
-    Object.keys(this.option.events).forEach((name: string) => {
-      this.option.event(name).forEach((callback: (...args: any[]) => void) => {
-        this.on(name, callback.bind(this));
-      });
-    });
+    this.option.plugins.forEach(plugin => plugin.install(this));
   }
   init(): ElementModel {
     if (this.option.preRender) {
@@ -57,7 +54,8 @@ export class ElementModel extends EventEmitter {
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {
-      macroContext: new MacroContext(this, this.createRenderProps(), bid)
+      bid,
+      props: this.createMacroProps(bid)
     };
   }
 
@@ -67,15 +65,24 @@ export class ElementModel extends EventEmitter {
       asset => asset.id
     );
   }
-  private createRenderProps(): MacroProps {
+  private createMacroProps(bid: OpenRTB.Bid): MacroProps {
     return {
+      impress: onceFunction(() => {
+        this.emit("impression", bid);
+      }),
+      vimp: onceFunction(() => {
+        this.emit("viewable_impression", bid);
+      }),
+      viewThrough: onceFunction(() => {
+        this.emit("view_through", bid);
+      }),
       addAssetOptions: (...options: AssetOption[]) =>
         this.addAssetOptions(options)
     };
   }
 }
 
-class Renderer {
+export class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
   constructor(private config: ElementModelConf, private model: ElementModel) {
@@ -84,20 +91,53 @@ class Renderer {
       this.config.templates,
       this.config.templateQualifierKey
     );
+    model.option.renderer.plugins.forEach(plugin => plugin.install(this));
   }
   async render(element: HTMLElement, context: RendererContext): Promise<void> {
-    const template = await this.templateOps.resolveTemplate(this.model.name);
-    if (template) {
-      element.innerHTML = await this.macroOps.applyTemplate(
-        template,
-        context.macroContext
-      );
-      await this.macroOps.applyElement(element, context.macroContext);
+    const macroContext = new MacroContext(
+      this.model,
+      context.props,
+      context.bid
+    );
+    const template = await this.macroOps.applyTemplate(
+      (await this.templateOps.resolveTemplate(this.model.name)) ||
+      resultOrElse(() => context.bid.ext.bannerHtml),
+      macroContext
+    );
+    let applyTarget: HTMLElement;
+    if (this.model.option.renderer.injectIframe) {
+      const iframe = await this.renderIframe(template, context);
+      element.appendChild(iframe);
+      applyTarget = iframe.contentDocument.body;
     } else {
-      console.warn("missing template", this.model.name, context);
+      element.innerHTML = template;
+      applyTarget = element;
     }
+    await this.macroOps.applyElement(applyTarget, macroContext);
+  }
+  private async renderIframe(template: string, context: RendererContext): Promise<HTMLIFrameElement> {
+    const iframe = document.createElement("iframe");
+    const attributes: { [attr: string]: string } = {
+      "style": "display:block;margin:0 auto;border:0pt;",
+      "width": context.bid.w.toString(),
+      "height": context.bid.h.toString(),
+      "scrolling": "no"
+    };
+    Object.keys(attributes).forEach(attr => {
+      iframe.setAttribute(attr, attributes[attr]);
+    });
+    Async.wait(() => !!iframe.contentDocument).then(_ => {
+      try {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(template);
+      } finally {
+        iframe.contentDocument.close();
+      }
+    });
+    return iframe;
   }
 }
-interface RendererContext {
-  macroContext: MacroContext;
+export interface RendererContext {
+  bid: OpenRTB.Bid;
+  props: MacroProps;
 }

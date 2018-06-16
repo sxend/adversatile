@@ -4,6 +4,7 @@ import { Store } from "./Store";
 import { ElementModel } from "./ElementModel";
 import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
+import { resultOrElse } from "./misc/ObjectUtils";
 
 export class ViewModel {
   private ems: { [name: string]: ElementModel[] } = {};
@@ -18,7 +19,7 @@ export class ViewModel {
       const sbid = response.seatbid[0];
       if (!sbid) return;
       sbid.bid.forEach(bid => {
-        const ems = this.ems[bid.impid];
+        const ems = this.ems[resultOrElse(() => bid.ext.tagid || bid.impid)];
         if (!ems || ems.length === 0) return;
         ems.forEach(em => {
           em
