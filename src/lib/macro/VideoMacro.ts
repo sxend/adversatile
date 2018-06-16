@@ -4,7 +4,7 @@ import { MacroUtils } from "./MacroUtils";
 import { AssetUtils } from "../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { resultOrElse } from "../misc/ObjectUtils";
+import { getOrElse } from "../misc/ObjectUtils";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -41,7 +41,7 @@ export class VideoMacro implements Macro {
     let onVideoClickHandler: () => void = undefined;
     if (!!this.props.onClickForSDKBridge) {
       onVideoClickHandler = () =>
-        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, resultOrElse(() => context.bid.ext.appId));
+        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
     }
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
       video.video.vasttag,

@@ -11,7 +11,7 @@ import { SponsoredByMessageMacro } from "./macro/SponsoredByMessageMacro";
 import { TitleLongMacro } from "./macro/TitleLongMacro";
 import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { OpenRTB } from "./openrtb/OpenRTB";
-import { resultOrElse } from "./misc/ObjectUtils";
+import { getOrElse } from "./misc/ObjectUtils";
 import { ElementModel } from "./ElementModel";
 import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
 import { InjectMacro } from "./macro/InjectMacro";
@@ -68,8 +68,8 @@ export class MacroContext {
     public template: string,
     public bid: OpenRTB.Bid,
   ) {
-    this.assets = resultOrElse(() => bid.ext.admNative.assets, []);
-    this.admNative = resultOrElse(() => bid.ext.admNative);
+    this.assets = getOrElse(() => bid.ext.admNative.assets, []);
+    this.admNative = getOrElse(() => bid.ext.admNative);
     this.metadata = new MacroMetadata();
   }
 }

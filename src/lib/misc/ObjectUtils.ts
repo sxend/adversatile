@@ -12,7 +12,7 @@ export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
     return (flags[key] = true);
   });
 }
-export function resultOrElse<A>(fn: () => A, el?: A): A {
+export function getOrElse<A>(fn: () => A, el?: A): A {
   try {
     return fn();
   } catch (e) { }

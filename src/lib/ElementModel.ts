@@ -1,18 +1,20 @@
 import { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
 import { RandomId } from "./misc/RandomId";
 import { EventEmitter } from "events";
-import { uniq, uniqBy, resultOrElse, onceFunction } from "./misc/ObjectUtils";
+import { uniq, uniqBy, getOrElse, onceFunction } from "./misc/ObjectUtils";
 import { TemplateOps } from "./TemplateOps";
 import { MacroOps, MacroProps, MacroContext } from "./MacroOps";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
 
 export class ElementModel extends EventEmitter {
+  public id: string;
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   private detectedAssets: AssetOption[] = [];
   constructor(public element: HTMLElement, private config: ElementModelConf) {
     super();
+    this.id = RandomId.gen();
     this.renderer = new Renderer(this.config, this);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
@@ -97,7 +99,7 @@ export class Renderer {
   }
   async render(context: RendererContext): Promise<void> {
     const template = (await this.templateOps.resolveTemplate(this.model.name)) ||
-      resultOrElse(() => context.bid.ext.bannerHtml);
+      getOrElse(() => context.bid.ext.bannerHtml);
     const macroContext = new MacroContext(
       context.model,
       context.element,

@@ -5,7 +5,7 @@ import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel, Renderer, RendererContext } from "../lib/ElementModel";
-import { resultOrElse } from "../lib/misc/ObjectUtils";
+import { getOrElse } from "../lib/misc/ObjectUtils";
 import { MacroOps, MacroContext } from "../lib/MacroOps";
 declare var window: {
   onpfxadrendered: Function,
@@ -151,13 +151,13 @@ export default {
           const original = renderer.render;
           renderer.render = function(context: RendererContext) {
             try {
-              let html = resultOrElse(() => context.bid.ext.bannerHtml);
+              let html = getOrElse(() => context.bid.ext.bannerHtml);
               if (html) {
                 const replacements: any = {
                   "${PFX_AD_SCALE_RATIO}": "1.0",
                   "${PFX_VIEWPORT_WIDTH}": "device-width"
                 };
-                const bidderName = resultOrElse(() => context.bid.ext.bidderName, "");
+                const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
                 if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
                   replacements["${PFX_YDN_NOADCALLBACK}"] = [
                     '<scr' + 'ipt>',
@@ -193,7 +193,7 @@ export default {
             const original = macroops.applyMacro;
             macroops.applyMacro = function(context: MacroContext) {
               try {
-                let html = resultOrElse(() => context.bid.ext.bannerHtml);
+                let html = getOrElse(() => context.bid.ext.bannerHtml);
                 if (html) {
                   context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", html), config);
                 }

@@ -3,7 +3,7 @@ import { MacroConf } from "../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../misc/StringUtils";
 import { Dom } from "../misc/Dom";
-import { resultOrElse } from "../misc/ObjectUtils";
+import { getOrElse } from "../misc/ObjectUtils";
 
 export class LinkMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -13,7 +13,7 @@ export class LinkMacro implements Macro {
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
-    const appId = resultOrElse(() => context.bid.ext.appId);
+    const appId = getOrElse(() => context.bid.ext.appId);
     const selector = this.selector();
     const targets: HTMLElement[] = [].slice.call(
       context.element.querySelectorAll(selector)
