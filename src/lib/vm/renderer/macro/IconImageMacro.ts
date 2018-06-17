@@ -20,7 +20,7 @@ export class IconImageMacro implements Macro {
       target.src = icon.img.url;
       this.props.findAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
     }
-    context.props.impress();
+    context.props.impress(context.bid);
     return context;
   }
   private selector(): string {

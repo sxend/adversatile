@@ -71,7 +71,7 @@ export class ElementModel extends EventEmitter {
       model: this,
       element: this.element,
       bid,
-      props: this.createRenderProps(bid)
+      props: this.createRenderProps()
     };
   }
   private addAssetOptions(assets: AssetOption[]) {
@@ -80,7 +80,7 @@ export class ElementModel extends EventEmitter {
       asset => asset.id
     );
   }
-  private createRenderProps(bid: OpenRTB.Bid): RenderProps {
+  private createRenderProps(): RenderProps {
     return {
       render: onceFunction((context: RendererContext) => {
         this.emit("render", context);
@@ -88,13 +88,13 @@ export class ElementModel extends EventEmitter {
       rendered: onceFunction((context: RendererContext) => {
         this.emit("rendered", context);
       }),
-      impress: onceFunction(() => {
+      impress: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("impression", bid);
       }),
-      vimp: lockableFunction(onceFunction(() => {
+      vimp: lockableFunction(onceFunction((bid: OpenRTB.Bid) => {
         this.emit("viewable_impression", bid);
       })),
-      viewThrough: onceFunction(() => {
+      viewThrough: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("view_through", bid);
       }),
       findAssets: (...assets: AssetOption[]) => {

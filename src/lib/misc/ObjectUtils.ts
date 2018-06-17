@@ -28,10 +28,12 @@ export function onceFunction(fn: Function): () => void {
   };
 }
 
-export interface LockableFunction extends Function {
-  lock(): Function
+type FunctionA<A> = (a: A) => void;
+
+export interface LockableFunction<A> extends FunctionA<A> {
+  lock(): FunctionA<A>
 }
-export function lockableFunction(fn: Function): LockableFunction {
+export function lockableFunction<A>(fn: FunctionA<A>): LockableFunction<A> {
   let lock = false;
   const lockable = (...args: any[]) => {
     if (lock) return;

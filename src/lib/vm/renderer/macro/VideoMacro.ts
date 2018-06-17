@@ -54,12 +54,12 @@ export class VideoMacro implements Macro {
       onVideoClickHandler,
       context.model.option.video,
       onContinuousVideoPlayHandler(2000, () => {
-        vimp();
+        vimp(context.bid);
       }),
       () => context.model.emit("video complete")
     );
     player.load();
-    context.props.impress()
+    context.props.impress(context.bid);
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {

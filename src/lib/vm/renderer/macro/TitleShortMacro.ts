@@ -21,7 +21,7 @@ export class TitleShortMacro implements Macro {
       MacroUtils.insertTextAsset(target, title.title.text);
       this.props.findAssets(AssetUtils.titleTextOption());
     }
-    context.props.impress();
+    context.props.impress(context.bid);
     return context;
   }
   private selector(): string {

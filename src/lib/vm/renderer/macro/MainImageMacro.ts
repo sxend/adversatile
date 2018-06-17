@@ -20,7 +20,7 @@ export class MainImageMacro implements Macro {
       target.src = image.img.url;
       this.props.findAssets(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
     }
-    context.props.impress();
+    context.props.impress(context.bid);
     return context;
   }
   private selector(): string {

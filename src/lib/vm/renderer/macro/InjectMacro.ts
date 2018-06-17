@@ -92,7 +92,7 @@ export class InjectMacro implements Macro {
           } else {
             if (!timer) {
               timer = setTimeout(() => {
-                context.props.vimp();
+                context.props.vimp(context.bid);
                 observer.unobserve(target);
               }, 1000);
             }

@@ -56,10 +56,11 @@ export class MacroOps {
 export interface Macro {
   applyMacro(context: MacroContext): Promise<MacroContext>;
 }
+
 export interface MacroProps {
-  impress: () => void;
-  vimp: LockableFunction;
-  viewThrough: () => void;
+  impress: (bid: OpenRTB.Bid) => void;
+  vimp: LockableFunction<OpenRTB.Bid>;
+  viewThrough: (bid: OpenRTB.Bid) => void;
   findAssets: (...option: AssetOption[]) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
 }

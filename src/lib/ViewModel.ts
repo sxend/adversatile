@@ -19,32 +19,32 @@ export class ViewModel {
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
       const sbid = response.seatbid[0];
       if (!sbid || !sbid.bid) return;
-      const group: {[id: string]: OpenRTB.Bid[]} = {};
+      const group: { [id: string]: OpenRTB.Bid[] } = {};
       sbid.bid.forEach(bid => {
         (group[bid.impid] = group[bid.impid] || []).push(bid);
       });
       Object.keys(group).forEach(id => {
         if (!this.ems[id]) return;
         const em = this.ems[id];
-          em
-            .once("rendered", () => {
-            })
-            .once("impression", (bid: OpenRTB.Bid) => {
-              const tracked = this.store.getState().getTrackedUrls("imp-tracking");
-              const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-              this.action.tracking(urls, "imp-tracking", true);
-            })
-            .once("viewable_impression", (bid: OpenRTB.Bid) => {
-              const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
-              const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-              this.action.tracking(urls, "viewable-imp-tracking", true);
-            })
-            .once("view_through", (bid: OpenRTB.Bid) => {
-              const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
-              const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-              this.action.tracking(urls, "view-through-tracking", true);
-            })
-            .update(group[id]);
+        em
+          .once("rendered", () => {
+          })
+          .on("impression", (bid: OpenRTB.Bid) => {
+            const tracked = this.store.getState().getTrackedUrls("imp-tracking");
+            const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+            this.action.tracking(urls, "imp-tracking", true);
+          })
+          .on("viewable_impression", (bid: OpenRTB.Bid) => {
+            const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
+            const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+            this.action.tracking(urls, "viewable-imp-tracking", true);
+          })
+          .on("view_through", (bid: OpenRTB.Bid) => {
+            const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
+            const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+            this.action.tracking(urls, "view-through-tracking", true);
+          })
+          .update(group[id]);
       });
     });
   }
@@ -98,7 +98,7 @@ export class ViewModel {
         this.action.fetchData(req);
       });
       ems.forEach(em => {
-        this.ems[em.id] = em ;
+        this.ems[em.id] = em;
       });
     });
   }

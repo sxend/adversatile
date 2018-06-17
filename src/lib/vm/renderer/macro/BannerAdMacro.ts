@@ -23,7 +23,7 @@ export class BannerAdMacro implements Macro {
   }
   async observeEvent(context: MacroContext) {
     Async.wait(() => !!context.element.querySelector(this.config.bannerAd.impSelector), 50).then(_ => {
-      context.props.impress();
+      context.props.impress(context.bid);
     });
   }
 }
