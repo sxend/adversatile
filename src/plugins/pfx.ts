@@ -233,7 +233,7 @@ export default {
           config.vm.em.templates[name] = template;
         }
         if (qualifier) {
-          config.vm.em.templates[`${name}-${qualifier}`] = template;
+          config.vm.em.templates[qualifier] = template;
         }
       }
     }

@@ -27,7 +27,7 @@ export class Action {
     req: OpenRTB.BidRequest
   ): Promise<OpenRTB.BidResponse> {
     const cb = `${this.config.fetchCallbackPrefix}${RandomId.gen()}`;
-    const result = await Jsonp.fetch(
+    const result = <OpenRTB.SeatBid>await Jsonp.fetch(
       this.config.apiUrl +
       `${this.config.jsonpFetchPath}?${reqToParams(req)}&callback=${cb}`,
       cb
@@ -35,6 +35,16 @@ export class Action {
     const res = new OpenRTB.BidResponse();
     res.id = req.id;
     res.seatbid = [result];
+    const used: string[] = [];
+    result.bid.forEach(bid => {
+      if (bid.impid !== "1") return;
+      for (let imp of req.imp) {
+        if (bid.ext.tagid === imp.tagid && used.indexOf(imp.id) === -1) {
+          used.push(bid.impid = imp.id);
+          break;
+        }
+      }
+    });
     return res;
   }
 }

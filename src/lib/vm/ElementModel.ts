@@ -37,6 +37,9 @@ export class ElementModel extends EventEmitter {
   get name(): string {
     return this.element.getAttribute(this.config.nameAttributeName);
   }
+  get qualifier(): string {
+    return this.element.getAttribute(this.config.qualifierAttributeName);
+  }
   get option(): ElementOption {
     return this.config.option(this.name);
   }

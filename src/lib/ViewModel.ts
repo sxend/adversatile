@@ -24,8 +24,8 @@ export class ViewModel {
         (group[bid.impid] = group[bid.impid] || []).push(bid);
       });
       Object.keys(group).forEach(id => {
-        if (!this.ems[id]) return;
         const em = this.ems[id];
+        if (!em) return;
         em
           .once("rendered", () => {
           })
