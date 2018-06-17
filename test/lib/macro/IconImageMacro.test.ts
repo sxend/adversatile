@@ -1,4 +1,4 @@
-import { IconImageMacro } from "../../../src/lib/em/renderer/macro/IconImageMacro";
+import { IconImageMacro } from "../../../src/lib/vm/renderer/macro/IconImageMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 import { OpenRTBUtils } from "../../../src/lib/openrtb/OpenRTBUtils";

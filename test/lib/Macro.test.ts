@@ -1,4 +1,4 @@
-import { MacroOps } from "../../src/lib/em/renderer/Macro";
+import { MacroOps } from "../../src/lib/vm/renderer/Macro";
 import { MacroConf } from "../../src/lib/Configuration";
 
 test("MacroOps", done => {

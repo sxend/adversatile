@@ -1,4 +1,4 @@
-import { Macro, MacroContext } from "../../../em/renderer/Macro";
+import { Macro, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
 import { Async } from "../../../misc/Async";
 

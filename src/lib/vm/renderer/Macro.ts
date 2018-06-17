@@ -13,7 +13,7 @@ import { TitleShortMacro } from "./macro/TitleShortMacro";
 import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
 import { InjectMacro } from "./macro/InjectMacro";
 import { OpenRTB } from "../../openrtb/OpenRTB";
-import { ElementModel } from "../../ElementModel";
+import { ElementModel } from "../ElementModel";
 import { getOrElse } from "../../misc/ObjectUtils";
 
 export class MacroOps {

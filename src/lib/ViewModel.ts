@@ -1,7 +1,7 @@
 import { ViewModelConf, ElementOption } from "./Configuration";
 import { Action } from "./Action";
 import { Store } from "./Store";
-import { ElementModel } from "./ElementModel";
+import { ElementModel } from "./vm/ElementModel";
 import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { getOrElse } from "./misc/ObjectUtils";

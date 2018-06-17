@@ -1,7 +1,7 @@
 import { OpenRTB } from "../../../src/lib/openrtb/OpenRTB";
 import { OpenRTBUtils } from "../../../src/lib/openrtb/OpenRTBUtils";
-import { MacroContext } from "../../../src/lib/em/renderer/Macro";
-import { ElementModel } from "../../../src/lib/ElementModel";
+import { MacroContext } from "../../../src/lib/vm/renderer/Macro";
+import { ElementModel } from "../../../src/lib/vm/ElementModel";
 import { dummyProps } from "./Macro";
 
 export function dummyBid(): OpenRTB.Bid {

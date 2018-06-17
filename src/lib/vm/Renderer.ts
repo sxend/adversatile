@@ -1,7 +1,7 @@
 import { MacroContext, MacroProps, MacroOps } from "./renderer/Macro";
 import { TemplateOps } from "./renderer/Template";
 import { ElementModelConf } from "../Configuration";
-import { ElementModel } from "../ElementModel";
+import { ElementModel } from "../vm/ElementModel";
 import { getOrElse } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { OpenRTB } from "../openrtb/OpenRTB";

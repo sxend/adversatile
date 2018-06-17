@@ -1,4 +1,4 @@
-import { Macro, MacroProps, MacroContext } from "../../../em/renderer/Macro";
+import { Macro, MacroProps, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../../../misc/StringUtils";

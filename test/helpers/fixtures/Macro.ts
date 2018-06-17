@@ -1,4 +1,4 @@
-import { MacroProps } from "../../../src/lib/em/renderer/Macro";
+import { MacroProps } from "../../../src/lib/vm/renderer/Macro";
 
 export function dummyProps(): MacroProps {
   return {

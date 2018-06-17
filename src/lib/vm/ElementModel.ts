@@ -1,11 +1,11 @@
-import { ElementOption, ElementModelConf, AssetOption } from "./Configuration";
-import { RandomId } from "./misc/RandomId";
+import { ElementOption, ElementModelConf, AssetOption } from "../Configuration";
+import { RandomId } from "../misc/RandomId";
 import { EventEmitter } from "events";
-import { OpenRTB } from "./openrtb/OpenRTB";
-import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
-import { Renderer, RendererContext } from "./em/Renderer";
-import { MacroProps } from "./em/renderer/Macro";
-import { uniqBy, uniq, onceFunction } from "./misc/ObjectUtils";
+import { OpenRTB } from "../openrtb/OpenRTB";
+import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
+import { Renderer, RendererContext } from "../vm/Renderer";
+import { MacroProps } from "../vm/renderer/Macro";
+import { uniqBy, uniq, onceFunction } from "../misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
   public id: string;

@@ -1,7 +1,7 @@
 import deepmerge from "deepmerge";
-import { ElementModel } from "./ElementModel";
-import { MacroOps } from "./em/renderer/Macro";
-import { Renderer } from "./em/Renderer";
+import { ElementModel } from "./vm/ElementModel";
+import { MacroOps } from "./vm/renderer/Macro";
+import { Renderer } from "./vm/Renderer";
 
 export default class Configuration {
   version: number;

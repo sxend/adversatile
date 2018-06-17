@@ -4,10 +4,10 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
-import { ElementModel } from "../lib/ElementModel";
+import { ElementModel } from "../lib/vm/ElementModel";
 import { getOrElse } from "../lib/misc/ObjectUtils";
-import { MacroOps, MacroContext } from "../lib/em/renderer/Macro";
-import { Renderer, RendererContext } from "../lib/em/Renderer";
+import { MacroOps, MacroContext } from "../lib/vm/renderer/Macro";
+import { Renderer, RendererContext } from "../lib/vm/Renderer";
 
 declare var window: {
   onpfxadrendered: Function,

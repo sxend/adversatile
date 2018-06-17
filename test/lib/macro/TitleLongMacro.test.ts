@@ -1,4 +1,4 @@
-import { TitleLongMacro } from "../../../src/lib/em/renderer/macro/TitleLongMacro";
+import { TitleLongMacro } from "../../../src/lib/vm/renderer/macro/TitleLongMacro";
 import { MacroConf } from "../../../src/lib/Configuration";
 import { dummyMacroContext } from "../../helpers/fixtures/Assets";
 
