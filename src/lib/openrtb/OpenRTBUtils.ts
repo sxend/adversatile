@@ -74,9 +74,10 @@ export namespace OpenRTBUtils {
 
   export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
   export const dummyText: string = "...";
+  export const DUMMY_BID_ID = "DUMMY";
   export function dummyBid(): OpenRTB.Bid {
     const bid = new OpenRTB.Bid();
-    bid.id = "DUMMY";
+    bid.id = DUMMY_BID_ID;
     bid.ext.admNative.assets = [
       new ResAssets(1, false, new Response.Img(dummyImg), null, null, null, null),
       new ResAssets(2, false, new Response.Img(dummyImg), null, null, null, null),
@@ -91,6 +92,9 @@ export namespace OpenRTBUtils {
     bid.ext.admNative.link = new Response.Link("", []);
     return bid;
   };
+  export function isDummyBid(bid: OpenRTB.Bid): boolean {
+    return bid.id === DUMMY_BID_ID;
+  }
   export function concatImpTrackers(bid: OpenRTB.Bid): string[] {
     let imptrackers: string[] = [];
     if (!!bid.ext && !!bid.ext.imptrackers) {

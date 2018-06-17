@@ -48,16 +48,26 @@ export class ElementModelConf {
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
-    return Object.keys(this.options).indexOf(name) !== -1;
+    return this.options[name] !== void 0;
   };
   option: (name: string) => ElementOption = function(this: ElementModelConf, name) {
-    return deepmerge(new ElementOption(name), this.options[name] || {});
+    if (!this.hasOption(name) || !(<any>this.options[name]).__init__) {
+      this.options[name] = deepmerge(new ElementOption(name), this.options[name] || {});
+      (<any>this.options[name]).__init__ = true;
+    }
+    return this.options[name];
   };
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
   renderer: RendererConf = new RendererConf();
   plugins: {
     install: (model: ElementModel) => void
+  }[] = [];
+}
+
+export class RendererConf {
+  plugins: {
+    install: (renderer: Renderer) => void
   }[] = [];
 }
 
@@ -79,12 +89,17 @@ export class ElementOption {
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
-  injectMethod: string = "inner";
+  renderer: ElementRendererOption = new ElementRendererOption();
+  macro: ElementMacroOption = new ElementMacroOption();
 }
-export class RendererConf {
-  plugins: {
-    install: (renderer: Renderer) => void
-  }[] = [];
+export class ElementRendererOption {
+  adScaleRatio: string = "1.0";
+  viewPortWidth: string = "device-width";
+}
+export class ElementMacroOption {
+  injectMethod: string = "inner";
+  injectedIframeStyle: string = "display:block;margin:0 auto;border:0pt;";
+  injectedIframeScrolling: string = "no";
 }
 export class ElementVideoOption {
   autoReplay: boolean = true;
@@ -96,6 +111,7 @@ export class AssetOption {
 }
 
 export class MacroConf {
+  bannerAd: BannerAdMacroConf = new BannerAdMacroConf();
   inject: InjectMacroConf = new InjectMacroConf();
   video: VideoMacroConf = new VideoMacroConf();
   markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
@@ -111,6 +127,9 @@ export class MacroConf {
   plugins: {
     install: (macro: MacroOps) => void
   }[] = [];
+}
+export class BannerAdMacroConf {
+  impSelector: string = "a"
 }
 export class InjectMacroConf {
   selectorAttrName: string = "data-adv-macro-inject-method";

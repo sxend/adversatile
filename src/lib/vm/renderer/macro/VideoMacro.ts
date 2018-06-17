@@ -43,6 +43,7 @@ export class VideoMacro implements Macro {
       onVideoClickHandler = () =>
         this.props.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
     }
+    const vimp = context.props.vimp.lock();
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
       video.video.vasttag,
       element,
@@ -53,7 +54,7 @@ export class VideoMacro implements Macro {
       onVideoClickHandler,
       context.model.option.video,
       onContinuousVideoPlayHandler(2000, () => {
-        context.props.vimp();
+        vimp();
       }),
       () => context.model.emit("video complete")
     );

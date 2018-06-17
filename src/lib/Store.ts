@@ -11,7 +11,11 @@ export class Store extends EventEmitter {
     this.config.toString(); // FIXME
     this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
-      response.seatbid.forEach(sbid => sbid.bid.forEach(bid => this.addBid(bid)));
+      if (!response.seatbid) return;
+      response.seatbid.forEach(sbid => {
+        if (!sbid.bid) return;
+        sbid.bid.forEach(bid => this.addBid(bid));
+      });
     });
     this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
       this.internal.trackedUrls = this.internal.trackedUrls || {};

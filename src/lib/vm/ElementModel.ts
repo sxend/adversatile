@@ -6,7 +6,7 @@ import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RenderProps } from "../vm/Renderer";
 import { MacroOps } from "../vm/renderer/Macro";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
   public id: string;
@@ -91,9 +91,9 @@ export class ElementModel extends EventEmitter {
       impress: onceFunction(() => {
         this.emit("impression", bid);
       }),
-      vimp: onceFunction(() => {
+      vimp: lockableFunction(onceFunction(() => {
         this.emit("viewable_impression", bid);
-      }),
+      })),
       viewThrough: onceFunction(() => {
         this.emit("view_through", bid);
       }),

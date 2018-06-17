@@ -2,8 +2,6 @@ import { MacroContext, MacroProps, MacroOps } from "./renderer/Macro";
 import { TemplateOps } from "./renderer/Template";
 import { RendererConf } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
-import { getOrElse } from "../misc/ObjectUtils";
-import { Async } from "../misc/Async";
 import { OpenRTB } from "../openrtb/OpenRTB";
 
 export class Renderer {
@@ -16,8 +14,7 @@ export class Renderer {
   }
   async render(context: RendererContext): Promise<void> {
     context.props.render(context);
-    const template = (await this.templateOps.resolveTemplate(context.model.name)) ||
-      getOrElse(() => context.bid.ext.bannerHtml);
+    let template = await this.templateOps.resolveTemplate(context.model.name) || "";
     let macroContext = new MacroContext(
       context.model,
       context.element,
@@ -25,16 +22,8 @@ export class Renderer {
       template,
       context.bid
     );
-    macroContext = await this.macroOps.applyMacro(macroContext);
-    this.observeEvent(context, macroContext);
+    await this.macroOps.applyMacro(macroContext);
     context.props.rendered(context);
-  }
-  async observeEvent(context: RendererContext, macro: MacroContext) {
-    if (context.model.option.isBanner()) {
-      Async.wait(() => !!macro.element.querySelector("img"), 50).then(_ => {
-        context.props.impress();
-      });
-    }
   }
 }
 export interface RendererContext {

@@ -14,7 +14,8 @@ import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
 import { InjectMacro } from "./macro/InjectMacro";
 import { OpenRTB } from "../../openrtb/OpenRTB";
 import { ElementModel } from "../ElementModel";
-import { getOrElse } from "../../misc/ObjectUtils";
+import { getOrElse, LockableFunction } from "../../misc/ObjectUtils";
+import { BannerAdMacro } from "./macro/BannerAdMacro";
 
 export class MacroOps {
   constructor(private config: MacroConf) {
@@ -27,6 +28,7 @@ export class MacroOps {
     props: MacroProps
   ): Macro {
     const macros: Macro[] = [
+      new BannerAdMacro(this.config),
       new NanoTemplateMacro(),
       new InjectMacro(this.config),
       new VideoMacro(this.config, props),
@@ -56,7 +58,7 @@ export interface Macro {
 }
 export interface MacroProps {
   impress: () => void;
-  vimp: () => void;
+  vimp: LockableFunction;
   viewThrough: () => void;
   findAssets: (...option: AssetOption[]) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;

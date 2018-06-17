@@ -18,7 +18,7 @@ export class ViewModel {
     config.plugins.forEach(plugin => plugin.install(this));
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
       const sbid = response.seatbid[0];
-      if (!sbid) return;
+      if (!sbid || !sbid.bid) return;
       sbid.bid.forEach(bid => {
         const ems = this.ems[getOrElse(() => getOrElse(() => bid.ext.tagid) || bid.impid)];
         if (!ems || ems.length === 0) return;

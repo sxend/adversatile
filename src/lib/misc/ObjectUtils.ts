@@ -20,10 +20,26 @@ export function getOrElse<A>(fn: () => A, el?: A): A {
 }
 export function onceFunction(fn: Function): () => void {
   let first = true;
-  return () => {
+  return (...args: any[]) => {
     if (first) {
       first = false;
-      fn();
+      fn.apply(null, args);
     }
   };
+}
+
+export interface LockableFunction extends Function {
+  lock(): Function
+}
+export function lockableFunction(fn: Function): LockableFunction {
+  let lock = false;
+  const lockable = (...args: any[]) => {
+    if (lock) return;
+    fn.apply(null, args);
+  };
+  (<any>lockable).lock = () => {
+    lock = true;
+    return fn;
+  };
+  return <any>lockable;
 }

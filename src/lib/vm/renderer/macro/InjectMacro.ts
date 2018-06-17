@@ -11,7 +11,7 @@ export class InjectMacro implements Macro {
     const attrName = this.config.inject.selectorAttrName;
 
     let target: HTMLElement = context.element;
-    let method: string = context.model.option.injectMethod;
+    let method: string = context.model.option.macro.injectMethod;
     if (context.element.getAttribute(attrName)) {
       target = context.element;
       method = context.element.getAttribute(attrName);
@@ -32,10 +32,10 @@ export class InjectMacro implements Macro {
   private async injectIframe(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
-      style: "display:block;margin:0 auto;border:0pt;",
+      style: context.model.option.macro.injectedIframeStyle,
       width: context.bid.w.toString(),
       height: context.bid.h.toString(),
-      scrolling: "no"
+      scrolling: context.model.option.macro.injectedIframeScrolling
     };
     Object.keys(attributes).forEach(attr => {
       iframe.setAttribute(attr, attributes[attr]);

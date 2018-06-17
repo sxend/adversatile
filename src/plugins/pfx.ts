@@ -1,7 +1,7 @@
 import Configuration, { ElementOption, AssetOption } from "../lib/Configuration";
 import { OpenRTB } from "../lib/openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils } from "../lib/openrtb/OpenRTBUtils";
+import { AssetUtils, OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel } from "../lib/vm/ElementModel";
@@ -80,7 +80,7 @@ export default {
     function preRender() {
     }
     function setup(className: string, oldconfigs: OldConfiguration[] /*, pageId: number*/) {
-      console.log("adv setup");
+      console.debug("adv setup");
       const config = new Configuration();
       config.version = 1;
       config.vm.selector = `.${className}`;
@@ -125,7 +125,7 @@ export default {
         install: function(model: ElementModel) {
           try {
             model.on("rendered", function rendered(context: RendererContext) {
-              if (context.bid.id === "DUMMY") return;
+              if (OpenRTBUtils.isDummyBid(context.bid)) return;
               if (oldconfig.onpfxadrendered) {
                 oldconfig.onpfxadrendered(context.bid, null, context.element);
               }
@@ -156,8 +156,8 @@ export default {
               let html = getOrElse(() => context.bid.ext.bannerHtml);
               if (html) {
                 const replacements: any = {
-                  "${PFX_AD_SCALE_RATIO}": "1.0",
-                  "${PFX_VIEWPORT_WIDTH}": "device-width"
+                  "${PFX_AD_SCALE_RATIO}": "{{model.option.renderer.adScaleRatio}}",
+                  "${PFX_VIEWPORT_WIDTH}": "{{model.option.renderer.viewPortWidth}}"
                 };
                 const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
                 if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
@@ -197,7 +197,7 @@ export default {
               try {
                 let html = getOrElse(() => context.bid.ext.bannerHtml);
                 if (html) {
-                  context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", html), config);
+                  context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", "{{bid.ext.bannerHtml}}"), config);
                 }
               } catch (e) {
                 console.error(e);
@@ -206,6 +206,7 @@ export default {
             };
           }
         });
+      config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"]';
       config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
       config.vm.em.macro.link.markedClass = "pfx-link-added";
       config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";

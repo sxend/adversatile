@@ -7,7 +7,7 @@ export class NanoTemplateMacro implements Macro {
     return "NanoTemplateMacro";
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
-    context.template = nano(context.template, context);
+    context.template = nano(context.template || "", context);
     return context;
   }
 }
