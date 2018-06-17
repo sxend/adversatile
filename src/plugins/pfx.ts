@@ -121,7 +121,7 @@ export default {
       emoption.assets = (oldconfig.assets || []).map(asset => {
         return new AssetOption(getAssetIdByName(asset.name), asset.prop);
       });
-      emoption.plugins.push({
+      config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {
             model.on("updated", function updated(bid: OpenRTB.Bid) {
@@ -148,7 +148,7 @@ export default {
           }
         }
       });
-      emoption.renderer.plugins.push({
+      config.vm.em.renderer.plugins.push({
         install: function(renderer: Renderer) {
           const original = renderer.render;
           renderer.render = function(context: RendererContext) {

@@ -15,6 +15,7 @@ export class ViewModel {
   ) {
     this.prefetch();
     this.polling();
+    config.plugins.forEach(plugin => plugin.install(this));
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
       const sbid = response.seatbid[0];
       if (!sbid) return;

@@ -15,11 +15,11 @@ export class ElementModel extends EventEmitter {
   constructor(public element: HTMLElement, private config: ElementModelConf) {
     super();
     this.id = RandomId.gen();
-    this.renderer = new Renderer(this.config, this);
+    this.renderer = new Renderer(this, this.config);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
-    this.option.plugins.forEach(plugin => plugin.install(this));
+    config.plugins.forEach(plugin => plugin.install(this));
   }
   init(): ElementModel {
     if (this.option.preRender) {

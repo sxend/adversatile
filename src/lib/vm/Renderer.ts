@@ -9,13 +9,13 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 export class Renderer {
   private macroOps: MacroOps;
   private templateOps: TemplateOps;
-  constructor(private config: ElementModelConf, private model: ElementModel) {
+  constructor(private model: ElementModel, private config: ElementModelConf) {
     this.macroOps = new MacroOps(this.config.macro);
     this.templateOps = new TemplateOps(
       this.config.templates,
       this.config.templateQualifierKey
     );
-    model.option.renderer.plugins.forEach(plugin => plugin.install(this));
+    config.renderer.plugins.forEach(plugin => plugin.install(this));
   }
   async render(context: RendererContext): Promise<void> {
     const template = (await this.templateOps.resolveTemplate(this.model.name)) ||

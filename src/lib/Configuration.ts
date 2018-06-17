@@ -2,6 +2,7 @@ import deepmerge from "deepmerge";
 import { ElementModel } from "./vm/ElementModel";
 import { MacroOps } from "./vm/renderer/Macro";
 import { Renderer } from "./vm/Renderer";
+import { ViewModel } from "./ViewModel";
 
 export default class Configuration {
   version: number;
@@ -27,6 +28,9 @@ export class ViewModelConf {
   polling: PollingConf = new PollingConf();
   prefetch: PrefetchConf[] = [];
   em: ElementModelConf = new ElementModelConf();
+  plugins: {
+    install: (model: ViewModel) => void
+  }[] = [];
 }
 
 export class PollingConf {
@@ -51,6 +55,10 @@ export class ElementModelConf {
   };
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
+  renderer: RendererConf = new RendererConf();
+  plugins: {
+    install: (model: ElementModel) => void
+  }[] = [];
 }
 
 export class ElementOption {
@@ -68,16 +76,12 @@ export class ElementOption {
   };
   assets: AssetOption[] = [];
   notrim: boolean = false;
-  renderer: RendererOption = new RendererOption();
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
   injectMethod: string = "inner";
-  plugins: {
-    install: (model: ElementModel) => void
-  }[] = [];
 }
-export class RendererOption {
+export class RendererConf {
   plugins: {
     install: (renderer: Renderer) => void
   }[] = [];
