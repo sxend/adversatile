@@ -35,15 +35,16 @@ export class Action {
     const res = new OpenRTB.BidResponse();
     res.id = req.id;
     res.seatbid = [result];
-    const used: string[] = [];
+    const group: any = {};
     result.bid.forEach(bid => {
-      if (bid.impid !== "1") return;
-      for (let imp of req.imp) {
-        if (bid.ext.tagid === imp.tagid && used.indexOf(imp.id) === -1) {
-          used.push(bid.impid = imp.id);
-          break;
-        }
-      }
+      (group[bid.ext.tagid] = group[bid.ext.tagid] || []).push(bid);
+    });
+    Object.keys(group).forEach(id => {
+      const imp = req.imp.find(imp => imp.tagid === id);
+      if (!imp) return;
+      group[id].forEach((bid: OpenRTB.Bid) => {
+        bid.impid = imp.id;
+      });
     });
     return res;
   }

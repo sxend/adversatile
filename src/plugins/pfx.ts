@@ -108,29 +108,17 @@ export default {
         oldElement.parentElement.removeChild(oldElement);
       });
       oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
-      Adversatile.main(config).catch(console.error);
-    }
-    function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
-      const name = oldconfig.tagId;
-      const qualifier = oldconfig.spotId;
-      const emoption = config.vm.em.options[name] = new ElementOption(name);
-      emoption.expandedClickParams = oldconfig.expandedClickParams;
-      emoption.notrim = oldconfig.notrim;
-      emoption.preRender = oldconfig.preRender;
-      emoption.format = oldconfig.adFormat;
-      emoption.assets = (oldconfig.assets || []).map(asset => {
-        return new AssetOption(getAssetIdByName(asset.name), asset.prop);
-      });
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {
+            const oldconfig = oldconfigs.find(x => x.tagId === model.name);
             model.on("rendered", function rendered(context: RendererContext) {
               if (OpenRTBUtils.isDummyBid(context.bid)) return;
-              if (oldconfig.onpfxadrendered) {
+              if (oldconfig && oldconfig.onpfxadrendered) {
                 oldconfig.onpfxadrendered(context.bid, null, context.element);
               }
               if (window.onpfxadrendered) {
-                window.onpfxadrendered(qualifier);
+                window.onpfxadrendered(context.model.qualifier);
               }
               model.removeListener("rendered", rendered);
             });
@@ -138,7 +126,7 @@ export default {
               window.postMessage('onpfximpression', '*');
             });
             model.once("viewable_impression", () => {
-              if (oldconfig.onpfxadinview) {
+              if (oldconfig && oldconfig.onpfxadinview) {
                 oldconfig.onpfxadinview();
               }
               window.postMessage('onpfxviewableImpression', '*');
@@ -163,7 +151,7 @@ export default {
                 if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
                   replacements["${PFX_YDN_NOADCALLBACK}"] = [
                     '<scr' + 'ipt>',
-                    `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${emoption.name}';`,
+                    `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.model.name}';`,
                     '</sc' + 'ript>'
                   ].join('\n');
                 }
@@ -184,31 +172,33 @@ export default {
         install: function(macroops: MacroOps) {
           const original = macroops.applyMacro;
           macroops.applyMacro = function(context: MacroContext) {
-            if (emoption.format === "banner") {
+            if (context.model.option.format === "banner") {
               context.element.setAttribute(config.vm.em.macro.inject.selectorAttrName, "iframe");
             }
             return original.call(macroops, context);
           };
         }
-      }, {
-          install: function(macroops: MacroOps) {
-            const original = macroops.applyMacro;
-            macroops.applyMacro = function(context: MacroContext) {
-              try {
-                let html = getOrElse(() => context.bid.ext.bannerHtml);
-                if (html) {
-                  context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", "{{bid.ext.bannerHtml}}"), config);
-                }
-              } catch (e) {
-                console.error(e);
+      });
+      config.vm.em.macro.plugins.push({
+        install: function(macroops: MacroOps) {
+          const original = macroops.applyMacro;
+          macroops.applyMacro = function(context: MacroContext) {
+            try {
+              let html = getOrElse(() => context.bid.ext.bannerHtml);
+              if (html) {
+                context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", "{{bid.ext.bannerHtml}}"), config);
               }
-              return original.call(macroops, context);
-            };
-          }
-        });
+            } catch (e) {
+              console.error(e);
+            }
+            return original.call(macroops, context);
+          };
+        }
+      });
       config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"]';
       config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
       config.vm.em.macro.link.markedClass = "pfx-link-added";
+      config.vm.em.macro.link.anchorMarkedClass = "pfx-anchor-link";
       config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";
       config.vm.em.macro.mainImage.selectorAttrName = "data-pfx-img";
       config.vm.em.macro.iconImage.selectorAttrName = "data-pfx-icon";
@@ -218,6 +208,19 @@ export default {
       config.vm.em.macro.optoutLink.selectorAttrName = "data-pfx-optout-link";
       config.vm.em.macro.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
       config.vm.em.macro.video.selectorAttrName = "data-pfx-video";
+      Adversatile.main(config).catch(console.error);
+    }
+    function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
+      const name = oldconfig.tagId;
+      const qualifier = oldconfig.spotId;
+      const emoption = config.vm.em.options[name] = new ElementOption(name);
+      emoption.expandedClickParams = oldconfig.expandedClickParams;
+      emoption.notrim = oldconfig.notrim;
+      emoption.preRender = oldconfig.preRender;
+      emoption.format = oldconfig.adFormat;
+      emoption.assets = (oldconfig.assets || []).map(asset => {
+        return new AssetOption(getAssetIdByName(asset.name), asset.prop);
+      });
       let template: string = "";
       if (oldconfig.templateHtml) {
         template = oldconfig.templateHtml;
