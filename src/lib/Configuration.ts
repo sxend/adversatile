@@ -43,8 +43,10 @@ export class PrefetchConf {
 }
 
 export class ElementModelConf {
+  idAttributeName: string = "data-adv-em-id";
   nameAttributeName: string = "data-adv-em-name";
   qualifierAttributeName: string = "data-adv-em-qualifier";
+  groupAttributeName: string = "data-adv-em-group";
   templateQualifierKey: string = "data-adv-em-template";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
@@ -60,6 +62,7 @@ export class ElementModelConf {
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
   renderer: RendererConf = new RendererConf();
+  defaultGroup: number;
   plugins: {
     install: (model: ElementModel) => void
   }[] = [];

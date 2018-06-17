@@ -148,9 +148,10 @@ export class ViewModel {
         );
       })
     );
+    const em = ems.find(em => !!em.group);
     return OpenRTBUtils.createBidReqWithImp(
       imp,
-      new OpenRTB.Ext.BidRequestExt(),
+      new OpenRTB.Ext.BidRequestExt(em.group), // FIXME adcall group
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }

@@ -4,6 +4,8 @@ import { AssetOption } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
 import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
+import { CookieUtils } from "../misc/CookieUtils";
+import deepmerge from "deepmerge";
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -33,16 +35,20 @@ export namespace OpenRTBUtils {
     (site.page = siteLocation.href),
       (site.domain = siteLocation.hostname),
       (site.ref = !!siteDocument ? siteDocument.referrer : void 0);
-    const device = new OpenRTB.Device();
-    device.ifa = ifa;
-    const app = new OpenRTB.App();
+    let device: OpenRTB.Device;
+    if (ifa) {
+      device = new OpenRTB.Device();
+      device.ifa = ifa;
+    } else {
+      device = JSON.parse(CookieUtils.getItem("pfx_req_device") || "{}");
+    }
     const req = new OpenRTB.BidRequest();
     req.id = RandomId.gen();
     req.imp = imp;
     req.site = site;
     req.device = device;
-    req.app = app;
-    req.ext = ext;
+    req.app = JSON.parse(CookieUtils.getItem("pfx_req_app") || "{}");
+    req.ext = deepmerge(JSON.parse(CookieUtils.getItem("pfx_req_ext") || "{}"), ext);
     return req;
   }
   export async function createNative(

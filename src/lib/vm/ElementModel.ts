@@ -9,20 +9,26 @@ import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
-  public id: string;
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
   constructor(private config: ElementModelConf, private element: HTMLElement) {
     super();
-    this.id = RandomId.gen();
     const macroOps = new MacroOps(this.config.macro);
     const templateOps = new TemplateOps(
       this.config.templates,
       this.config.templateQualifierKey
     );
     this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
+    if (!this.id) {
+      element.setAttribute(this.config.idAttributeName, RandomId.gen());
+    }
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
+    }
+    if (!this.group) {
+      if (config.defaultGroup) {
+        element.setAttribute(this.config.groupAttributeName, String(config.defaultGroup));
+      }
     }
     config.plugins.forEach(plugin => plugin.install(this));
   }
@@ -34,11 +40,17 @@ export class ElementModel extends EventEmitter {
     }
     return this;
   }
+  get id(): string {
+    return this.element.getAttribute(this.config.idAttributeName);
+  }
   get name(): string {
     return this.element.getAttribute(this.config.nameAttributeName);
   }
   get qualifier(): string {
     return this.element.getAttribute(this.config.qualifierAttributeName);
+  }
+  get group(): number {
+    return Number(this.element.getAttribute(this.config.groupAttributeName));
   }
   get option(): ElementOption {
     return this.config.option(this.name);

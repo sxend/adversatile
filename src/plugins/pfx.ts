@@ -14,6 +14,7 @@ declare var window: {
   ProFitX: {
     Global: {
       ready: (fn: Function) => Promise<void>
+      ifa: string
     }
     NativeAd: {
       RequestAssets: {
@@ -37,7 +38,7 @@ declare var window: {
 export default {
   install: function(Adversatile: any) {
     window.ProFitX = window.ProFitX || <any>{};
-    Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, {
+    const ProFitX = Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, {
       Global: {
         ready: (fn: Function) => Dom.ready(fn)
       },
@@ -79,7 +80,7 @@ export default {
     }
     function preRender() {
     }
-    function setup(className: string, oldconfigs: OldConfiguration[] /*, pageId: number*/) {
+    function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
       const config = new Configuration();
       config.version = 1;
@@ -108,6 +109,8 @@ export default {
         oldElement.parentElement.removeChild(oldElement);
       });
       oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
+      config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
+      config.vm.em.defaultGroup = pageId;
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {
@@ -255,6 +258,16 @@ export default {
         element.setAttribute(config.vm.em.qualifierAttributeName, qualifier);
       }
     }
+    Adversatile.use({
+      install: function(adv: any) {
+        adv.plugin.bridge = adv.plugin.bridge || {};
+        setInterval(() => {
+          if (ProFitX.Global.ifa) {
+            adv.plugin.bridge.ifa = ProFitX.Global.ifa;
+          }
+        }, 50);
+      }
+    });
   }
 };
 function getAssetIdByName(name: string): number | undefined {
