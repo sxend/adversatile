@@ -4,10 +4,10 @@ import { Store } from "./Store";
 import { ElementModel } from "./vm/ElementModel";
 import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
-import { getOrElse } from "./misc/ObjectUtils";
+import { RandomId } from "./misc/RandomId";
 
 export class ViewModel {
-  private ems: { [name: string]: ElementModel[] } = {};
+  private ems: { [id: string]: ElementModel } = {};
   constructor(
     private config: ViewModelConf,
     private store: Store,
@@ -19,30 +19,32 @@ export class ViewModel {
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
       const sbid = response.seatbid[0];
       if (!sbid || !sbid.bid) return;
+      const group: {[id: string]: OpenRTB.Bid[]} = {};
       sbid.bid.forEach(bid => {
-        const ems = this.ems[getOrElse(() => getOrElse(() => bid.ext.tagid) || bid.impid)];
-        if (!ems || ems.length === 0) return;
-        ems.forEach(em => {
+        (group[bid.impid] = group[bid.impid] || []).push(bid);
+      });
+      Object.keys(group).forEach(id => {
+        if (!this.ems[id]) return;
+        const em = this.ems[id];
           em
             .once("rendered", () => {
             })
-            .once("impression", () => {
+            .once("impression", (bid: OpenRTB.Bid) => {
               const tracked = this.store.getState().getTrackedUrls("imp-tracking");
               const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
               this.action.tracking(urls, "imp-tracking", true);
             })
-            .once("viewable_impression", () => {
+            .once("viewable_impression", (bid: OpenRTB.Bid) => {
               const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
               const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
               this.action.tracking(urls, "viewable-imp-tracking", true);
             })
-            .once("view_through", () => {
+            .once("view_through", (bid: OpenRTB.Bid) => {
               const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
               const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
               this.action.tracking(urls, "view-through-tracking", true);
             })
-            .update(bid)
-        });
+            .update(group[id]);
       });
     });
   }
@@ -96,7 +98,7 @@ export class ViewModel {
         this.action.fetchData(req);
       });
       ems.forEach(em => {
-        (this.ems[em.name] = this.ems[em.name] || []).push(em);
+        this.ems[em.id] = em ;
       });
     });
   }
@@ -115,6 +117,7 @@ export class ViewModel {
         impExt.excludedBidders = option.excludedBidders;
         impExt.notrim = option.notrim;
         return OpenRTBUtils.createImp(
+          RandomId.gen(),
           option.name,
           option.format,
           option.assets.map(AssetUtils.optionToNativeAsset),
@@ -137,6 +140,7 @@ export class ViewModel {
         impExt.excludedBidders = em.excludedBidders;
         impExt.notrim = em.option.notrim;
         return OpenRTBUtils.createImp(
+          em.id,
           em.name,
           em.option.format,
           em.assets.map(AssetUtils.optionToNativeAsset),

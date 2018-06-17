@@ -8,13 +8,14 @@ import ResAssets = Response.Assets;
 export namespace OpenRTBUtils {
   export async function createImp(
     id: string,
+    tagId: string,
     format: string,
     assets: OpenRTB.NativeAd.Request.Assets[],
     ext: OpenRTB.Ext.ImpressionExt
   ) {
     const imp = new OpenRTB.Imp();
     imp.id = id;
-    imp.tagid = id;
+    imp.tagid = tagId;
     imp._native = format === "native" ? await createNative(assets) : void 0;
     imp.banner = format === "banner" ? await createBanner() : void 0;
     imp.ext = ext;

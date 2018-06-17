@@ -80,7 +80,7 @@ export default {
     function preRender() {
     }
     function setup(className: string, oldconfigs: OldConfiguration[] /*, pageId: number*/) {
-      console.debug("adv setup");
+      console.log("adv setup");
       const config = new Configuration();
       config.version = 1;
       config.vm.selector = `.${className}`;

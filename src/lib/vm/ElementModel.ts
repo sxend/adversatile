@@ -54,15 +54,15 @@ export class ElementModel extends EventEmitter {
       .once("updated", () => {
         this.removeListener("find_assets", onFindAssets);
       });
-    await this.update(OpenRTBUtils.dummyBid());
+    await this.update([OpenRTBUtils.dummyBid()]);
   }
-  update(bid: OpenRTB.Bid): Promise<void> {
-    const context = this.createRenderContext(bid);
-    this.emit("update", bid);
+  update(bid: OpenRTB.Bid[]): Promise<void> {
+    const context = this.createRenderContext(bid[0]);
+    this.emit("update", bid[0]);
     return this.renderer
       .render(context)
       .then(_ => {
-        this.emit("updated", bid);
+        this.emit("updated", bid[0]);
       })
       .catch(console.error);
   }
