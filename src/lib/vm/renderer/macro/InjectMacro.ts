@@ -1,6 +1,7 @@
 import { Macro, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
 import { Async } from "../../../misc/Async";
+import { Dom } from "../../../misc/Dom";
 
 export class InjectMacro implements Macro {
   constructor(private config: MacroConf) { }
@@ -51,10 +52,12 @@ export class InjectMacro implements Macro {
     }
     await Async.wait(() => !!iframe.contentDocument.body);
     context.element = iframe.contentDocument.body;
+    this.observeInview(iframe, context);
     return context;
   }
   private async injectInnerHTML(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
     target.innerHTML = context.template;
+    this.observeInview(target, context);
     return context;
   }
   private async injectSibling(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
@@ -68,6 +71,39 @@ export class InjectMacro implements Macro {
         childNodes.forEach((node: ChildNode) => node.remove());
       });
     });
+    this.observeInview(childNodes[0], context);
     return context;
+  }
+  private async observeInview(target: Element, context: MacroContext) {
+    if (!await Dom.canViewportIntersectionMeasurement) return;
+    if (await Dom.isInIframe(window)) {
+      target = window.frameElement;
+    }
+    context.model.once("rendered", async () => {
+      let timer: any;
+      const observer = new IntersectionObserver(
+        function(event) {
+          if (!event || !event[0]) return;
+          if (event[0].intersectionRatio < 0.5) {
+            if (timer) {
+              clearTimeout(timer);
+              timer = null;
+            }
+          } else {
+            if (!timer) {
+              timer = setTimeout(() => {
+                context.props.vimp();
+                observer.unobserve(target);
+              }, 1000);
+            }
+          }
+        },
+        {
+          // root: window.document.documentElement,
+          threshold: Array(101).fill(0).map((_, i) => i / 100)
+        }
+      );
+      observer.observe(target);
+    });
   }
 }
