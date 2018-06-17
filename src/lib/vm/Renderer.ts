@@ -1,24 +1,22 @@
 import { MacroContext, MacroProps, MacroOps } from "./renderer/Macro";
 import { TemplateOps } from "./renderer/Template";
-import { ElementModelConf } from "../Configuration";
+import { RendererConf } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { getOrElse } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { OpenRTB } from "../openrtb/OpenRTB";
 
 export class Renderer {
-  private macroOps: MacroOps;
-  private templateOps: TemplateOps;
-  constructor(private model: ElementModel, private config: ElementModelConf) {
-    this.macroOps = new MacroOps(this.config.macro);
-    this.templateOps = new TemplateOps(
-      this.config.templates,
-      this.config.templateQualifierKey
-    );
-    config.renderer.plugins.forEach(plugin => plugin.install(this));
+  constructor(
+    private config: RendererConf,
+    private macroOps: MacroOps,
+    private templateOps: TemplateOps,
+  ) {
+    this.config.plugins.forEach(plugin => plugin.install(this));
   }
   async render(context: RendererContext): Promise<void> {
-    const template = (await this.templateOps.resolveTemplate(this.model.name)) ||
+    context.props.render(context);
+    const template = (await this.templateOps.resolveTemplate(context.model.name)) ||
       getOrElse(() => context.bid.ext.bannerHtml);
     let macroContext = new MacroContext(
       context.model,
@@ -29,9 +27,10 @@ export class Renderer {
     );
     macroContext = await this.macroOps.applyMacro(macroContext);
     this.observeEvent(context, macroContext);
+    context.props.rendered(context);
   }
   async observeEvent(context: RendererContext, macro: MacroContext) {
-    if (this.model.option.isBanner()) {
+    if (context.model.option.isBanner()) {
       Async.wait(() => !!macro.element.querySelector("img"), 50).then(_ => {
         context.props.impress();
       });
@@ -45,4 +44,6 @@ export interface RendererContext {
   props: RenderProps;
 }
 export interface RenderProps extends MacroProps {
+  render: (context: RendererContext) => void
+  rendered: (context: RendererContext) => void
 }

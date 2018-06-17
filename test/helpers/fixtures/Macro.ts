@@ -5,5 +5,6 @@ export function dummyProps(): MacroProps {
     impress: () => { },
     vimp: () => { },
     viewThrough: () => { },
+    findAssets: () => { }
   };
 }

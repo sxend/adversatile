@@ -24,7 +24,7 @@ export class ViewModel {
         if (!ems || ems.length === 0) return;
         ems.forEach(em => {
           em
-            .once("updated", () => {
+            .once("rendered", () => {
             })
             .once("impression", () => {
               const tracked = this.store.getState().getTrackedUrls("imp-tracking");
@@ -101,7 +101,7 @@ export class ViewModel {
     });
   }
   private createElementModel(element: HTMLElement): ElementModel {
-    return new ElementModel(element, this.config.em);
+    return new ElementModel(this.config.em, element);
   }
   private isNotPrefetch(name: string): boolean {
     return !this.config.prefetch.find(_ => _.name === name);

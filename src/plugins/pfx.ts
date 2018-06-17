@@ -124,15 +124,15 @@ export default {
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {
-            model.on("updated", function updated(bid: OpenRTB.Bid) {
-              if (bid.id === "DUMMY") return;
+            model.on("rendered", function rendered(context: RendererContext) {
+              if (context.bid.id === "DUMMY") return;
               if (oldconfig.onpfxadrendered) {
-                oldconfig.onpfxadrendered(bid, null, model.element);
+                oldconfig.onpfxadrendered(context.bid, null, context.element);
               }
               if (window.onpfxadrendered) {
                 window.onpfxadrendered(qualifier);
               }
-              model.removeListener("updated", updated);
+              model.removeListener("rendered", rendered);
             });
             model.once("impression", () => {
               window.postMessage('onpfximpression', '*');

@@ -3,19 +3,24 @@ import { RandomId } from "../misc/RandomId";
 import { EventEmitter } from "events";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { Renderer, RendererContext } from "../vm/Renderer";
-import { MacroProps } from "../vm/renderer/Macro";
+import { Renderer, RendererContext, RenderProps } from "../vm/Renderer";
+import { MacroOps } from "../vm/renderer/Macro";
+import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction } from "../misc/ObjectUtils";
 
 export class ElementModel extends EventEmitter {
   public id: string;
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
-  private detectedAssets: AssetOption[] = [];
-  constructor(public element: HTMLElement, private config: ElementModelConf) {
+  constructor(private config: ElementModelConf, private element: HTMLElement) {
     super();
     this.id = RandomId.gen();
-    this.renderer = new Renderer(this, this.config);
+    const macroOps = new MacroOps(this.config.macro);
+    const templateOps = new TemplateOps(
+      this.config.templates,
+      this.config.templateQualifierKey
+    );
+    this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
@@ -23,9 +28,7 @@ export class ElementModel extends EventEmitter {
   }
   init(): ElementModel {
     if (this.option.preRender) {
-      this.once("updated", () => {
-        this.emit("init");
-      }).update(OpenRTBUtils.dummyBid());
+      this.preRender().then(_ => this.emit("init"));
     } else {
       this.emit("init");
     }
@@ -38,15 +41,24 @@ export class ElementModel extends EventEmitter {
     return this.config.option(this.name);
   }
   get assets(): AssetOption[] {
-    let assets: AssetOption[] = this.option.assets || [];
-    return uniqBy(assets.concat(this.detectedAssets), asset => asset.id);
+    return uniqBy(this.option.assets, asset => asset.id);
   }
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
+  private async preRender(): Promise<void> {
+    const onFindAssets = (assets: AssetOption[]) => {
+      this.addAssetOptions(assets);
+    };
+    this.on("find_assets", onFindAssets)
+      .once("updated", () => {
+        this.removeListener("find_assets", onFindAssets);
+      });
+    await this.update(OpenRTBUtils.dummyBid());
+  }
   update(bid: OpenRTB.Bid): Promise<void> {
-    this.emit("update", bid);
     const context = this.createRenderContext(bid);
+    this.emit("update", bid);
     return this.renderer
       .render(context)
       .then(_ => {
@@ -59,18 +71,23 @@ export class ElementModel extends EventEmitter {
       model: this,
       element: this.element,
       bid,
-      props: this.createMacroProps(bid)
+      props: this.createRenderProps(bid)
     };
   }
-
   private addAssetOptions(assets: AssetOption[]) {
-    this.detectedAssets = uniqBy(
-      this.detectedAssets.concat(assets),
+    this.option.assets = uniqBy(
+      this.option.assets.concat(assets),
       asset => asset.id
     );
   }
-  private createMacroProps(bid: OpenRTB.Bid): MacroProps {
+  private createRenderProps(bid: OpenRTB.Bid): RenderProps {
     return {
+      render: onceFunction((context: RendererContext) => {
+        this.emit("render", context);
+      }),
+      rendered: onceFunction((context: RendererContext) => {
+        this.emit("rendered", context);
+      }),
       impress: onceFunction(() => {
         this.emit("impression", bid);
       }),
@@ -80,8 +97,9 @@ export class ElementModel extends EventEmitter {
       viewThrough: onceFunction(() => {
         this.emit("view_through", bid);
       }),
-      addAssetOptions: (...options: AssetOption[]) =>
-        this.addAssetOptions(options)
+      findAssets: (...assets: AssetOption[]) => {
+        this.emit("find_assets", assets);
+      }
     };
   }
 }

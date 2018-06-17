@@ -19,9 +19,7 @@ export class TitleShortMacro implements Macro {
     if (targets.length === 0) return context;
     for (let target of targets) {
       MacroUtils.insertTextAsset(target, title.title.text);
-      if (this.props.addAssetOptions) {
-        this.props.addAssetOptions(AssetUtils.titleTextOption());
-      }
+      this.props.findAssets(AssetUtils.titleTextOption());
     }
     context.props.impress();
     return context;

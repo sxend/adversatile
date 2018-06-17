@@ -18,9 +18,7 @@ export class MainImageMacro implements Macro {
     if (targets.length === 0) return context;
     for (let target of targets) {
       target.src = image.img.url;
-      if (this.props.addAssetOptions) {
-        this.props.addAssetOptions(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
-      }
+      this.props.findAssets(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
     }
     context.props.impress();
     return context;

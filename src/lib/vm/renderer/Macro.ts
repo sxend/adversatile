@@ -58,8 +58,8 @@ export interface MacroProps {
   impress: () => void;
   vimp: () => void;
   viewThrough: () => void;
+  findAssets: (...option: AssetOption[]) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
-  addAssetOptions?: (...option: AssetOption[]) => void;
 }
 export class MacroContext {
   public metadata: MacroMetadata;
