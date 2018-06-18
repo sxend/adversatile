@@ -92,10 +92,15 @@ export class ViewModel {
     Promise.all(ems.map(em => new Promise(resolve => {
       em.once("init", resolve).init();
     }))).then(_ => {
-      this.createBidReqFromModels(
-        ems.filter(_ => this.isNotPrefetch(_.name))
-      ).then(req => {
-        this.action.fetchData(req);
+      const group: { [group: string]: ElementModel[] } = {};
+      ems.forEach(em => (group[em.group] = group[em.group] || []).push(em));
+      Object.keys(group).forEach(g => {
+        const ems = group[g];
+        this.createBidReqFromModels(
+          ems.filter(_ => this.isNotPrefetch(_.name))
+        ).then(req => {
+          this.action.fetchData(req);
+        });
       });
       ems.forEach(em => {
         this.ems[em.id] = em;

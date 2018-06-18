@@ -34,9 +34,10 @@ export class InjectMacro implements Macro {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
       style: context.model.option.macro.injectedIframeStyle,
-      width: context.bid.w.toString(),
-      height: context.bid.h.toString(),
-      scrolling: context.model.option.macro.injectedIframeScrolling
+      width: context.bid.w !== void 0 ? context.bid.w.toString() : void 0,
+      height: context.bid.h !== void 0 ? context.bid.h.toString() : void 0,
+      scrolling: context.model.option.macro.injectedIframeScrolling,
+      frameborder: context.model.option.macro.injectedIframeFrameBorder
     };
     Object.keys(attributes).forEach(attr => {
       iframe.setAttribute(attr, attributes[attr]);

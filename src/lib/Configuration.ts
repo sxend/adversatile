@@ -103,6 +103,7 @@ export class ElementMacroOption {
   injectMethod: string = "inner";
   injectedIframeStyle: string = "display:block;margin:0 auto;border:0pt;";
   injectedIframeScrolling: string = "no";
+  injectedIframeFrameBorder: string = "0";
 }
 export class ElementVideoOption {
   autoReplay: boolean = true;

@@ -11,6 +11,7 @@ import { Renderer, RendererContext } from "../lib/vm/Renderer";
 
 declare var window: {
   onpfxadrendered: Function,
+  onpfxadload: Function,
   ProFitX: {
     Global: {
       ready: (fn: Function) => Promise<void>
@@ -115,6 +116,11 @@ export default {
         install: function(model: ElementModel) {
           try {
             const oldconfig = oldconfigs.find(x => x.tagId === model.name);
+            model.on("render", function render(context: RendererContext) {
+              if (window.onpfxadload) {
+                window.onpfxadload(context.bid);
+              }
+            });
             model.on("rendered", function rendered(context: RendererContext) {
               if (OpenRTBUtils.isDummyBid(context.bid)) return;
               if (oldconfig && oldconfig.onpfxadrendered) {

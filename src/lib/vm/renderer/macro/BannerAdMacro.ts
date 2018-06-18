@@ -12,6 +12,10 @@ export class BannerAdMacro implements Macro {
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     if (context.model.option.isBanner()) {
+      if (context.bid.ext.filler) {
+        context.template = getOrElse(() => context.bid.ext.filler);
+        context.model.option.macro.injectMethod = "iframe";
+      }
       context.template = context.template || getOrElse(() => context.bid.ext.bannerHtml);
       if (!OpenRTBUtils.isDummyBid(context.bid)) {
         context.model.once("rendered", (_: RendererContext) => {
