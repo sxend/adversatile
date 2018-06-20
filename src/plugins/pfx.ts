@@ -89,7 +89,7 @@ export default {
       config.vm.selector = `.${className}`;
       config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
       config.action.backend.fetchCallbackPrefix = "pfxCallback_";
-      [].slice.call(document.querySelectorAll(`.${className}`)).forEach((oldElement: HTMLElement) => {
+      (<HTMLElement[]>Dom.recursiveQuerySelectorAll(document, `.${className}`)).forEach((oldElement: HTMLElement) => {
         const element = document.createElement("div");
         [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
           element.setAttribute(attribute.name, attribute.value);
@@ -112,7 +112,7 @@ export default {
       });
       oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
       config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
-      const page = document.querySelector('[data-ca-profitx-pageid]');
+      const page = <Element>Dom.recursiveQuerySelector(document, '[data-ca-profitx-pageid]');
       pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
       config.vm.em.defaultGroup = String(pageId);
       config.vm.em.plugins.push({

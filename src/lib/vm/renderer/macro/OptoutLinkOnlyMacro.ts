@@ -3,6 +3,7 @@ import { MacroConf } from "../../../Configuration";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../../openrtb/AssetUtils";
+import { Dom } from "../../../misc/Dom";
 
 export class OptoutLinkOnlyMacro implements Macro {
   constructor(private config: MacroConf) { }
@@ -12,9 +13,8 @@ export class OptoutLinkOnlyMacro implements Macro {
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     const optout = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_LINK);
     if (!optout) return context;
-    const targets: HTMLElement[] = [].slice.call(
-      context.element.querySelectorAll(this.selector())
-    );
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     if (targets.length === 0) return context;
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");

@@ -1,6 +1,6 @@
 export namespace Async {
   export async function wait(condition: () => boolean, interval?: number): Promise<void> {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve, reject) => {
       const timer = setInterval(() => {
         try {
           if (condition()) {
@@ -8,7 +8,8 @@ export namespace Async {
             resolve();
           }
         } catch (e) {
-          console.error();
+          clearInterval(timer);
+          reject(e);
         }
       }, interval);
     });

@@ -1,4 +1,5 @@
 import { firstDefined, getOrElse } from "../../misc/ObjectUtils";
+import { Dom } from "../../misc/Dom";
 
 export class TemplateOps {
   constructor(
@@ -16,7 +17,7 @@ export class TemplateOps {
   }
   resolveExternalTemplate(qualifier: string): string | undefined {
     const query = `[${this.templateQualifierKey}="${qualifier}"]`;
-    const templateEl = getOrElse(() => document.querySelector(query));
+    const templateEl: Element = <Element>getOrElse(() => Dom.recursiveQuerySelector(document, query));
     if (templateEl) {
       return templateEl.innerHTML;
     }

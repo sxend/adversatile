@@ -15,6 +15,12 @@ export class ElementGroup {
     private store: Store,
     private action: Action
   ) {
+    this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
+      if (!response.ext || !response.ext.group || response.ext.group !== this.group) {
+        return;
+      }
+      this.update(response);
+    });
     this.config.group.plugins.forEach(plugin => plugin.install(this));
   }
   async register(ems: ElementModel[]) {

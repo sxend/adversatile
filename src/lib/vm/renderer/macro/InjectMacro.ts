@@ -17,7 +17,7 @@ export class InjectMacro implements Macro {
       target = context.element;
       method = context.element.getAttribute(attrName);
     }
-    const child = context.element.querySelector(`[${attrName}]`);
+    const child = <HTMLElement>Dom.recursiveQuerySelector(context.element, `[${attrName}]`);
     if (child) {
       target = <HTMLElement>child;
       method = child.getAttribute(attrName);

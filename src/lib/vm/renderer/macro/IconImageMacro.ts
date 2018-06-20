@@ -3,6 +3,7 @@ import { MacroConf } from "../../../Configuration";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../../openrtb/AssetUtils";
+import { Dom } from "../../../misc/Dom";
 
 export class IconImageMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -12,9 +13,8 @@ export class IconImageMacro implements Macro {
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return context;
-    const targets: HTMLImageElement[] = [].slice.call(
-      context.element.querySelectorAll(this.selector())
-    );
+    const targets: HTMLImageElement[] =
+      <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     if (targets.length === 0) return context;
     for (let target of targets) {
       target.src = icon.img.url;

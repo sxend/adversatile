@@ -66,7 +66,7 @@ export namespace OpenRTBUtils {
   }
   export function getIfa(ifaAttrName?: string): string {
     if (ifaAttrName) {
-      const element = document.querySelector(`[${ifaAttrName}]`);
+      const element = <Element>Dom.recursiveQuerySelector(document, `[${ifaAttrName}]`);
       if (element && element.getAttribute(ifaAttrName)) {
         return element.getAttribute(ifaAttrName);
       }

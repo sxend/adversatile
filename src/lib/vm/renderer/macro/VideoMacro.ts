@@ -5,6 +5,7 @@ import { OpenRTB } from "../../../openrtb/OpenRTB";
 import { AssetUtils } from "../../../openrtb/AssetUtils";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { getOrElse } from "../../../misc/ObjectUtils";
+import { Dom } from "../../../misc/Dom";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -13,9 +14,8 @@ export class VideoMacro implements Macro {
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     if (!context.admNative || !context.admNative.link) return context;
-    const targets: HTMLElement[] = [].slice.call(
-      context.element.querySelectorAll(this.selector())
-    );
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     if (targets.length === 0) return context;
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
     if (

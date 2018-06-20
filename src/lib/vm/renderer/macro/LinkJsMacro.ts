@@ -2,6 +2,7 @@ import { Macro, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { Tracking } from "../../../misc/Tracking";
+import { Dom } from "../../../misc/Dom";
 
 export class LinkJsMacro implements Macro {
   constructor(private config: MacroConf) { }
@@ -15,9 +16,9 @@ export class LinkJsMacro implements Macro {
     const clktrckUrl = link.clktrck;
     if (!linkUrl || !clktrckUrl) return context;
     const selector = this.selector();
-    const targets: HTMLElement[] = [].slice.call(
-      context.element.querySelectorAll(selector)
-    );
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
+
     if (targets.length === 0) return context;
     for (let target of targets) {
       target.style.cursor = "auto";

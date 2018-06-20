@@ -15,9 +15,8 @@ export class LinkMacro implements Macro {
     const link = context.admNative.link;
     const appId = getOrElse(() => context.bid.ext.appId);
     const selector = this.selector();
-    const targets: HTMLElement[] = [].slice.call(
-      context.element.querySelectorAll(selector)
-    );
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
     if (targets.length === 0) return context;
     const clickUrl: string = MacroUtils.addExpandParams(
       link.url,
@@ -54,7 +53,8 @@ export class LinkMacro implements Macro {
     return `[${selector}]:not(.${markedClass})`;
   }
   private detectAnchorTarget(element: HTMLElement): string {
-    const targetAttr = element.querySelector(
+    const targetAttr = <Element>Dom.recursiveQuerySelector(
+      element,
       `[${this.config.link.anchorTargetAttrName}]`
     );
     if (targetAttr) {

@@ -4,6 +4,7 @@ import { MacroUtils } from "./MacroUtils";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import { AssetUtils } from "../../../openrtb/AssetUtils";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import { Dom } from "../../../misc/Dom";
 
 export class TitleLongMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -13,9 +14,8 @@ export class TitleLongMacro implements Macro {
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     const text = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_TITLE_LONG);
     if (!text) return context;
-    const targets: HTMLElement[] = [].slice.call(
-      context.element.querySelectorAll(this.selector())
-    );
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     if (targets.length === 0) return context;
     for (let target of targets) {
       MacroUtils.insertTextAsset(target, text.title.text);

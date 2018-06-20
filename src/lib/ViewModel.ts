@@ -8,6 +8,7 @@ import { RandomId } from "./misc/RandomId";
 import { groupBy } from "./misc/ObjectUtils";
 import { AssetUtils } from "./openrtb/AssetUtils";
 import { ElementGroup } from "./vm/ElementGroup";
+import { Dom } from "./misc/Dom";
 
 export class ViewModel {
   private groups: { [group: string]: ElementGroup } = {};
@@ -19,11 +20,6 @@ export class ViewModel {
     this.prefetch();
     this.polling();
     config.plugins.forEach(plugin => plugin.install(this));
-    this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
-      if (this.groups[response.ext.group]) {
-        this.groups[response.ext.group].update(response);
-      }
-    });
   }
   private prefetch(): void {
     if (!this.config.prefetch || this.config.prefetch.length === 0) return;
@@ -50,7 +46,7 @@ export class ViewModel {
   }
   private pollElements(): void {
     const newElements = [].slice
-      .call(document.querySelectorAll(this.selector()))
+      .call(Dom.recursiveQuerySelectorAll(document, this.selector()))
       .map((element: HTMLElement) => {
         element.classList.add(this.config.markedClass);
         return element;

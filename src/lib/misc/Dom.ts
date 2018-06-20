@@ -54,6 +54,9 @@ export namespace Dom {
         prev.concat(recursiveQuerySelectorAll(cur.contentDocument, selector)),
       [].slice.call(element.querySelectorAll(selector)));
   }
+  export function recursiveQuerySelector(element: ParentNode, selector: string): Node {
+    return recursiveQuerySelectorAll(element, selector)[0];
+  }
   export function setGlobalCallback(id: string, callback: Function): string {
     (<any>window)[id] = callback;
     return id;
