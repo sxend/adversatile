@@ -26,19 +26,9 @@ export class ElementModel extends EventEmitter {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
     }
     if (!this.group) {
-      if (config.defaultGroup) {
-        element.setAttribute(this.config.groupAttributeName, String(config.defaultGroup));
-      }
+      element.setAttribute(this.config.groupAttributeName, config.defaultGroup);
     }
     config.plugins.forEach(plugin => plugin.install(this));
-  }
-  init(): ElementModel {
-    if (this.option.preRender) {
-      this.preRender().then(_ => this.emit("init"));
-    } else {
-      this.emit("init");
-    }
-    return this;
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -49,8 +39,8 @@ export class ElementModel extends EventEmitter {
   get qualifier(): string {
     return this.element.getAttribute(this.config.qualifierAttributeName);
   }
-  get group(): number {
-    return Number(this.element.getAttribute(this.config.groupAttributeName));
+  get group(): string {
+    return this.element.getAttribute(this.config.groupAttributeName);
   }
   get option(): ElementOption {
     return this.config.option(this.name);
@@ -61,15 +51,13 @@ export class ElementModel extends EventEmitter {
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
-  private async preRender(): Promise<void> {
-    const onFindAssets = (assets: AssetOption[]) => {
-      this.addAssetOptions(assets);
-    };
-    this.on("find_assets", onFindAssets)
-      .once("updated", () => {
-        this.removeListener("find_assets", onFindAssets);
-      });
-    await this.update([OpenRTBUtils.dummyBid()]);
+  init(): ElementModel {
+    if (this.option.preRender) {
+      this.preRender().then(_ => this.emit("init"));
+    } else {
+      this.emit("init");
+    }
+    return this;
   }
   update(bid: OpenRTB.Bid[]): Promise<void> {
     const context = this.createRenderContext(bid[0]);
@@ -80,6 +68,16 @@ export class ElementModel extends EventEmitter {
         this.emit("updated", bid[0]);
       })
       .catch(console.error);
+  }
+  private async preRender(): Promise<void> {
+    const onFindAssets = (assets: AssetOption[]) => {
+      this.addAssetOptions(assets);
+    };
+    this.on("find_assets", onFindAssets)
+      .once("updated", () => {
+        this.removeListener("find_assets", onFindAssets);
+      });
+    await this.update([OpenRTBUtils.dummyBid()]);
   }
   private createRenderContext(bid: OpenRTB.Bid): RendererContext {
     return {

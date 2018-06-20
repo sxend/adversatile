@@ -1,5 +1,24 @@
+
 export function firstDefined<A>(arr: A[]): A | undefined {
   return (arr || []).filter(_ => _ !== void 0)[0];
+}
+// Object.assign polyfill https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+export function assign(target: any, _varArgs: any) {
+  if (target == null) {
+    throw new TypeError('Cannot convert undefined or null to object');
+  }
+  const to = Object(target);
+  for (let index = 1; index < arguments.length; index++) {
+    const nextSource = arguments[index];
+    if (nextSource != null) {
+      for (let nextKey in nextSource) {
+        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+          to[nextKey] = nextSource[nextKey];
+        }
+      }
+    }
+  }
+  return to;
 }
 export function uniq<A>(arr: A[]): A[] {
   return arr.filter((x, i, self) => self.indexOf(x) === i);
@@ -11,6 +30,14 @@ export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
     if (flags[key]) return false;
     return (flags[key] = true);
   });
+}
+export function groupBy<A>(arr: A[], condition: (a: A) => string): { [key: string]: A[] } {
+  const group: { [key: string]: A[] } = {};
+  arr.forEach(obj => {
+    const key = condition(obj);
+    (group[key] = group[key] || []).push(obj);
+  });
+  return group;
 }
 export function getOrElse<A>(fn: () => A, el?: A): A {
   try {

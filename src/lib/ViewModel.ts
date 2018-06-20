@@ -2,9 +2,11 @@ import { ViewModelConf, ElementOption } from "./Configuration";
 import { Action } from "./Action";
 import { Store } from "./Store";
 import { ElementModel } from "./vm/ElementModel";
-import { OpenRTBUtils, AssetUtils } from "./openrtb/OpenRTBUtils";
+import { OpenRTBUtils } from "./openrtb/OpenRTBUtils";
 import { OpenRTB } from "./openrtb/OpenRTB";
 import { RandomId } from "./misc/RandomId";
+import { groupBy } from "./misc/ObjectUtils";
+import { AssetUtils } from "./openrtb/AssetUtils";
 
 export class ViewModel {
   private ems: { [id: string]: ElementModel } = {};
@@ -92,12 +94,12 @@ export class ViewModel {
     Promise.all(ems.map(em => new Promise(resolve => {
       em.once("init", resolve).init();
     }))).then(_ => {
-      const group: { [group: string]: ElementModel[] } = {};
-      ems.forEach(em => (group[em.group] = group[em.group] || []).push(em));
-      Object.keys(group).forEach(g => {
-        const ems = group[g];
+      const group = groupBy(ems, (em) => em.group);
+      Object.keys(group).forEach(key => {
+        const ems = group[key];
         this.createBidReqFromModels(
-          ems.filter(_ => this.isNotPrefetch(_.name))
+          ems.filter(_ => this.isNotPrefetch(_.name)),
+          key,
         ).then(req => {
           this.action.fetchData(req);
         });
@@ -137,10 +139,11 @@ export class ViewModel {
     );
   }
   private async createBidReqFromModels(
-    ems: ElementModel[]
+    ems: ElementModel[],
+    group: string,
   ): Promise<OpenRTB.BidRequest> {
     const imp: OpenRTB.Imp[] = await Promise.all(
-      ems.map(async em => {
+      ems.map(em => {
         const impExt = new OpenRTB.Ext.ImpressionExt();
         impExt.excludedBidders = em.excludedBidders;
         impExt.notrim = em.option.notrim;
@@ -153,10 +156,10 @@ export class ViewModel {
         );
       })
     );
-    const em = ems.find(em => !!em.group);
+
     return OpenRTBUtils.createBidReqWithImp(
       imp,
-      new OpenRTB.Ext.BidRequestExt(em.group), // FIXME adcall group
+      new OpenRTB.Ext.BidRequestExt(Number(group)),
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }

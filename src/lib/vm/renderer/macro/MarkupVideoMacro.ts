@@ -1,6 +1,6 @@
 import { Macro, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
-import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
+import { AssetUtils } from "../../../openrtb/AssetUtils";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import ResAssets = OpenRTB.NativeAd.Response.Assets;

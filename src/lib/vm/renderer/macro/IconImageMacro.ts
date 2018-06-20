@@ -1,8 +1,8 @@
 import { Macro, MacroProps, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
-import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import { AssetUtils } from "../../../openrtb/AssetUtils";
 
 export class IconImageMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }

@@ -1,13 +1,14 @@
 import Configuration, { ElementOption, AssetOption } from "../lib/Configuration";
 import { OpenRTB } from "../lib/openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils, OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
+import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel } from "../lib/vm/ElementModel";
-import { getOrElse } from "../lib/misc/ObjectUtils";
+import { getOrElse, assign } from "../lib/misc/ObjectUtils";
 import { MacroOps, MacroContext } from "../lib/vm/renderer/Macro";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
+import { AssetUtils } from "../lib/openrtb/AssetUtils";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -39,7 +40,7 @@ declare var window: {
 export default {
   install: function(Adversatile: any) {
     window.ProFitX = window.ProFitX || <any>{};
-    const ProFitX = Adversatile.ProFitX = window.ProFitX = Object.assign(window.ProFitX, {
+    const ProFitX = Adversatile.ProFitX = window.ProFitX = assign(window.ProFitX, {
       Global: {
         ready: (fn: Function) => Dom.ready(fn)
       },
@@ -111,12 +112,20 @@ export default {
       });
       oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
       config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
-      config.vm.em.defaultGroup = pageId;
+      const page = document.querySelector('[data-ca-profitx-pageid]');
+      pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
+      config.vm.em.defaultGroup = String(pageId);
+      config.vm.em.plugins.push({
+        install: function(model: ElementModel) {
+          config.vm.em.defaultGroup = model.group;
+        }
+      })
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {
             const oldconfig = oldconfigs.find(x => x.tagId === model.name);
             model.on("render", function render(context: RendererContext) {
+              if (OpenRTBUtils.isDummyBid(context.bid)) return;
               if (window.onpfxadload) {
                 window.onpfxadload(context.bid);
               }

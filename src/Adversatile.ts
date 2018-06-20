@@ -1,9 +1,10 @@
 import { main, use, initialize } from "./lib/Main";
+import { assign } from "./lib/misc/ObjectUtils";
 
 const Adversatile = (() => {
   if (!("Adversatile" in window) || !(<any>window)["Adversatile"]) {
     const Adversatile: any = {};
-    Object.assign(Adversatile, {
+    assign(Adversatile, {
       main: main.bind(Adversatile),
       use: use.bind(Adversatile)
     });

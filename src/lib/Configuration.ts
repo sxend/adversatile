@@ -3,6 +3,7 @@ import { ElementModel } from "./vm/ElementModel";
 import { MacroOps } from "./vm/renderer/Macro";
 import { Renderer } from "./vm/Renderer";
 import { ViewModel } from "./ViewModel";
+import { assign } from "./misc/ObjectUtils";
 
 export default class Configuration {
   version: number;
@@ -48,6 +49,7 @@ export class ElementModelConf {
   qualifierAttributeName: string = "data-adv-em-qualifier";
   groupAttributeName: string = "data-adv-em-group";
   templateQualifierKey: string = "data-adv-em-template";
+  defaultGroup: string = "0";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
     return this.options[name] !== void 0;
@@ -62,7 +64,6 @@ export class ElementModelConf {
   templates: { [name: string]: string } = {};
   macro: MacroConf = new MacroConf();
   renderer: RendererConf = new RendererConf();
-  defaultGroup: number;
   plugins: {
     install: (model: ElementModel) => void
   }[] = [];
@@ -189,6 +190,6 @@ export function isConfiguration(obj: any): boolean {
 }
 
 export function asConfituration(obj: any): Configuration {
-  const configuration = deepmerge(new Configuration(), obj || {});
+  const configuration = assign(obj, deepmerge(new Configuration(), obj || {}));
   return configuration;
 }

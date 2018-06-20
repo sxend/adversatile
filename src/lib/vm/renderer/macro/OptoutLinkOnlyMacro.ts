@@ -2,7 +2,7 @@ import { Macro, MacroContext } from "../../../vm/renderer/Macro";
 import { MacroConf } from "../../../Configuration";
 import { OpenRTB } from "../../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils } from "../../../openrtb/OpenRTBUtils";
+import { AssetUtils } from "../../../openrtb/AssetUtils";
 
 export class OptoutLinkOnlyMacro implements Macro {
   constructor(private config: MacroConf) { }
