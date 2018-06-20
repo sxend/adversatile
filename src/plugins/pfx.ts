@@ -185,17 +185,6 @@ export default {
         install: function(macroops: MacroOps) {
           const original = macroops.applyMacro;
           macroops.applyMacro = function(context: MacroContext) {
-            if (context.model.option.format === "banner") {
-              context.element.setAttribute(config.vm.em.macro.inject.selectorAttrName, "iframe");
-            }
-            return original.call(macroops, context);
-          };
-        }
-      });
-      config.vm.em.macro.plugins.push({
-        install: function(macroops: MacroOps) {
-          const original = macroops.applyMacro;
-          macroops.applyMacro = function(context: MacroContext) {
             try {
               let html = getOrElse(() => context.bid.ext.bannerHtml);
               if (html) {
@@ -231,6 +220,9 @@ export default {
       emoption.notrim = oldconfig.notrim;
       emoption.preRender = oldconfig.preRender;
       emoption.format = oldconfig.adFormat;
+      if (emoption.isBanner()) {
+        emoption.macro.injectMethod = "iframe";
+      }
       emoption.assets = (oldconfig.assets || []).map(asset => {
         return new AssetOption(getAssetIdByName(asset.name), asset.prop);
       });

@@ -47,6 +47,13 @@ export namespace Dom {
   export function createScriptElement(): HTMLScriptElement {
     return document.createElement("script");
   }
+  export function recursiveQuerySelectorAll(element: ParentNode, selector: string): Node[] {
+    const frames = [].slice.call(element.querySelectorAll("iframe:not([src])"));
+    return frames.reduce(
+      (prev: Node[], cur: HTMLIFrameElement) =>
+        prev.concat([].slice.call(cur.contentDocument.querySelectorAll(selector))),
+      [].slice.call(element.querySelectorAll(selector)));
+  }
   export function setGlobalCallback(id: string, callback: Function): string {
     (<any>window)[id] = callback;
     return id;

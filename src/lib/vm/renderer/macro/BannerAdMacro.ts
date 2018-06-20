@@ -4,6 +4,7 @@ import { RendererContext } from "../../Renderer";
 import { OpenRTBUtils } from "../../../openrtb/OpenRTBUtils";
 import { MacroConf } from "../../../Configuration";
 import { Async } from "../../../misc/Async";
+import { Dom } from "../../../misc/Dom";
 
 export class BannerAdMacro implements Macro {
   constructor(private config: MacroConf) { }
@@ -26,7 +27,10 @@ export class BannerAdMacro implements Macro {
     return context;
   }
   async observeEvent(context: MacroContext) {
-    Async.wait(() => !!context.element.querySelector(this.config.bannerAd.impSelector), 50).then(_ => {
+    Async.wait(() => {
+      const result = Dom.recursiveQuerySelectorAll(context.element, this.config.bannerAd.impSelector);
+      return result.length > 0;
+    }, 50).then(_ => {
       context.props.impress(context.bid);
     });
   }

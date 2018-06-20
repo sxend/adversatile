@@ -5,7 +5,7 @@ import { Store } from "../Store";
 import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { AssetUtils } from "../openrtb/AssetUtils";
-import { getOrElse } from "../misc/ObjectUtils";
+import { getOrElse, groupBy } from "../misc/ObjectUtils";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -37,10 +37,7 @@ export class ElementGroup {
     if (!sbid || !sbid.bid) {
       throw new Error("is empty sbid");
     }
-    const group: { [id: string]: OpenRTB.Bid[] } = {};
-    sbid.bid.forEach(bid => {
-      (group[bid.impid] = group[bid.impid] || []).push(bid);
-    });
+    const group = groupBy(sbid.bid, bid => bid.impid);
     Object.keys(group).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
