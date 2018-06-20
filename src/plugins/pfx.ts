@@ -213,7 +213,7 @@ export default {
           };
         }
       });
-      config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"]';
+      config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
       config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
       config.vm.em.macro.link.markedClass = "pfx-link-added";
       config.vm.em.macro.link.anchorMarkedClass = "pfx-anchor-link";

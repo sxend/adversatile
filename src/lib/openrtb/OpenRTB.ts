@@ -172,9 +172,17 @@ export namespace OpenRTB {
   }
   export namespace Ext {
     export class BidRequestExt {
-      constructor(public page_id?: number) { }
+      constructor(
+        public page_id?: number,
+        public group?: string,
+      ) { }
     }
-    export class BidResponseExt { }
+    export class BidResponseExt {
+      constructor(
+        public pageId?: number,
+        public group?: string
+      ) { }
+    }
     export class ImpressionExt {
       excludedBidders: string[] = [];
       notrim: boolean = false;

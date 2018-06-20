@@ -4,6 +4,7 @@ import { MacroOps } from "./vm/renderer/Macro";
 import { Renderer } from "./vm/Renderer";
 import { ViewModel } from "./ViewModel";
 import { assign } from "./misc/ObjectUtils";
+import { ElementGroup } from "./vm/ElementGroup";
 
 export default class Configuration {
   version: number;
@@ -28,6 +29,7 @@ export class ViewModelConf {
   deviceIfaAttrName: string = "data-adv-device-ifa";
   polling: PollingConf = new PollingConf();
   prefetch: PrefetchConf[] = [];
+  group: ElementGroupConf = new ElementGroupConf();
   em: ElementModelConf = new ElementModelConf();
   plugins: {
     install: (model: ViewModel) => void
@@ -72,6 +74,11 @@ export class ElementModelConf {
 export class RendererConf {
   plugins: {
     install: (renderer: Renderer) => void
+  }[] = [];
+}
+export class ElementGroupConf {
+  plugins: {
+    install: (model: ElementGroup) => void
   }[] = [];
 }
 

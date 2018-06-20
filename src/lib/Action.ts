@@ -35,6 +35,8 @@ export class Action {
     const res = new OpenRTB.BidResponse();
     res.id = req.id;
     res.seatbid = [result];
+    res.ext = res.ext || new OpenRTB.Ext.BidResponseExt();
+    res.ext.group = req.ext.group;
     const group: any = {};
     result.bid.forEach(bid => {
       (group[bid.ext.tagid] = group[bid.ext.tagid] || []).push(bid);

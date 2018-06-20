@@ -7,9 +7,10 @@ import { OpenRTB } from "./openrtb/OpenRTB";
 import { RandomId } from "./misc/RandomId";
 import { groupBy } from "./misc/ObjectUtils";
 import { AssetUtils } from "./openrtb/AssetUtils";
+import { ElementGroup } from "./vm/ElementGroup";
 
 export class ViewModel {
-  private ems: { [id: string]: ElementModel } = {};
+  private groups: { [group: string]: ElementGroup } = {};
   constructor(
     private config: ViewModelConf,
     private store: Store,
@@ -19,35 +20,9 @@ export class ViewModel {
     this.polling();
     config.plugins.forEach(plugin => plugin.install(this));
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
-      const sbid = response.seatbid[0];
-      if (!sbid || !sbid.bid) return;
-      const group: { [id: string]: OpenRTB.Bid[] } = {};
-      sbid.bid.forEach(bid => {
-        (group[bid.impid] = group[bid.impid] || []).push(bid);
-      });
-      Object.keys(group).forEach(id => {
-        const em = this.ems[id];
-        if (!em) return;
-        em
-          .once("rendered", () => {
-          })
-          .on("impression", (bid: OpenRTB.Bid) => {
-            const tracked = this.store.getState().getTrackedUrls("imp-tracking");
-            const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-            this.action.tracking(urls, "imp-tracking", true);
-          })
-          .on("viewable_impression", (bid: OpenRTB.Bid) => {
-            const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
-            const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-            this.action.tracking(urls, "viewable-imp-tracking", true);
-          })
-          .on("view_through", (bid: OpenRTB.Bid) => {
-            const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
-            const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-            this.action.tracking(urls, "view-through-tracking", true);
-          })
-          .update(group[id]);
-      });
+      if (this.groups[response.ext.group]) {
+        this.groups[response.ext.group].update(response);
+      }
     });
   }
   private prefetch(): void {
@@ -91,29 +66,16 @@ export class ViewModel {
   }
   private initNewElements(elements: HTMLElement[]): void {
     const ems = elements.map(element => this.createElementModel(element));
-    Promise.all(ems.map(em => new Promise(resolve => {
-      em.once("init", resolve).init();
-    }))).then(_ => {
-      const group = groupBy(ems, (em) => em.group);
-      Object.keys(group).forEach(key => {
-        const ems = group[key];
-        this.createBidReqFromModels(
-          ems.filter(_ => this.isNotPrefetch(_.name)),
-          key,
-        ).then(req => {
-          this.action.fetchData(req);
-        });
-      });
-      ems.forEach(em => {
-        this.ems[em.id] = em;
-      });
+    const groups = groupBy(ems, (em) => em.group);
+    Object.keys(groups).forEach(key => {
+      if (!this.groups[key]) {
+        this.groups[key] = new ElementGroup(key, this.config, this.store, this.action);
+      }
+      this.groups[key].register(groups[key]);
     });
   }
   private createElementModel(element: HTMLElement): ElementModel {
     return new ElementModel(this.config.em, element);
-  }
-  private isNotPrefetch(name: string): boolean {
-    return !this.config.prefetch.find(_ => _.name === name);
   }
   private async createBidReqFromElementOptions(
     elementOptions: ElementOption[]
@@ -135,31 +97,6 @@ export class ViewModel {
     return OpenRTBUtils.createBidReqWithImp(
       imp,
       new OpenRTB.Ext.BidRequestExt(),
-      OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
-    );
-  }
-  private async createBidReqFromModels(
-    ems: ElementModel[],
-    group: string,
-  ): Promise<OpenRTB.BidRequest> {
-    const imp: OpenRTB.Imp[] = await Promise.all(
-      ems.map(em => {
-        const impExt = new OpenRTB.Ext.ImpressionExt();
-        impExt.excludedBidders = em.excludedBidders;
-        impExt.notrim = em.option.notrim;
-        return OpenRTBUtils.createImp(
-          em.id,
-          em.name,
-          em.option.format,
-          em.assets.map(AssetUtils.optionToNativeAsset),
-          impExt
-        );
-      })
-    );
-
-    return OpenRTBUtils.createBidReqWithImp(
-      imp,
-      new OpenRTB.Ext.BidRequestExt(Number(group)),
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }
