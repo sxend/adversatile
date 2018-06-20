@@ -26,7 +26,7 @@ export class ElementGroup {
       em.once("init", resolve).init();
     })));
     const req = await this.createBidReqFromModels(ems);
-    this.action.fetchData(req);
+    this.action.adcall(req);
   }
   update(response: OpenRTB.BidResponse): Promise<void> {
     const sbid = response.seatbid[0];

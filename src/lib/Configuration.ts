@@ -5,6 +5,7 @@ import { Renderer } from "./vm/Renderer";
 import { ViewModel } from "./ViewModel";
 import { assign } from "./misc/ObjectUtils";
 import { ElementGroup } from "./vm/ElementGroup";
+import { Backend } from "./action/Backend";
 
 export default class Configuration {
   version: number;
@@ -14,11 +15,18 @@ export default class Configuration {
 }
 
 export class ActionConf {
+  backend: BackendConf = new BackendConf();
+}
+
+export class BackendConf {
   apiUrl: string = "/* @echo API_URL */";
   jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
   jsonpFetchPath: string =
     "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
   fetchCallbackPrefix: string = "__adv_cb_";
+  plugins: {
+    install: (model: Backend) => void
+  }[] = [];
 }
 
 export class StoreConf { }

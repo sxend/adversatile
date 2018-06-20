@@ -88,7 +88,7 @@ export default {
       config.version = 1;
       config.vm.selector = `.${className}`;
       config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
-      config.action.fetchCallbackPrefix = "pfxCallback_";
+      config.action.backend.fetchCallbackPrefix = "pfxCallback_";
       [].slice.call(document.querySelectorAll(`.${className}`)).forEach((oldElement: HTMLElement) => {
         const element = document.createElement("div");
         [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
@@ -119,7 +119,7 @@ export default {
         install: function(model: ElementModel) {
           config.vm.em.defaultGroup = model.group;
         }
-      })
+      });
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
           try {

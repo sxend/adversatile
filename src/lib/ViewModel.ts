@@ -32,7 +32,7 @@ export class ViewModel {
       if (option.assets.length > 0) {
         const options = Array(target.size).fill(option);
         this.createBidReqFromElementOptions(options)
-          .then(req => this.action.fetchData(req))
+          .then(req => this.action.adcall(req))
           .catch(console.error);
       }
     }
