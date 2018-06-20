@@ -173,13 +173,15 @@ export namespace OpenRTB {
   export namespace Ext {
     export class BidRequestExt {
       constructor(
-        public page_id?: number,
         public group?: string,
-      ) { }
+      ) {
+        this.page_id = Number(this.group);
+      }
+      // deprecated
+      public page_id?: number;
     }
     export class BidResponseExt {
       constructor(
-        public pageId?: number,
         public group?: string
       ) { }
     }

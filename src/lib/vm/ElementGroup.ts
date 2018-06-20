@@ -5,6 +5,7 @@ import { Store } from "../Store";
 import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { AssetUtils } from "../openrtb/AssetUtils";
+import { getOrElse } from "../misc/ObjectUtils";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -28,9 +29,14 @@ export class ElementGroup {
     const req = await this.createBidReqFromModels(ems);
     this.action.adcall(req);
   }
-  update(response: OpenRTB.BidResponse): Promise<void> {
-    const sbid = response.seatbid[0];
-    if (!sbid || !sbid.bid) return Promise.resolve();
+  update(response: OpenRTB.BidResponse): void {
+    if (this.group !== getOrElse(() => response.ext.group)) {
+      throw new Error(`invalid response.ext.group: ${getOrElse(() => response.ext.group)}`);
+    }
+    const sbid = getOrElse(() => response.seatbid[0]);
+    if (!sbid || !sbid.bid) {
+      throw new Error("is empty sbid");
+    }
     const group: { [id: string]: OpenRTB.Bid[] } = {};
     sbid.bid.forEach(bid => {
       (group[bid.impid] = group[bid.impid] || []).push(bid);
@@ -58,7 +64,6 @@ export class ElementGroup {
         })
         .update(group[id]);
     });
-    return Promise.resolve();
   }
   private async createBidReqFromModels(
     ems: ElementModel[],
@@ -80,7 +85,7 @@ export class ElementGroup {
 
     return OpenRTBUtils.createBidReqWithImp(
       imp,
-      new OpenRTB.Ext.BidRequestExt(Number(this.group), this.group),
+      new OpenRTB.Ext.BidRequestExt(this.group),
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }

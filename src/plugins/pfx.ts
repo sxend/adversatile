@@ -117,11 +117,6 @@ export default {
       config.vm.em.defaultGroup = String(pageId);
       config.vm.em.plugins.push({
         install: function(model: ElementModel) {
-          config.vm.em.defaultGroup = model.group;
-        }
-      });
-      config.vm.em.plugins.push({
-        install: function(model: ElementModel) {
           try {
             const oldconfig = oldconfigs.find(x => x.tagId === model.name);
             model.on("render", function render(context: RendererContext) {

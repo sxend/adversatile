@@ -2,6 +2,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { BackendConf } from "../Configuration";
 import { Jsonp } from "../misc/Jsonp";
 import { RandomId } from "../misc/RandomId";
+import { groupBy } from "../misc/ObjectUtils";
 
 export class Backend {
   constructor(private config: BackendConf) {
@@ -17,16 +18,13 @@ export class Backend {
     const res = new OpenRTB.BidResponse();
     res.id = req.id;
     res.seatbid = [result];
-    res.ext = res.ext || new OpenRTB.Ext.BidResponseExt();
-    res.ext.group = req.ext.group;
-    const group: any = {};
-    result.bid.forEach(bid => {
-      (group[bid.ext.tagid] = group[bid.ext.tagid] || []).push(bid);
-    });
-    Object.keys(group).forEach(id => {
-      const imp = req.imp.find(imp => imp.tagid === id);
+    res.ext = new OpenRTB.Ext.BidResponseExt(req.ext.group);
+
+    const group: any = groupBy(result.bid, bid => bid.ext.tagid);
+    Object.keys(group).forEach(tagId => {
+      const imp = req.imp.find(imp => imp.tagid === tagId);
       if (!imp) return;
-      group[id].forEach((bid: OpenRTB.Bid) => {
+      group[tagId].forEach((bid: OpenRTB.Bid) => {
         bid.impid = imp.id;
       });
     });

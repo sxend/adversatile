@@ -75,7 +75,12 @@ export class ViewModel {
     });
   }
   private createElementModel(element: HTMLElement): ElementModel {
-    return new ElementModel(this.config.em, element);
+    const em = new ElementModel(this.config.em, element);
+    this.updateDefaultGroup(em.group);
+    return em;
+  }
+  private updateDefaultGroup(group: string): void {
+    this.config.em.defaultGroup = group;
   }
   private async createBidReqFromElementOptions(
     elementOptions: ElementOption[]
