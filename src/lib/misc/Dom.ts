@@ -51,7 +51,7 @@ export namespace Dom {
     const frames = [].slice.call(element.querySelectorAll("iframe:not([src])"));
     return frames.reduce(
       (prev: Node[], cur: HTMLIFrameElement) =>
-        prev.concat([].slice.call(cur.contentDocument.querySelectorAll(selector))),
+        prev.concat([].slice.call(recursiveQuerySelectorAll(cur.contentDocument, selector))),
       [].slice.call(element.querySelectorAll(selector)));
   }
   export function setGlobalCallback(id: string, callback: Function): string {
