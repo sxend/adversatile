@@ -332,7 +332,7 @@ interface OldConfiguration {
   sdkIntegrationSetting: SDKIntegrationSetting;
   notrim: boolean;
   videoSetting: IVideoSetting;
-
+  maxVideoPlayTotalNth: number;
 }
 interface ActiveOverlaySetting {
   enabled: boolean;
@@ -349,6 +349,7 @@ interface SDKIntegrationSetting {
 }
 interface IVideoSetting {
   autoReplay: boolean;
+  playLimitCount: number;
   replayDelayMillis: number;
 }
 interface NativeWebTemplate {
