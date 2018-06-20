@@ -265,7 +265,7 @@ export default {
         adv.plugin.bridge = adv.plugin.bridge || {};
         setInterval(() => {
           if (ProFitX.Global.ifa) {
-            adv.plugin.bridge.ifa = ProFitX.Global.ifa;
+            adv.bridge.ifa = ProFitX.Global.ifa;
           }
         }, 50);
       }

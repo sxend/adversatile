@@ -5,6 +5,7 @@ import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
 import { CookieUtils } from "../misc/CookieUtils";
 import deepmerge from "deepmerge";
+import { getOrElse } from "../misc/ObjectUtils";
 
 export namespace OpenRTBUtils {
   export async function createImp(
@@ -72,10 +73,7 @@ export namespace OpenRTBUtils {
       }
     }
     const Adversatile = (<any>window).Adversatile;
-    if (Adversatile && Adversatile.plugin && Adversatile.plugin.bridge && Adversatile.plugin.bridge.ifa) {
-      return Adversatile.plugin.bridge.ifa; // use bridge plugin
-    }
-    return void 0;
+    return getOrElse(() => Adversatile.bridge.ifa);
   }
 
   export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
