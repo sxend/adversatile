@@ -184,34 +184,41 @@ export default {
     config.vm.em.macro.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.macro.video.selectorAttrName = "data-pfx-video";
     Adversatile.main(config).catch(console.error);
+
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
       Dom.TopLevelWindow.then(w => {
-        (<HTMLElement[]>Dom.recursiveQuerySelectorAll(w.document, `.${className}`)).forEach((oldElement: HTMLElement) => {
-          const element = w.document.createElement(oldElement.tagName);
-          [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
-            element.setAttribute(attribute.name, attribute.value);
-            const spotId = element.getAttribute("data-ca-profitx-spotid");
-            const tagId = element.getAttribute("data-ca-profitx-tagid");
-            if (spotId) {
-              const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
-              if (oldconfig) {
-                upgradeElement(element, config, oldconfig);
-              }
-            } else {
-              const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
-              if (oldconfig) {
-                upgradeElement(element, config, oldconfig);
-              }
+        (<HTMLElement[]>Dom.recursiveQuerySelectorAll(w.document, `.${className}`)).forEach((element: HTMLElement) => {
+          if (element.tagName === "SCRIPT") {
+            const newEl = document.createElement("div");
+            [].slice.call(element.attributes)
+              .filter((attr: Attr) => attr.name !== "src")
+              .forEach((attribute: Attr) => {
+                newEl.setAttribute(attribute.name, attribute.value);
+              });
+            element.parentElement.insertBefore(newEl, element);
+            element.parentElement.removeChild(element);
+            element = newEl;
+          }
+
+          const spotId = element.getAttribute("data-ca-profitx-spotid");
+          const tagId = element.getAttribute("data-ca-profitx-tagid");
+          if (spotId) {
+            const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
+            if (oldconfig) {
+              upgradeElement(element, config, oldconfig);
             }
-          });
-          oldElement.parentElement.insertBefore(element, oldElement);
-          oldElement.parentElement.removeChild(oldElement);
+          } else {
+            const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
+            if (oldconfig) {
+              upgradeElement(element, config, oldconfig);
+            }
+          }
         });
         oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
 
         config.vm.selector = `.${className}`;
-        const page = <Element>Dom.recursiveQuerySelector(document, '[data-ca-profitx-pageid]');
+        const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
         pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
         config.vm.em.defaultGroup = String(pageId);
       });

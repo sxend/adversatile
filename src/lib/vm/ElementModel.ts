@@ -7,6 +7,7 @@ import { Renderer, RendererContext, RenderProps } from "../vm/Renderer";
 import { MacroOps } from "../vm/renderer/Macro";
 import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
+import { Async } from "../misc/Async";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
@@ -21,9 +22,6 @@ export class ElementModel extends EventEmitter {
     }
     if (!this.name) {
       element.setAttribute(this.config.nameAttributeName, RandomId.gen());
-    }
-    if (!this.group) {
-      element.setAttribute(this.config.groupAttributeName, config.defaultGroup);
     }
     config.plugins.forEach(plugin => plugin.install(this));
   }
@@ -52,11 +50,16 @@ export class ElementModel extends EventEmitter {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   init(): ElementModel {
-    if (this.option.preRender) {
-      this.preRender().then(_ => this.emit("init"));
-    } else {
-      this.emit("init");
-    }
+    Async.wait(() => this.config.hasOption(this.name), 50).then(_ => {
+      if (!this.group) {
+        this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
+      }
+      if (this.option.preRender) {
+        this.preRender().then(_ => this.emit("init"));
+      } else {
+        this.emit("init");
+      }
+    });
     return this;
   }
   update(bid: OpenRTB.Bid): Promise<void> {
