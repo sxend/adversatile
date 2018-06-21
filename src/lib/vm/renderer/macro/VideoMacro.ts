@@ -9,7 +9,7 @@ import { Dom } from "../../../misc/Dom";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
-  static NAME: "VideoMacro";
+  static NAME = "VideoMacro";
   getName(): string {
     return VideoMacro.NAME;
   }
