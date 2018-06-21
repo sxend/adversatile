@@ -6,6 +6,8 @@ import { AssetUtils } from "../../../openrtb/AssetUtils";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { getOrElse } from "../../../misc/ObjectUtils";
 import { Dom } from "../../../misc/Dom";
+import Response = OpenRTB.NativeAd.Response;
+import ResAssets = Response.Assets;
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -17,7 +19,13 @@ export class VideoMacro implements Macro {
     if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+    const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
+    const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
     if (targets.length === 0) return context;
+    if (!video) {
+      targets.forEach(target => target.remove());
+      return context;
+    }
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
     if (
       !(<any>window)[VideoPlayerObjectName] ||
@@ -26,14 +34,11 @@ export class VideoMacro implements Macro {
       await this.loadVideoPlayer();
     }
     for (let target of targets) {
-      this.onVideoPlayerLoaded(target, context);
+      this.onVideoPlayerLoaded(target, video, image, context);
     }
     return context;
   }
-  private onVideoPlayerLoaded(element: HTMLElement, context: MacroContext) {
-    const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
-    const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
-    if (!video) return;
+  private onVideoPlayerLoaded(element: HTMLElement, video: ResAssets, image: ResAssets, context: MacroContext) {
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
       context.admNative.link.url,
       context.model.option.expandedClickParams

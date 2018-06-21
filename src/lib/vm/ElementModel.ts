@@ -50,7 +50,7 @@ export class ElementModel extends EventEmitter {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
   init(): ElementModel {
-    Async.wait(() => this.config.hasOption(this.name), 50).then(_ => {
+    const _init = () => {
       if (!this.group) {
         this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
       }
@@ -59,7 +59,12 @@ export class ElementModel extends EventEmitter {
       } else {
         this.emit("init");
       }
-    });
+    }
+    if (this.config.hasOption(this.name)) {
+      _init();
+    } else { // for old type main execution
+      Async.wait(() => this.config.hasOption(this.name), 50).then(_ => _init());
+    }
     return this;
   }
   update(bid: OpenRTB.Bid): Promise<void> {
