@@ -9,6 +9,7 @@ import { getOrElse, assign } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { BannerAdRenderer } from "../lib/vm/renderer/BannerAdRenderer";
+import { RandomId } from "../lib/misc/RandomId";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -186,23 +187,19 @@ export default {
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     Adversatile.main(config).catch(console.error);
-    let defaultGroupIndex = Number(config.vm.em.defaultGroup);
     let firstPageIdDetect = true;
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
       Dom.TopLevelWindow.then(w => {
         config.vm.selector = `.${className}`;
-        if (firstPageIdDetect) {
-          const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
-          pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
-          if (pageId) {
-            config.vm.em.defaultGroup = String(pageId);
+        const existsPageId = !!pageId;
+        if (existsPageId) {
+          if (firstPageIdDetect) {
+            const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
+            pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
+            firstPageIdDetect = false;
           }
-          firstPageIdDetect = false;
-        } else if (pageId) {
           config.vm.em.defaultGroup = String(pageId);
-        } else {
-          config.vm.em.defaultGroup = String(++defaultGroupIndex);
         }
 
         (<HTMLElement[]>Dom.recursiveQuerySelectorAll(w.document, `.${className}`)).forEach((element: HTMLElement) => {
@@ -223,12 +220,12 @@ export default {
           if (spotId && oldconfigs.filter(config => config.spotId === spotId)[0]) {
             const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
             if (oldconfig) {
-              upgradeElement(element, config, oldconfig);
+              upgradeElement(element, config, oldconfig, existsPageId);
             }
           } else if (tagId && oldconfigs.filter(config => config.tagId === tagId)[0]) {
             const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
             if (oldconfig) {
-              upgradeElement(element, config, oldconfig);
+              upgradeElement(element, config, oldconfig, existsPageId);
             }
           }
         });
@@ -273,7 +270,7 @@ export default {
       template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_parent"`);
       return template;
     }
-    function upgradeElement(element: HTMLElement, config: Configuration, oldconfig: OldConfiguration): void {
+    function upgradeElement(element: HTMLElement, config: Configuration, oldconfig: OldConfiguration, existsPageId: boolean): void {
       const name = oldconfig.tagId;
       element.setAttribute(config.vm.em.nameAttributeName, name);
       const qualifier = oldconfig.spotId;
@@ -284,7 +281,7 @@ export default {
         element.setAttribute(config.vm.em.templateUseAttr, oldconfig.templateId);
       }
       if (!element.getAttribute(config.vm.em.groupAttributeName)) {
-        element.setAttribute(config.vm.em.groupAttributeName, config.vm.em.defaultGroup);
+        element.setAttribute(config.vm.em.groupAttributeName, existsPageId ? config.vm.em.defaultGroup : RandomId.gen());
       }
     }
     Adversatile.use({
