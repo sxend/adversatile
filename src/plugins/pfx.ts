@@ -82,139 +82,144 @@ export default {
     }
     function preRender() {
     }
-    function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
-      console.log("adv setup");
-      const config = new Configuration();
-      config.version = 1;
-      config.vm.selector = `.${className}`;
-      config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
-      config.action.backend.fetchCallbackPrefix = "pfxCallback_";
-      (<HTMLElement[]>Dom.recursiveQuerySelectorAll(document, `.${className}`)).forEach((oldElement: HTMLElement) => {
-        const element = document.createElement("div");
-        [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
-          element.setAttribute(attribute.name, attribute.value);
-          const spotId = element.getAttribute("data-ca-profitx-spotid");
-          const tagId = element.getAttribute("data-ca-profitx-tagid");
-          if (spotId) {
-            const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
-            if (oldconfig) {
-              upgradeElement(element, config, oldconfig);
+    const config = new Configuration();
+    config.version = 1;
+    config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
+    config.action.backend.fetchCallbackPrefix = "pfxCallback_";
+    config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
+    const _oldconfigs: OldConfiguration[] = [];
+    config.vm.em.plugins.push({
+      install: function(model: ElementModel) {
+        try {
+          const oldconfig = _oldconfigs.find(x => x.tagId === model.name);
+          model.on("render", function render(context: RendererContext) {
+            if (OpenRTBUtils.isDummyBid(context.bid)) return;
+            if (window.onpfxadload) {
+              window.onpfxadload(context.bid);
             }
-          } else {
-            const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
-            if (oldconfig) {
-              upgradeElement(element, config, oldconfig);
+          });
+          model.on("rendered", function rendered(context: RendererContext) {
+            if (OpenRTBUtils.isDummyBid(context.bid)) return;
+            if (oldconfig && oldconfig.onpfxadrendered) {
+              oldconfig.onpfxadrendered(context.bid, null, context.element);
             }
-          }
-        });
-        oldElement.parentElement.insertBefore(element, oldElement);
-        oldElement.parentElement.removeChild(oldElement);
-      });
-      oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
-      config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
-      const page = <Element>Dom.recursiveQuerySelector(document, '[data-ca-profitx-pageid]');
-      pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
-      config.vm.em.defaultGroup = String(pageId);
-      config.vm.em.plugins.push({
-        install: function(model: ElementModel) {
+            if (window.onpfxadrendered) {
+              window.onpfxadrendered(context.model.qualifier);
+            }
+            model.removeListener("rendered", rendered);
+          });
+          model.once("impression", () => {
+            window.postMessage('onpfximpression', '*');
+          });
+          model.once("viewable_impression", () => {
+            if (oldconfig && oldconfig.onpfxadinview) {
+              oldconfig.onpfxadinview();
+            }
+            window.postMessage('onpfxviewableImpression', '*');
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        const original = renderer.render;
+        renderer.render = function(context: RendererContext) {
           try {
-            const oldconfig = oldconfigs.find(x => x.tagId === model.name);
-            model.on("render", function render(context: RendererContext) {
-              if (OpenRTBUtils.isDummyBid(context.bid)) return;
-              if (window.onpfxadload) {
-                window.onpfxadload(context.bid);
+            let html = getOrElse(() => context.bid.ext.bannerHtml);
+            if (html) {
+              const replacements: any = {
+                "${PFX_AD_SCALE_RATIO}": "{{model.option.renderer.adScaleRatio}}",
+                "${PFX_VIEWPORT_WIDTH}": "{{model.option.renderer.viewPortWidth}}"
+              };
+              const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
+              if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
+                replacements["${PFX_YDN_NOADCALLBACK}"] = [
+                  '<scr' + 'ipt>',
+                  `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.model.name}';`,
+                  '</sc' + 'ript>'
+                ].join('\n');
               }
-            });
-            model.on("rendered", function rendered(context: RendererContext) {
-              if (OpenRTBUtils.isDummyBid(context.bid)) return;
-              if (oldconfig && oldconfig.onpfxadrendered) {
-                oldconfig.onpfxadrendered(context.bid, null, context.element);
-              }
-              if (window.onpfxadrendered) {
-                window.onpfxadrendered(context.model.qualifier);
-              }
-              model.removeListener("rendered", rendered);
-            });
-            model.once("impression", () => {
-              window.postMessage('onpfximpression', '*');
-            });
-            model.once("viewable_impression", () => {
-              if (oldconfig && oldconfig.onpfxadinview) {
-                oldconfig.onpfxadinview();
-              }
-              window.postMessage('onpfxviewableImpression', '*');
-            });
+              const pattern = /\$\{[A-Z_]+\}/ig;
+              html = html.replace(pattern, matched => {
+                return replacements[matched] || "";
+              });
+              context.bid.ext.bannerHtml = html;
+            }
           } catch (e) {
             console.error(e);
           }
-        }
-      });
-      config.vm.em.renderer.plugins.push({
-        install: function(renderer: Renderer) {
-          const original = renderer.render;
-          renderer.render = function(context: RendererContext) {
-            try {
-              let html = getOrElse(() => context.bid.ext.bannerHtml);
-              if (html) {
-                const replacements: any = {
-                  "${PFX_AD_SCALE_RATIO}": "{{model.option.renderer.adScaleRatio}}",
-                  "${PFX_VIEWPORT_WIDTH}": "{{model.option.renderer.viewPortWidth}}"
-                };
-                const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
-                if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
-                  replacements["${PFX_YDN_NOADCALLBACK}"] = [
-                    '<scr' + 'ipt>',
-                    `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.model.name}';`,
-                    '</sc' + 'ript>'
-                  ].join('\n');
-                }
-                const pattern = /\$\{[A-Z_]+\}/ig;
-                html = html.replace(pattern, matched => {
-                  return replacements[matched] || "";
-                });
-                context.bid.ext.bannerHtml = html;
-              }
-            } catch (e) {
-              console.error(e);
+          return original.call(renderer, context);
+        };
+      }
+    });
+    config.vm.em.macro.plugins.push({
+      install: function(macroops: MacroOps) {
+        const original = macroops.applyMacro;
+        macroops.applyMacro = function(context: MacroContext) {
+          try {
+            let html = getOrElse(() => context.bid.ext.bannerHtml);
+            if (html) {
+              context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", "{{bid.ext.bannerHtml}}"), config);
             }
-            return original.call(renderer, context);
-          };
-        }
-      });
-      config.vm.em.macro.plugins.push({
-        install: function(macroops: MacroOps) {
-          const original = macroops.applyMacro;
-          macroops.applyMacro = function(context: MacroContext) {
-            try {
-              let html = getOrElse(() => context.bid.ext.bannerHtml);
-              if (html) {
-                context.template = upgradeTemplate(context.template.replace("${PFX_BANNER_HTML}", "{{bid.ext.bannerHtml}}"), config);
+          } catch (e) {
+            console.error(e);
+          }
+          return original.call(macroops, context);
+        };
+      }
+    });
+    config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
+    config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
+    config.vm.em.macro.link.markedClass = "pfx-link-added";
+    config.vm.em.macro.link.anchorMarkedClass = "pfx-anchor-link";
+    config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";
+    config.vm.em.macro.mainImage.selectorAttrName = "data-pfx-img";
+    config.vm.em.macro.iconImage.selectorAttrName = "data-pfx-icon";
+    config.vm.em.macro.titleLong.selectorAttrName = "data-pfx-title-long";
+    config.vm.em.macro.titleShort.selectorAttrName = "data-pfx-title-short";
+    config.vm.em.macro.optoutLinkOnly.selectorAttrName = "data-pfx-optout-link-only";
+    config.vm.em.macro.optoutLink.selectorAttrName = "data-pfx-optout-link";
+    config.vm.em.macro.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
+    config.vm.em.macro.video.selectorAttrName = "data-pfx-video";
+    Adversatile.main(config).catch(console.error);
+    function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
+      console.log("adv setup");
+      Dom.TopLevelWindow.then(w => {
+        (<HTMLElement[]>Dom.recursiveQuerySelectorAll(w.document, `.${className}`)).forEach((oldElement: HTMLElement) => {
+          const element = w.document.createElement(oldElement.tagName);
+          [].slice.call(oldElement.attributes).forEach((attribute: { name: string, value: string }) => {
+            element.setAttribute(attribute.name, attribute.value);
+            const spotId = element.getAttribute("data-ca-profitx-spotid");
+            const tagId = element.getAttribute("data-ca-profitx-tagid");
+            if (spotId) {
+              const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
+              if (oldconfig) {
+                upgradeElement(element, config, oldconfig);
               }
-            } catch (e) {
-              console.error(e);
+            } else {
+              const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
+              if (oldconfig) {
+                upgradeElement(element, config, oldconfig);
+              }
             }
-            return original.call(macroops, context);
-          };
-        }
+          });
+          oldElement.parentElement.insertBefore(element, oldElement);
+          oldElement.parentElement.removeChild(oldElement);
+        });
+        oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
+
+        config.vm.selector = `.${className}`;
+        const page = <Element>Dom.recursiveQuerySelector(document, '[data-ca-profitx-pageid]');
+        pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
+        config.vm.em.defaultGroup = String(pageId);
       });
-      config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
-      config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
-      config.vm.em.macro.link.markedClass = "pfx-link-added";
-      config.vm.em.macro.link.anchorMarkedClass = "pfx-anchor-link";
-      config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";
-      config.vm.em.macro.mainImage.selectorAttrName = "data-pfx-img";
-      config.vm.em.macro.iconImage.selectorAttrName = "data-pfx-icon";
-      config.vm.em.macro.titleLong.selectorAttrName = "data-pfx-title-long";
-      config.vm.em.macro.titleShort.selectorAttrName = "data-pfx-title-short";
-      config.vm.em.macro.optoutLinkOnly.selectorAttrName = "data-pfx-optout-link-only";
-      config.vm.em.macro.optoutLink.selectorAttrName = "data-pfx-optout-link";
-      config.vm.em.macro.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
-      config.vm.em.macro.video.selectorAttrName = "data-pfx-video";
-      Adversatile.main(config).catch(console.error);
     }
     function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
       const name = oldconfig.tagId;
       const qualifier = oldconfig.spotId;
+      if (config.vm.em.options[name]) return;
       const emoption = config.vm.em.options[name] = new ElementOption(name);
       emoption.expandedClickParams = oldconfig.expandedClickParams;
       emoption.notrim = oldconfig.notrim;
@@ -239,6 +244,7 @@ export default {
           config.vm.em.templates[qualifier] = template;
         }
       }
+      _oldconfigs.push(oldconfig);
     }
     function upgradeTemplate(template: string = "", config: Configuration): string {
       template = template.replace(/data-pfx-link-self/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_self"`);
