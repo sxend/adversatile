@@ -3,8 +3,7 @@ import { RandomId } from "../misc/RandomId";
 import { EventEmitter } from "events";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { Renderer, RendererContext, RenderProps } from "../vm/Renderer";
-import { MacroOps } from "../vm/renderer/Macro";
+import { Renderer, RendererContext, RendererProps, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
@@ -17,9 +16,7 @@ export class ElementModel extends EventEmitter {
   }
   private constructor(private config: ElementModelConf, private element: HTMLElement) {
     super();
-    const macroOps = new MacroOps(this.config.macro);
-    const templateOps = new TemplateOps(this.config);
-    this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
+    this.renderer = new RootRenderer(this.config.renderer);
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -72,10 +69,10 @@ export class ElementModel extends EventEmitter {
     });
   }
   update(bid: OpenRTB.Bid): Promise<void> {
-    const context = this.createRenderContext(bid);
     this.emit("update", bid);
-    return this.renderer
-      .render(context)
+    return this.createRenderContext(bid).then(context => {
+      return this.renderer.render(context);
+    })
       .then(_ => {
         this.emit("updated", bid);
       })
@@ -91,13 +88,19 @@ export class ElementModel extends EventEmitter {
       });
     await this.update(OpenRTBUtils.dummyBid());
   }
-  private createRenderContext(bid: OpenRTB.Bid): RendererContext {
-    return {
-      model: this,
-      element: this.element,
+  private async createRenderContext(bid: OpenRTB.Bid): Promise<RendererContext> {
+    const context = new RendererContext(
+      this,
+      this.element,
+      this.createRenderProps(),
       bid,
-      props: this.createRenderProps()
-    };
+    );
+    const templateOps = new TemplateOps(this.config);
+    context.template = await templateOps.resolveTemplate(
+      this.useTemplate,
+      this.qualifier,
+      this.name) || "";
+    return context;
   }
   private addAssetOptions(assets: AssetOption[]) {
     this.option.assets = uniqBy(
@@ -105,14 +108,16 @@ export class ElementModel extends EventEmitter {
       asset => asset.id
     );
   }
-  private createRenderProps(): RenderProps {
+  private createRenderProps(): RendererProps {
     return {
-      render: onceFunction((context: RendererContext) => {
-        this.emit("render", context);
-      }),
-      rendered: onceFunction((context: RendererContext) => {
-        this.emit("rendered", context);
-      }),
+      root: {
+        render: onceFunction((context: RendererContext) => {
+          this.emit("render", context);
+        }),
+        rendered: onceFunction((context: RendererContext) => {
+          this.emit("rendered", context);
+        })
+      },
       impress: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("impression", bid);
       }),

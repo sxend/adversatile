@@ -1,21 +1,21 @@
-import { Macro, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { MacroUtils } from "./MacroUtils";
-import { Tracking } from "../../../misc/Tracking";
-import { Dom } from "../../../misc/Dom";
-import { containsOr } from "../../../misc/ObjectUtils";
-import { VideoMacro } from "./VideoMacro";
-import { MarkupVideoMacro } from "./MarkupVideoMacro";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { containsOr } from "../../misc/ObjectUtils";
+import { VideoRenderer } from "./VideoRenderer";
+import { MarkupVideoRenderer } from "./MarkupVideoRenderer";
+import { Tracking } from "../../misc/Tracking";
+import { RendererUtils } from "./RendererUtils";
 
-export class LinkJsMacro implements Macro {
-  constructor(private config: MacroConf) { }
+export class LinkJsRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
   getName(): string {
-    return "LinkJsMacro";
+    return "LinkJsRenderer";
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
-    if (containsOr(context.metadata.appliedMacroNames,
-      VideoMacro.NAME,
-      MarkupVideoMacro.NAME)) {
+  async render(context: RendererContext): Promise<RendererContext> {
+    if (containsOr(context.metadata.appliedRendererNames,
+      VideoRenderer.NAME,
+      MarkupVideoRenderer.NAME)) {
       return context;
     }
     if (!context.admNative || !context.admNative.link) return context;
@@ -37,18 +37,18 @@ export class LinkJsMacro implements Macro {
         );
         const expandedClickParams = context.model.option.expandedClickParams;
         if (openTarget === "self") {
-          window.location.href = MacroUtils.addExpandParams(
+          window.location.href = RendererUtils.addExpandParams(
             linkUrl,
             expandedClickParams
           );
         } else if (openTarget === "top") {
           window.open(
-            MacroUtils.addExpandParams(linkUrl, expandedClickParams),
+            RendererUtils.addExpandParams(linkUrl, expandedClickParams),
             "_top"
           );
         } else {
           window.open(
-            MacroUtils.addExpandParams(linkUrl, expandedClickParams),
+            RendererUtils.addExpandParams(linkUrl, expandedClickParams),
             "_blank"
           );
         }

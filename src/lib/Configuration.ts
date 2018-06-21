@@ -1,11 +1,10 @@
 import deepmerge from "deepmerge";
 import { ElementModel } from "./vm/ElementModel";
-import { MacroOps } from "./vm/renderer/Macro";
-import { Renderer } from "./vm/Renderer";
 import { ViewModel } from "./ViewModel";
 import { assign } from "./misc/ObjectUtils";
 import { ElementGroup } from "./vm/ElementGroup";
 import { Backend } from "./action/Backend";
+import { Renderer } from "./vm/Renderer";
 
 export default class Configuration {
   version: number;
@@ -73,18 +72,12 @@ export class ElementModelConf {
     return this.options[name];
   };
   templates: { [name: string]: string } = {};
-  macro: MacroConf = new MacroConf();
   renderer: RendererConf = new RendererConf();
   plugins: {
     install: (model: ElementModel) => void
   }[] = [];
 }
 
-export class RendererConf {
-  plugins: {
-    install: (renderer: Renderer) => void
-  }[] = [];
-}
 export class ElementGroupConf {
   plugins: {
     install: (model: ElementGroup) => void
@@ -110,13 +103,10 @@ export class ElementOption {
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
   renderer: ElementRendererOption = new ElementRendererOption();
-  macro: ElementMacroOption = new ElementMacroOption();
 }
 export class ElementRendererOption {
   adScaleRatio: string = "1.0";
   viewPortWidth: string = "device-width";
-}
-export class ElementMacroOption {
   injectMethod: string = "inner";
   injectedIframeStyle: string = "display:block;margin:0 auto;border:0pt;";
   injectedIframeScrolling: string = "no";
@@ -131,73 +121,73 @@ export class AssetOption {
   constructor(public id: number, public prop: any = {}) { }
 }
 
-export class MacroConf {
-  bannerAd: BannerAdMacroConf = new BannerAdMacroConf();
-  inject: InjectMacroConf = new InjectMacroConf();
-  video: VideoMacroConf = new VideoMacroConf();
-  markupVideo: MarkupVideoMacroConf = new MarkupVideoMacroConf();
-  mainImage: MainImageMacroConf = new MainImageMacroConf();
-  iconImage: IconImageMacroConf = new IconImageMacroConf();
-  optoutLink: OptoutLinkMacroConf = new OptoutLinkMacroConf();
-  optoutLinkOnly: OptoutLinkOnlyMacroConf = new OptoutLinkOnlyMacroConf();
-  sponsoredByMessage: SponsoredByMessageMacroConf = new SponsoredByMessageMacroConf();
-  titleLong: TitleLongMacroConf = new TitleLongMacroConf();
-  titleShort: TitleShortMacroConf = new TitleShortMacroConf();
-  link: LinkMacroConf = new LinkMacroConf();
-  linkJs: LinkJsMacroConf = new LinkJsMacroConf();
+export class RendererConf {
+  bannerAd: BannerAdRendererConf = new BannerAdRendererConf();
+  inject: InjectRendererConf = new InjectRendererConf();
+  video: VideoRendererConf = new VideoRendererConf();
+  markupVideo: MarkupVideoRendererConf = new MarkupVideoRendererConf();
+  mainImage: MainImageRendererConf = new MainImageRendererConf();
+  iconImage: IconImageRendererConf = new IconImageRendererConf();
+  optoutLink: OptoutLinkRendererConf = new OptoutLinkRendererConf();
+  optoutLinkOnly: OptoutLinkOnlyRendererConf = new OptoutLinkOnlyRendererConf();
+  sponsoredByMessage: SponsoredByMessageRendererConf = new SponsoredByMessageRendererConf();
+  titleLong: TitleLongRendererConf = new TitleLongRendererConf();
+  titleShort: TitleShortRendererConf = new TitleShortRendererConf();
+  link: LinkRendererConf = new LinkRendererConf();
+  linkJs: LinkJsRendererConf = new LinkJsRendererConf();
   plugins: {
-    install: (macro: MacroOps) => void
+    install: (renderer: Renderer) => void
   }[] = [];
 }
-export class BannerAdMacroConf {
+export class BannerAdRendererConf {
   impSelector: string = "a"
 }
-export class InjectMacroConf {
-  selectorAttrName: string = "data-adv-macro-inject-method";
+export class InjectRendererConf {
+  selectorAttrName: string = "data-adv-renderer-inject-method";
 }
-export class VideoMacroConf {
-  selectorAttrName: string = "data-adv-macro-video";
+export class VideoRendererConf {
+  selectorAttrName: string = "data-adv-renderer-video";
   videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URI */" || "";
   videoPlayerObjectName: string = "/* @echo VIDEO_PLAYER_OBJECT_NAME */" || "";
 }
-export class MarkupVideoMacroConf {
-  selectorAttrName: string = "data-adv-macro-img";
+export class MarkupVideoRendererConf {
+  selectorAttrName: string = "data-adv-renderer-img";
   markedId: string = "adv-markup-video";
 }
-export class MainImageMacroConf {
-  selectorAttrName: string = "data-adv-macro-img";
+export class MainImageRendererConf {
+  selectorAttrName: string = "data-adv-renderer-img";
 }
-export class IconImageMacroConf {
-  selectorAttrName: string = "data-adv-macro-icon";
+export class IconImageRendererConf {
+  selectorAttrName: string = "data-adv-renderer-icon";
 }
-export class OptoutLinkMacroConf {
-  selectorAttrName: string = "data-adv-macro-optout-link";
+export class OptoutLinkRendererConf {
+  selectorAttrName: string = "data-adv-renderer-optout-link";
   markedClass: string = "adv-optout-image";
 }
-export class OptoutLinkOnlyMacroConf {
-  selectorAttrName: string = "data-adv-macro-optout-link-only";
+export class OptoutLinkOnlyRendererConf {
+  selectorAttrName: string = "data-adv-renderer-optout-link-only";
   markedClass: string = "adv-optout-link-only-added";
   anchorTargetAttrName: string = "data-adv-anchor-target";
 }
-export class TitleLongMacroConf {
-  selectorAttrName: string = "data-adv-macro-title-long";
+export class TitleLongRendererConf {
+  selectorAttrName: string = "data-adv-renderer-title-long";
 }
-export class TitleShortMacroConf {
-  selectorAttrName: string = "data-adv-macro-title-short";
+export class TitleShortRendererConf {
+  selectorAttrName: string = "data-adv-renderer-title-short";
 }
-export class SponsoredByMessageMacroConf {
-  selectorAttrName: string = "data-adv-macro-sponsored-by-message";
+export class SponsoredByMessageRendererConf {
+  selectorAttrName: string = "data-adv-renderer-sponsored-by-message";
 }
-export class LinkMacroConf {
-  selectorAttrName: string = "data-adv-macro-link";
+export class LinkRendererConf {
+  selectorAttrName: string = "data-adv-renderer-link";
   markedClass: string = "adv-link-added";
   urlPlaceholder: string = "adv-url";
   encodedUrlPlaceholder: string = "adv-encoded-url";
   anchorMarkedClass: string = "adv-anchor-link";
   anchorTargetAttrName: string = "data-adv-anchor-target";
 }
-export class LinkJsMacroConf {
-  selectorAttrName: string = "data-adv-macro-link-js";
+export class LinkJsRendererConf {
+  selectorAttrName: string = "data-adv-renderer-link-js";
   openTargetAttrName: string = "data-adv-open-target";
 }
 

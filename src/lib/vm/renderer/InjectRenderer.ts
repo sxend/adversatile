@@ -1,18 +1,18 @@
-import { Macro, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { Async } from "../../../misc/Async";
-import { Dom } from "../../../misc/Dom";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Async } from "../../misc/Async";
+import { Dom } from "../../misc/Dom";
 
-export class InjectMacro implements Macro {
-  constructor(private config: MacroConf) { }
+export class InjectRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
   getName(): string {
-    return "InjectMacro";
+    return "InjectRenderer";
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
+  async render(context: RendererContext): Promise<RendererContext> {
     const attrName = this.config.inject.selectorAttrName;
 
     let target: HTMLElement = context.element;
-    let method: string = context.model.option.macro.injectMethod;
+    let method: string = context.model.option.renderer.injectMethod;
     if (context.element.getAttribute(attrName)) {
       target = context.element;
       method = context.element.getAttribute(attrName);
@@ -30,14 +30,14 @@ export class InjectMacro implements Macro {
       return this.injectInnerHTML(target, context);
     }
   }
-  private async injectIframe(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
+  private async injectIframe(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
-      style: context.model.option.macro.injectedIframeStyle,
+      style: context.model.option.renderer.injectedIframeStyle,
       width: context.bid.w !== void 0 ? context.bid.w.toString() : void 0,
       height: context.bid.h !== void 0 ? context.bid.h.toString() : void 0,
-      scrolling: context.model.option.macro.injectedIframeScrolling,
-      frameborder: context.model.option.macro.injectedIframeFrameBorder
+      scrolling: context.model.option.renderer.injectedIframeScrolling,
+      frameborder: context.model.option.renderer.injectedIframeFrameBorder
     };
     Object.keys(attributes).forEach(attr => {
       iframe.setAttribute(attr, attributes[attr]);
@@ -56,12 +56,12 @@ export class InjectMacro implements Macro {
     this.observeInview(iframe, context);
     return context;
   }
-  private async injectInnerHTML(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
+  private async injectInnerHTML(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     target.innerHTML = context.template;
     this.observeInview(target, context);
     return context;
   }
-  private async injectSibling(target: HTMLElement, context: MacroContext): Promise<MacroContext> {
+  private async injectSibling(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     context = await this.injectInnerHTML(target, context);
     const childNodes = [].slice.call(target.childNodes);
     context.model.once("updated", () => {
@@ -75,7 +75,7 @@ export class InjectMacro implements Macro {
     this.observeInview(childNodes[0], context);
     return context;
   }
-  private async observeInview(target: Element, context: MacroContext) {
+  private async observeInview(target: Element, context: RendererContext) {
     if (!await Dom.canViewportIntersectionMeasurement) return;
     if (await Dom.isInIframe(window)) {
       target = window.frameElement;

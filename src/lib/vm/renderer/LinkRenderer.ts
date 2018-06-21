@@ -1,21 +1,21 @@
-import { Macro, MacroProps, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { MacroUtils } from "./MacroUtils";
-import { nano } from "../../../misc/StringUtils";
-import { Dom } from "../../../misc/Dom";
-import { getOrElse, containsOr } from "../../../misc/ObjectUtils";
-import { VideoMacro } from "./VideoMacro";
-import { MarkupVideoMacro } from "./MarkupVideoMacro";
+import { getOrElse, containsOr } from "../../misc/ObjectUtils";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { VideoRenderer } from "./VideoRenderer";
+import { MarkupVideoRenderer } from "./MarkupVideoRenderer";
+import { RendererUtils } from "./RendererUtils";
+import { nano } from "../../misc/StringUtils";
 
-export class LinkMacro implements Macro {
-  constructor(private config: MacroConf, private props: MacroProps) { }
+export class LinkRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
   getName(): string {
-    return "LinkMacro";
+    return "LinkRenderer";
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
-    if (containsOr(context.metadata.appliedMacroNames,
-      VideoMacro.NAME,
-      MarkupVideoMacro.NAME)) {
+  async render(context: RendererContext): Promise<RendererContext> {
+    if (containsOr(context.metadata.appliedRendererNames,
+      VideoRenderer.NAME,
+      MarkupVideoRenderer.NAME)) {
       return context;
     }
     if (!context.admNative || !context.admNative.link) return context;
@@ -25,16 +25,16 @@ export class LinkMacro implements Macro {
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
     if (targets.length === 0) return context;
-    const clickUrl: string = MacroUtils.addExpandParams(
+    const clickUrl: string = RendererUtils.addExpandParams(
       link.url,
       context.model.option.expandedClickParams
     );
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
-      if (!!this.props.onClickForSDKBridge) {
+      if (!!context.props.onClickForSDKBridge) {
         anchor.onclick = () => {
           const passingAppId: string | null = appId;
-          this.props.onClickForSDKBridge(clickUrl, passingAppId);
+          context.props.onClickForSDKBridge(clickUrl, passingAppId);
         };
       } else {
         const urlFormat = target.getAttribute(this.config.link.selectorAttrName);
