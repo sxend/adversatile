@@ -3,7 +3,9 @@ import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { nano } from "../../../misc/StringUtils";
 import { Dom } from "../../../misc/Dom";
-import { getOrElse } from "../../../misc/ObjectUtils";
+import { getOrElse, containsOr } from "../../../misc/ObjectUtils";
+import { VideoMacro } from "./VideoMacro";
+import { MarkupVideoMacro } from "./MarkupVideoMacro";
 
 export class LinkMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
@@ -11,6 +13,11 @@ export class LinkMacro implements Macro {
     return "LinkMacro";
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
+    if (containsOr(context.metadata.appliedMacroNames,
+      VideoMacro.NAME,
+      MarkupVideoMacro.NAME)) {
+      return context;
+    }
     if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const appId = getOrElse(() => context.bid.ext.appId);

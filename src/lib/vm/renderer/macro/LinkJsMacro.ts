@@ -3,6 +3,9 @@ import { MacroConf } from "../../../Configuration";
 import { MacroUtils } from "./MacroUtils";
 import { Tracking } from "../../../misc/Tracking";
 import { Dom } from "../../../misc/Dom";
+import { containsOr } from "../../../misc/ObjectUtils";
+import { VideoMacro } from "./VideoMacro";
+import { MarkupVideoMacro } from "./MarkupVideoMacro";
 
 export class LinkJsMacro implements Macro {
   constructor(private config: MacroConf) { }
@@ -10,6 +13,11 @@ export class LinkJsMacro implements Macro {
     return "LinkJsMacro";
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
+    if (containsOr(context.metadata.appliedMacroNames,
+      VideoMacro.NAME,
+      MarkupVideoMacro.NAME)) {
+      return context;
+    }
     if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const linkUrl = link.url;

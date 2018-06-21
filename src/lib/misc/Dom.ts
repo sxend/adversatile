@@ -87,4 +87,23 @@ export namespace Dom {
       }
     });
   };
+  export function fireScript(target: HTMLElement) {
+    const scripts: HTMLScriptElement[] = target.nodeName === "SCRIPT" ?
+      [<HTMLScriptElement>target] :
+      <HTMLScriptElement[]>recursiveQuerySelectorAll(target, 'script');
+
+    for (let script of scripts) {
+      const cloned = copyScriptWithAllAttribute(script);
+      cloned.classList.add("cloned");
+      script.parentElement.replaceChild(cloned, script);
+    }
+  }
+  function copyScriptWithAllAttribute(script: HTMLScriptElement) {
+    var target: HTMLScriptElement = document.createElement('script');
+    [].slice.call(script.attributes).forEach((attribute: Attr) => {
+      target.setAttribute(attribute.name, attribute.value);
+    });
+    target.innerHTML = script.innerHTML;
+    return target;
+  }
 }

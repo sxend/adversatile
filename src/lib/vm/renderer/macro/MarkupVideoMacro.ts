@@ -10,8 +10,9 @@ import { Dom } from "../../../misc/Dom";
 
 export class MarkupVideoMacro implements Macro {
   constructor(private config: MacroConf) { }
+  static NAME = "MarkupVideoMacro";
   getName(): string {
-    return "MarkupVideoMacro";
+    return MarkupVideoMacro.NAME;
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     const data = <ResAssets>AssetUtils.findAsset(context.assets, AssetTypes.MARKUP_VIDEO);
@@ -32,7 +33,7 @@ export class MarkupVideoMacro implements Macro {
       divChildElement.onclick = () => {
         Tracking.trackingCall([link.url], "click-track-beacon");
       };
-      // fireScript(divChildElements); // FIXME fire inner script tag
+      Dom.fireScript(divChildElement);
     }
     return context;
   }

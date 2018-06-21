@@ -22,11 +22,11 @@ export class MacroOps {
     config.plugins.forEach(plugin => plugin.install(this));
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
-    return this.construct(context.props).applyMacro(context);
+    return this.construct(context.props)(context);
   }
   private construct(
     props: MacroProps
-  ): Macro {
+  ): (context: MacroContext) => Promise<MacroContext> {
     const macros: Macro[] = [
       new BannerAdMacro(this.config),
       new NanoTemplateMacro(),
@@ -43,18 +43,19 @@ export class MacroOps {
       new LinkJsMacro(this.config),
       new LinkMacro(this.config, props)
     ];
-    return macros.reduce((prev: Macro, next: Macro) => {
-      return {
-        async applyMacro(context: MacroContext): Promise<MacroContext> {
-          return next.applyMacro(await prev.applyMacro(context))
-        }
-      };
-    });
+    return async (context: MacroContext) => {
+      for (let macro of macros) {
+        context = await macro.applyMacro(context);
+        context.metadata.appliedMacroNames.push(macro.getName());
+      }
+      return context;
+    }
   }
 }
 
 export interface Macro {
   applyMacro(context: MacroContext): Promise<MacroContext>;
+  getName(): string;
 }
 
 export interface MacroProps {

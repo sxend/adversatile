@@ -9,8 +9,9 @@ import { Dom } from "../../../misc/Dom";
 
 export class VideoMacro implements Macro {
   constructor(private config: MacroConf, private props: MacroProps) { }
+  static NAME: "VideoMacro";
   getName(): string {
-    return "VideoMacro";
+    return VideoMacro.NAME;
   }
   async applyMacro(context: MacroContext): Promise<MacroContext> {
     if (!context.admNative || !context.admNative.link) return context;

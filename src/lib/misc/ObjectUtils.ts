@@ -39,6 +39,18 @@ export function groupBy<A>(arr: A[], condition: (a: A) => string): { [key: strin
   });
   return group;
 }
+export function contains<A>(arr: A[], a: A): boolean {
+  return arr.indexOf(a) !== -1;
+}
+export function containsOr<A>(arr: A[], ...conds: A[]): boolean {
+  let result = false;
+  arr.forEach(obj => {
+    if (contains(conds, obj)) {
+      result = true;
+    }
+  });
+  return result;
+}
 export function getOrElse<A>(fn: () => A, el?: A): A {
   try {
     return fn();
@@ -62,9 +74,9 @@ export interface LockableFunction<A> extends FunctionA<A> {
 }
 export function lockableFunction<A>(fn: FunctionA<A>): LockableFunction<A> {
   let lock = false;
-  const lockable = (...args: any[]) => {
+  const lockable = function(this: any, ...args: any[]) {
     if (lock) return;
-    fn.apply(null, args);
+    fn.apply(this, args);
   };
   (<any>lockable).lock = () => {
     lock = true;
