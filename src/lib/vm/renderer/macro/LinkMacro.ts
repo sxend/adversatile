@@ -52,6 +52,7 @@ export class LinkMacro implements Macro {
       target.classList.add(this.config.link.markedClass);
       anchor.appendChild(target);
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

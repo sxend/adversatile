@@ -36,6 +36,7 @@ export class OptoutLinkOnlyMacro implements Macro {
       target.classList.add(this.config.optoutLinkOnly.markedClass);
       anchor.appendChild(target);
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

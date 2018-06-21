@@ -21,6 +21,7 @@ export class SponsoredByMessageMacro implements Macro {
       MacroUtils.insertTextAsset(target, message.title.text);
       this.props.findAssets(AssetUtils.sponsoredByMessageOption());
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

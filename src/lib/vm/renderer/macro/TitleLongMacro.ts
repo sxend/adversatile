@@ -21,6 +21,7 @@ export class TitleLongMacro implements Macro {
       MacroUtils.insertTextAsset(target, text.title.text);
       this.props.findAssets(AssetUtils.descriptiveTextOption());
     }
+    context.metadata.applied(this.getName());
     context.props.impress(context.bid);
     return context;
   }

@@ -35,6 +35,7 @@ export class MarkupVideoMacro implements Macro {
       };
       Dom.fireScript(divChildElement);
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

@@ -34,7 +34,6 @@ export class VideoMacro implements Macro {
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
     if (!video) return;
-
     const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
       context.admNative.link.url,
       context.model.option.expandedClickParams
@@ -60,6 +59,7 @@ export class VideoMacro implements Macro {
       () => context.model.emit("video complete")
     );
     player.load();
+    context.metadata.applied(this.getName());
     context.props.impress(context.bid);
   }
   private loadVideoPlayer(): Promise<void> {

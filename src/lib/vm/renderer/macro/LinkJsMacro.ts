@@ -55,6 +55,7 @@ export class LinkJsMacro implements Macro {
         return false;
       };
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

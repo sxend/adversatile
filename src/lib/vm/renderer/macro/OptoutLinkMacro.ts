@@ -30,6 +30,7 @@ export class OptoutLinkMacro implements Macro {
       target.parentElement.appendChild(optoutLink);
       target.parentElement.removeChild(target);
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   private selector(): string {

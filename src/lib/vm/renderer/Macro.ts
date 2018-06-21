@@ -14,7 +14,7 @@ import { NanoTemplateMacro } from "./macro/NanoTemplateMacro";
 import { InjectMacro } from "./macro/InjectMacro";
 import { OpenRTB } from "../../openrtb/OpenRTB";
 import { ElementModel } from "../ElementModel";
-import { getOrElse, LockableFunction } from "../../misc/ObjectUtils";
+import { getOrElse, LockableFunction, uniq } from "../../misc/ObjectUtils";
 import { BannerAdMacro } from "./macro/BannerAdMacro";
 
 export class MacroOps {
@@ -46,7 +46,6 @@ export class MacroOps {
     return async (context: MacroContext) => {
       for (let macro of macros) {
         context = await macro.applyMacro(context);
-        context.metadata.appliedMacroNames.push(macro.getName());
       }
       return context;
     }
@@ -83,4 +82,7 @@ export class MacroContext {
 }
 class MacroMetadata {
   public appliedMacroNames: string[] = [];
+  public applied(name: string): void {
+    this.appliedMacroNames = uniq(this.appliedMacroNames.concat(name));
+  }
 }
