@@ -27,6 +27,8 @@ export class ElementGroup {
     for (let em of ems) {
       if (Object.keys(this.ems).indexOf(em.id) === -1) {
         this.ems[em.id] = em;
+      } else {
+        return;
       }
     }
     await Promise.all(ems.map(em => new Promise(resolve => {
@@ -47,26 +49,30 @@ export class ElementGroup {
     Object.keys(group).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
-      em
-        .once("rendered", () => {
-        })
-        .on("impression", (bid: OpenRTB.Bid) => {
-          const tracked = this.store.getState().getTrackedUrls("imp-tracking");
-          const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-          this.action.tracking(urls, "imp-tracking", true);
-        })
-        .on("viewable_impression", (bid: OpenRTB.Bid) => {
-          const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
-          const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-          this.action.tracking(urls, "viewable-imp-tracking", true);
-        })
-        .on("view_through", (bid: OpenRTB.Bid) => {
-          const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
-          const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-          this.action.tracking(urls, "view-through-tracking", true);
-        })
-        .update(group[id]);
+      this.updateByBids(em, group[id]);
     });
+  }
+  private updateByBids(em: ElementModel, bids: OpenRTB.Bid[]): void {
+    if (bids.length === 0) return;
+    em
+      .once("rendered", () => {
+      })
+      .on("impression", (bid: OpenRTB.Bid) => {
+        const tracked = this.store.getState().getTrackedUrls("imp-tracking");
+        const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        this.action.tracking(urls, "imp-tracking", true);
+      })
+      .on("viewable_impression", (bid: OpenRTB.Bid) => {
+        const tracked = this.store.getState().getTrackedUrls("viewable-imp-tracking");
+        const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        this.action.tracking(urls, "viewable-imp-tracking", true);
+      })
+      .on("view_through", (bid: OpenRTB.Bid) => {
+        const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
+        const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        this.action.tracking(urls, "view-through-tracking", true);
+      })
+      .update(bids[0]); // FIXME append em for other bid
   }
   private async createBidReqFromModels(
     ems: ElementModel[],

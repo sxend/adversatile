@@ -22,9 +22,11 @@ export class Backend {
 
     const group: any = groupBy(result.bid, bid => bid.ext.tagid);
     Object.keys(group).forEach(tagId => {
-      const imp = req.imp.find(imp => imp.tagid === tagId);
-      if (!imp) return;
+      const imps = req.imp.filter(imp => imp.tagid === tagId);
+      const defaultImp = imps[0];
+      if (!defaultImp) return;
       group[tagId].forEach((bid: OpenRTB.Bid) => {
+        const imp = imps.shift() || defaultImp;
         bid.impid = imp.id;
       });
     });
