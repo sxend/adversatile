@@ -1,10 +1,10 @@
 import { getOrElse, nonEmpties } from "../../misc/ObjectUtils";
 import { Dom } from "../../misc/Dom";
+import { ElementModelConf } from "../../Configuration";
 
 export class TemplateOps {
   constructor(
-    private templates: { [id: string]: string },
-    private templateSelectorAttr: string
+    private config: ElementModelConf,
   ) { }
   async resolveTemplate(...ids: string[]): Promise<string | undefined> {
     ids = nonEmpties(ids);
@@ -14,14 +14,14 @@ export class TemplateOps {
       if (externals.length > 0) {
         return externals[0];
       }
-      if (this.templates[id]) {
-        return this.templates[id];
+      if (this.config.templates[id]) {
+        return this.config.templates[id];
       }
     }
     return Promise.resolve(void 0);
   }
   async resolveExternalTemplate(qualifier: string): Promise<string | undefined> {
-    const query = `[${this.templateSelectorAttr}="${qualifier}"],#${qualifier}`;
+    const query = `[${this.config.templateSelectorAttr}="${qualifier}"],#${qualifier}`;
     const topDocument = (await Dom.TopLevelWindow).document;
     const templateEl: Element = <Element>getOrElse(() => Dom.recursiveQuerySelector(topDocument, query));
     if (templateEl) {

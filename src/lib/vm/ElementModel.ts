@@ -14,10 +14,7 @@ export class ElementModel extends EventEmitter {
   constructor(private config: ElementModelConf, private element: HTMLElement) {
     super();
     const macroOps = new MacroOps(this.config.macro);
-    const templateOps = new TemplateOps(
-      this.config.templates,
-      this.config.templateSelectorAttr
-    );
+    const templateOps = new TemplateOps(this.config);
     this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
     if (!this.id) {
       element.setAttribute(this.config.idAttributeName, RandomId.gen());

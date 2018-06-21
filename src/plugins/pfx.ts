@@ -219,18 +219,19 @@ export default {
     function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
       const name = oldconfig.tagId;
       const qualifier = oldconfig.spotId;
-      if (config.vm.em.options[name]) return;
-      const emoption = config.vm.em.options[name] = new ElementOption(name);
-      emoption.expandedClickParams = oldconfig.expandedClickParams;
-      emoption.notrim = oldconfig.notrim;
-      emoption.preRender = oldconfig.preRender;
-      emoption.format = oldconfig.adFormat;
-      if (emoption.isBanner()) {
-        emoption.macro.injectMethod = "iframe";
+      if (!config.vm.em.hasOption(name)) {
+        const emoption = config.vm.em.options[name] = new ElementOption(name);
+        emoption.expandedClickParams = oldconfig.expandedClickParams;
+        emoption.notrim = oldconfig.notrim;
+        emoption.preRender = oldconfig.preRender;
+        emoption.format = oldconfig.adFormat;
+        if (emoption.isBanner()) {
+          emoption.macro.injectMethod = "iframe";
+        }
+        emoption.assets = (oldconfig.assets || []).map(asset => {
+          return new AssetOption(getAssetIdByName(asset.name), asset.prop);
+        });
       }
-      emoption.assets = (oldconfig.assets || []).map(asset => {
-        return new AssetOption(getAssetIdByName(asset.name), asset.prop);
-      });
       let template: string = "";
       if (oldconfig.templateHtml) {
         template = oldconfig.templateHtml;
