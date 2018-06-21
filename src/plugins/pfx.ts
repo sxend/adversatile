@@ -186,10 +186,25 @@ export default {
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     Adversatile.main(config).catch(console.error);
-
+    let defaultGroupIndex = Number(config.vm.em.defaultGroup);
+    let firstPageIdDetect = true;
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
       Dom.TopLevelWindow.then(w => {
+        config.vm.selector = `.${className}`;
+        if (firstPageIdDetect) {
+          const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
+          pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
+          if (pageId) {
+            config.vm.em.defaultGroup = String(pageId);
+          }
+          firstPageIdDetect = false;
+        } else if (pageId) {
+          config.vm.em.defaultGroup = String(pageId);
+        } else {
+          config.vm.em.defaultGroup = String(++defaultGroupIndex);
+        }
+
         (<HTMLElement[]>Dom.recursiveQuerySelectorAll(w.document, `.${className}`)).forEach((element: HTMLElement) => {
           if (element.tagName === "SCRIPT") {
             const newEl = document.createElement("div");
@@ -205,12 +220,12 @@ export default {
 
           const spotId = element.getAttribute("data-ca-profitx-spotid");
           const tagId = element.getAttribute("data-ca-profitx-tagid");
-          if (spotId) {
+          if (spotId && oldconfigs.filter(config => config.spotId === spotId)[0]) {
             const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
             if (oldconfig) {
               upgradeElement(element, config, oldconfig);
             }
-          } else {
+          } else if (tagId && oldconfigs.filter(config => config.tagId === tagId)[0]) {
             const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
             if (oldconfig) {
               upgradeElement(element, config, oldconfig);
@@ -218,13 +233,6 @@ export default {
           }
         });
         oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
-
-        config.vm.selector = `.${className}`;
-        const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
-        pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
-        if (pageId) {
-          config.vm.em.defaultGroup = String(pageId);
-        }
       });
     }
     function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
@@ -274,6 +282,9 @@ export default {
       }
       if (oldconfig.templateId) {
         element.setAttribute(config.vm.em.templateUseAttr, oldconfig.templateId);
+      }
+      if (!element.getAttribute(config.vm.em.groupAttributeName)) {
+        element.setAttribute(config.vm.em.groupAttributeName, config.vm.em.defaultGroup);
       }
     }
     Adversatile.use({
