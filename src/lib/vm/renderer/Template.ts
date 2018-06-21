@@ -1,23 +1,27 @@
-import { firstDefined, getOrElse } from "../../misc/ObjectUtils";
+import { getOrElse } from "../../misc/ObjectUtils";
 import { Dom } from "../../misc/Dom";
 
 export class TemplateOps {
   constructor(
     private templates: { [id: string]: string },
-    private templateQualifierKey: string
+    private templateSelectorAttr: string
   ) { }
   async resolveTemplate(...ids: string[]): Promise<string | undefined> {
-    const template = firstDefined(
-      [].concat(
-        ids.map(id => this.resolveExternalTemplate(id)),
-        ids.map(id => this.templates[id])
-      )
-    );
-    return template;
+    ids = ids.filter(id => !!id);
+    console.log(ids);
+    for (let id of ids) {
+      const external = await Promise.all(ids.map(id => this.resolveExternalTemplate(id)))
+      if (external.length > 0) {
+        return external[0];
+      }
+      return this.templates[id];
+    }
+    return Promise.resolve(void 0);
   }
-  resolveExternalTemplate(qualifier: string): string | undefined {
-    const query = `[${this.templateQualifierKey}="${qualifier}"]`;
-    const templateEl: Element = <Element>getOrElse(() => Dom.recursiveQuerySelector(document, query));
+  async resolveExternalTemplate(qualifier: string): Promise<string | undefined> {
+    const query = `[${this.templateSelectorAttr}="${qualifier}"],#${qualifier}`;
+    const topDocument = (await Dom.TopLevelWindow).document;
+    const templateEl: Element = <Element>getOrElse(() => Dom.recursiveQuerySelector(topDocument, query));
     if (templateEl) {
       return templateEl.innerHTML;
     }

@@ -229,11 +229,6 @@ export default {
       let template: string = "";
       if (oldconfig.templateHtml) {
         template = oldconfig.templateHtml;
-      } else if (oldconfig.templateId) {
-        const templateEl = document.getElementById(oldconfig.templateId);
-        if (templateEl) {
-          template = templateEl.innerHTML;
-        }
       }
       template = upgradeTemplate(template, config);
       if (template) {
@@ -258,6 +253,9 @@ export default {
       const qualifier = oldconfig.spotId;
       if (qualifier) {
         element.setAttribute(config.vm.em.qualifierAttributeName, qualifier);
+      }
+      if (oldconfig.templateId) {
+        element.setAttribute(config.vm.em.templateUseAttr, oldconfig.templateId);
       }
     }
     Adversatile.use({

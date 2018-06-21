@@ -48,7 +48,7 @@ export namespace Dom {
     return document.createElement("script");
   }
   export function recursiveQuerySelectorAll(element: ParentNode, selector: string): Node[] {
-    const frames = [].slice.call(element.querySelectorAll("iframe:not([src])"));
+    const frames = [].slice.call(element.querySelectorAll(`iframe:not([src]),iframe[src^="//${location.host}"],iframe[src^="${location.origin}"]`));
     return frames.reduce(
       (prev: Node[], cur: HTMLIFrameElement) =>
         prev.concat(recursiveQuerySelectorAll(cur.contentDocument, selector)),

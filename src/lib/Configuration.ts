@@ -58,7 +58,8 @@ export class ElementModelConf {
   nameAttributeName: string = "data-adv-em-name";
   qualifierAttributeName: string = "data-adv-em-qualifier";
   groupAttributeName: string = "data-adv-em-group";
-  templateQualifierKey: string = "data-adv-em-template";
+  templateUseAttr: string = "data-adv-em-template-use";
+  templateSelectorAttr: string = "data-adv-em-template";
   defaultGroup: string = "0";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {

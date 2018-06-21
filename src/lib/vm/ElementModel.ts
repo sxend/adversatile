@@ -16,7 +16,7 @@ export class ElementModel extends EventEmitter {
     const macroOps = new MacroOps(this.config.macro);
     const templateOps = new TemplateOps(
       this.config.templates,
-      this.config.templateQualifierKey
+      this.config.templateSelectorAttr
     );
     this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
     if (!this.id) {
@@ -41,6 +41,9 @@ export class ElementModel extends EventEmitter {
   }
   get group(): string {
     return this.element.getAttribute(this.config.groupAttributeName);
+  }
+  get useTemplate(): string {
+    return this.element.getAttribute(this.config.templateUseAttr);
   }
   get option(): ElementOption {
     return this.config.option(this.name);

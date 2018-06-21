@@ -14,7 +14,10 @@ export class Renderer {
   }
   async render(context: RendererContext): Promise<void> {
     context.props.render(context);
-    let template = await this.templateOps.resolveTemplate(context.model.qualifier, context.model.name) || "";
+    let template = await this.templateOps.resolveTemplate(
+      context.model.useTemplate,
+      context.model.qualifier,
+      context.model.name) || "";
     let macroContext = new MacroContext(
       context.model,
       context.element,
