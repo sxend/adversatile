@@ -47,14 +47,29 @@ export namespace Dom {
   export function createScriptElement(): HTMLScriptElement {
     return document.createElement("script");
   }
-  export function recursiveQuerySelectorAll(element: ParentNode, selector: string): Node[] {
-    const frames = [].slice.call(element.querySelectorAll(`iframe:not([src]),iframe[src="about:self"],iframe[src^="//${location.host}"],iframe[src^="${location.origin}"]`));
+  const friendryIframeSelector: string = [
+    `iframe:not([src])`,
+    `iframe[src="about:self"]`,
+    `iframe[src^="//${location.host}"]`,
+    `iframe[src^="${location.origin}"]`
+  ].join(",");
+  export function recursiveQuerySelectorAll(
+    element: ParentNode,
+    selector: string
+  ): Node[] {
+    const frames = [].slice.call(
+      element.querySelectorAll(friendryIframeSelector)
+    );
     return frames.reduce(
       (prev: Node[], cur: HTMLIFrameElement) =>
         prev.concat(recursiveQuerySelectorAll(cur.contentDocument, selector)),
-      [].slice.call(element.querySelectorAll(selector)));
+      [].slice.call(element.querySelectorAll(selector))
+    );
   }
-  export function recursiveQuerySelector(element: ParentNode, selector: string): Node {
+  export function recursiveQuerySelector(
+    element: ParentNode,
+    selector: string
+  ): Node {
     return recursiveQuerySelectorAll(element, selector)[0];
   }
   export function setGlobalCallback(id: string, callback: Function): string {
@@ -64,12 +79,19 @@ export namespace Dom {
   let _ready: Promise<void> = (async () => {
     const topLevelWindow: Window = await Dom.TopLevelWindow;
     const readyState = topLevelWindow.document.readyState;
-    if (readyState === "complete" || (readyState !== "loading" && !(<any>topLevelWindow.document.documentElement)['doScroll'])) {
+    if (
+      readyState === "complete" ||
+      (readyState !== "loading" &&
+        !(<any>topLevelWindow.document.documentElement)["doScroll"])
+    ) {
       return Promise.resolve(void 0);
     } else {
       return new Promise(resolve => {
         function loaded() {
-          topLevelWindow.document.removeEventListener("DOMContentLoaded", loaded);
+          topLevelWindow.document.removeEventListener(
+            "DOMContentLoaded",
+            loaded
+          );
           window.removeEventListener("load", loaded);
           resolve(void 0);
         }
@@ -79,18 +101,19 @@ export namespace Dom {
     }
   })();
   export function ready(fn: Function): Promise<void> {
-    return _ready = _ready.then(_ => {
+    return (_ready = _ready.then(_ => {
       try {
         fn();
       } catch (e) {
         console.error(e);
       }
-    });
-  };
+    }));
+  }
   export function fireScript(target: HTMLElement) {
-    const scripts: HTMLScriptElement[] = target.nodeName === "SCRIPT" ?
-      [<HTMLScriptElement>target] :
-      <HTMLScriptElement[]>recursiveQuerySelectorAll(target, 'script');
+    const scripts: HTMLScriptElement[] =
+      target.nodeName === "SCRIPT"
+        ? [<HTMLScriptElement>target]
+        : <HTMLScriptElement[]>recursiveQuerySelectorAll(target, "script");
 
     for (let script of scripts) {
       const cloned = copyScriptWithAllAttribute(script);
@@ -99,7 +122,7 @@ export namespace Dom {
     }
   }
   function copyScriptWithAllAttribute(script: HTMLScriptElement) {
-    var target: HTMLScriptElement = document.createElement('script');
+    var target: HTMLScriptElement = document.createElement("script");
     [].slice.call(script.attributes).forEach((attribute: Attr) => {
       target.setAttribute(attribute.name, attribute.value);
     });

@@ -31,9 +31,6 @@ export class ElementGroup {
         return;
       }
     }
-    await Promise.all(ems.map(em => new Promise(resolve => {
-      em.once("init", resolve).init();
-    })));
     const req = await this.createBidReqFromModels(ems);
     this.action.adcall(req);
   }

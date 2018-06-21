@@ -61,19 +61,21 @@ export class ViewModel {
     return `${selector}:not(.${markedClass})`;
   }
   private initNewElements(elements: HTMLElement[]): void {
-    const ems = elements.map(element => this.createElementModel(element));
-    const groups = groupBy(ems, (em) => em.group);
-    Object.keys(groups).forEach(key => {
-      if (!this.groups[key]) {
-        this.groups[key] = new ElementGroup(key, this.config, this.store, this.action);
-      }
-      this.groups[key].register(groups[key]);
-    });
+    Promise.all(elements.map(element => this.createElementModel(element))).then(ems => {
+      const groups = groupBy(ems, (em) => em.group);
+      Object.keys(groups).forEach(key => {
+        if (!this.groups[key]) {
+          this.groups[key] = new ElementGroup(key, this.config, this.store, this.action);
+        }
+        this.groups[key].register(groups[key]);
+      });
+    }).catch(console.error);
   }
-  private createElementModel(element: HTMLElement): ElementModel {
-    const em = new ElementModel(this.config.em, element);
-    this.updateDefaultGroup(em.group);
-    return em;
+  private createElementModel(element: HTMLElement): Promise<ElementModel> {
+    return ElementModel.create(this.config.em, element).then(em => {
+      this.updateDefaultGroup(em.group);
+      return em;
+    });
   }
   private updateDefaultGroup(group: string): void {
     if (group) {

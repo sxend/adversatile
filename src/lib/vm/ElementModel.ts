@@ -12,18 +12,14 @@ import { Async } from "../misc/Async";
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private _excludedBidders: string[] = [];
-  constructor(private config: ElementModelConf, private element: HTMLElement) {
+  static create(config: ElementModelConf, element: HTMLElement): Promise<ElementModel> {
+    return new ElementModel(config, element).init();
+  }
+  private constructor(private config: ElementModelConf, private element: HTMLElement) {
     super();
     const macroOps = new MacroOps(this.config.macro);
     const templateOps = new TemplateOps(this.config);
     this.renderer = new Renderer(this.config.renderer, macroOps, templateOps);
-    if (!this.id) {
-      element.setAttribute(this.config.idAttributeName, RandomId.gen());
-    }
-    if (!this.name) {
-      element.setAttribute(this.config.nameAttributeName, RandomId.gen());
-    }
-    config.plugins.forEach(plugin => plugin.install(this));
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -49,23 +45,31 @@ export class ElementModel extends EventEmitter {
   get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
-  init(): ElementModel {
-    const _init = () => {
-      if (!this.group) {
-        this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
+  async init(): Promise<ElementModel> {
+    return new Promise<ElementModel>(resolve => {
+      const _init = () => {
+        if (!this.id) {
+          this.element.setAttribute(this.config.idAttributeName, RandomId.gen());
+        }
+        if (!this.name) {
+          this.element.setAttribute(this.config.nameAttributeName, RandomId.gen());
+        }
+        if (!this.group) {
+          this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
+        }
+        this.config.plugins.forEach(plugin => plugin.install(this));
+        if (this.option.preRender) {
+          this.preRender().then(_ => resolve(this));
+        } else {
+          resolve(this)
+        }
+      };
+      if (this.config.hasOption(this.name)) {
+        _init();
+      } else { // for old type main execution
+        Async.wait(() => this.config.hasOption(this.name), 50).then(_ => _init());
       }
-      if (this.option.preRender) {
-        this.preRender().then(_ => this.emit("init"));
-      } else {
-        this.emit("init");
-      }
-    }
-    if (this.config.hasOption(this.name)) {
-      _init();
-    } else { // for old type main execution
-      Async.wait(() => this.config.hasOption(this.name), 50).then(_ => _init());
-    }
-    return this;
+    });
   }
   update(bid: OpenRTB.Bid): Promise<void> {
     const context = this.createRenderContext(bid);
