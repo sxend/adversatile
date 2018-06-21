@@ -1,18 +1,17 @@
 import { OpenRTB } from "../../../src/lib/openrtb/OpenRTB";
 import { OpenRTBUtils } from "../../../src/lib/openrtb/OpenRTBUtils";
-import { MacroContext } from "../../../src/lib/vm/renderer/Macro";
 import { ElementModel } from "../../../src/lib/vm/ElementModel";
-import { dummyProps } from "./Macro";
+import { dummyProps } from "./Renderer";
+import { RendererContext } from "../../../src/lib/vm/Renderer";
 
 export function dummyBid(): OpenRTB.Bid {
   return OpenRTBUtils.dummyBid();
 }
-export function dummyMacroContext(element: HTMLElement, template: string): MacroContext {
-  return new MacroContext(
+export function dummyRendererContext(element: HTMLElement): RendererContext {
+  return new RendererContext(
     mockElementModel(),
     element,
     dummyProps(),
-    template,
     dummyBid()
   );
 }

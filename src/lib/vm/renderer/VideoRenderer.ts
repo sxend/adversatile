@@ -1,21 +1,21 @@
-import { Macro, MacroProps, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { MacroUtils } from "./MacroUtils";
-import { OpenRTB } from "../../../openrtb/OpenRTB";
-import { AssetUtils } from "../../../openrtb/AssetUtils";
+import { getOrElse } from "../../misc/ObjectUtils";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { getOrElse } from "../../../misc/ObjectUtils";
-import { Dom } from "../../../misc/Dom";
+import { AssetUtils } from "../../openrtb/AssetUtils";
 import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
+import { RendererUtils } from "./RendererUtils";
 
-export class VideoMacro implements Macro {
-  constructor(private config: MacroConf, private props: MacroProps) { }
-  static NAME = "VideoMacro";
+export class VideoRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
+  static NAME = "VideoRenderer";
   getName(): string {
-    return VideoMacro.NAME;
+    return VideoRenderer.NAME;
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
+  async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
@@ -38,15 +38,15 @@ export class VideoMacro implements Macro {
     }
     return context;
   }
-  private onVideoPlayerLoaded(element: HTMLElement, video: ResAssets, image: ResAssets, context: MacroContext) {
-    const clickUrlWithExpandedParams: string = MacroUtils.addExpandParams(
+  private onVideoPlayerLoaded(element: HTMLElement, video: ResAssets, image: ResAssets, context: RendererContext) {
+    const clickUrlWithExpandedParams: string = RendererUtils.addExpandParams(
       context.admNative.link.url,
       context.model.option.expandedClickParams
     );
     let onVideoClickHandler: () => void = undefined;
-    if (!!this.props.onClickForSDKBridge) {
+    if (!!context.props.onClickForSDKBridge) {
       onVideoClickHandler = () =>
-        this.props.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
+        context.props.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
     }
     const vimp = context.props.vimp.lock();
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(

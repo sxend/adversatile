@@ -1,4 +1,4 @@
-export namespace MacroUtils {
+export namespace RendererUtils {
   export function addExpandParams(
     url: string,
     expandParams: { name: string; value: string | number }[]

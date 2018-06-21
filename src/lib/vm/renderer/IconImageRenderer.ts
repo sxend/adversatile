@@ -1,16 +1,17 @@
-import { Macro, MacroProps, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { OpenRTB } from "../../../openrtb/OpenRTB";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils } from "../../../openrtb/AssetUtils";
-import { Dom } from "../../../misc/Dom";
+import { AssetUtils } from "../../openrtb/AssetUtils";
 
-export class IconImageMacro implements Macro {
-  constructor(private config: MacroConf, private props: MacroProps) { }
+
+export class IconImageRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
   getName(): string {
-    return "IconImageMacro";
+    return "IconImageRenderer";
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
+  async render(context: RendererContext): Promise<RendererContext> {
     const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return context;
     const targets: HTMLImageElement[] =
@@ -18,7 +19,7 @@ export class IconImageMacro implements Macro {
     if (targets.length === 0) return context;
     for (let target of targets) {
       target.src = icon.img.url;
-      this.props.findAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
+      context.props.findAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
     }
     context.props.impress(context.bid);
     return context;

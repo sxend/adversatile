@@ -6,9 +6,9 @@ import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel } from "../lib/vm/ElementModel";
 import { getOrElse, assign } from "../lib/misc/ObjectUtils";
-import { MacroOps, MacroContext } from "../lib/vm/renderer/Macro";
-import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
+import { Renderer, RendererContext } from "../lib/vm/Renderer";
+import { BannerAdRenderer } from "../lib/vm/renderer/BannerAdRenderer";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -124,6 +124,7 @@ export default {
     });
     config.vm.em.renderer.plugins.push({
       install: function(renderer: Renderer) {
+        if (renderer.getName() !== BannerAdRenderer.NAME) return;
         const original = renderer.render;
         renderer.render = function(context: RendererContext) {
           try {
@@ -154,10 +155,11 @@ export default {
         };
       }
     });
-    config.vm.em.macro.plugins.push({
-      install: function(macroops: MacroOps) {
-        const original = macroops.applyMacro;
-        macroops.applyMacro = function(context: MacroContext) {
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        if (renderer.getName() !== BannerAdRenderer.NAME) return;
+        const original = renderer.render;
+        renderer.render = function(context: RendererContext) {
           try {
             let html = getOrElse(() => context.bid.ext.bannerHtml);
             if (html) {
@@ -166,23 +168,23 @@ export default {
           } catch (e) {
             console.error(e);
           }
-          return original.call(macroops, context);
+          return original.call(renderer, context);
         };
       }
     });
-    config.vm.em.macro.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
-    config.vm.em.macro.link.selectorAttrName = "data-pfx-link";
-    config.vm.em.macro.link.markedClass = "pfx-link-added";
-    config.vm.em.macro.link.anchorMarkedClass = "pfx-anchor-link";
-    config.vm.em.macro.linkJs.selectorAttrName = "data-pfx-link-js";
-    config.vm.em.macro.mainImage.selectorAttrName = "data-pfx-img";
-    config.vm.em.macro.iconImage.selectorAttrName = "data-pfx-icon";
-    config.vm.em.macro.titleLong.selectorAttrName = "data-pfx-title-long";
-    config.vm.em.macro.titleShort.selectorAttrName = "data-pfx-title-short";
-    config.vm.em.macro.optoutLinkOnly.selectorAttrName = "data-pfx-optout-link-only";
-    config.vm.em.macro.optoutLink.selectorAttrName = "data-pfx-optout-link";
-    config.vm.em.macro.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
-    config.vm.em.macro.video.selectorAttrName = "data-pfx-video";
+    config.vm.em.renderer.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
+    config.vm.em.renderer.link.selectorAttrName = "data-pfx-link";
+    config.vm.em.renderer.link.markedClass = "pfx-link-added";
+    config.vm.em.renderer.link.anchorMarkedClass = "pfx-anchor-link";
+    config.vm.em.renderer.linkJs.selectorAttrName = "data-pfx-link-js";
+    config.vm.em.renderer.mainImage.selectorAttrName = "data-pfx-img";
+    config.vm.em.renderer.iconImage.selectorAttrName = "data-pfx-icon";
+    config.vm.em.renderer.titleLong.selectorAttrName = "data-pfx-title-long";
+    config.vm.em.renderer.titleShort.selectorAttrName = "data-pfx-title-short";
+    config.vm.em.renderer.optoutLinkOnly.selectorAttrName = "data-pfx-optout-link-only";
+    config.vm.em.renderer.optoutLink.selectorAttrName = "data-pfx-optout-link";
+    config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
+    config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     Adversatile.main(config).catch(console.error);
 
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
@@ -235,7 +237,7 @@ export default {
         emoption.preRender = oldconfig.preRender;
         emoption.format = oldconfig.adFormat;
         if (emoption.isBanner()) {
-          emoption.macro.injectMethod = "iframe";
+          emoption.renderer.injectMethod = "iframe";
         }
         emoption.assets = (oldconfig.assets || []).map(asset => {
           return new AssetOption(getAssetIdByName(asset.name), asset.prop);
@@ -257,10 +259,10 @@ export default {
       _oldconfigs.push(oldconfig);
     }
     function upgradeTemplate(template: string = "", config: Configuration): string {
-      template = template.replace(/data-pfx-link-self/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_self"`);
-      template = template.replace(/data-pfx-link-top/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_top"`);
-      template = template.replace(/data-pfx-link-blank/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_blank"`);
-      template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.macro.link.anchorTargetAttrName}="_parent"`);
+      template = template.replace(/data-pfx-link-self/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_self"`);
+      template = template.replace(/data-pfx-link-top/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_top"`);
+      template = template.replace(/data-pfx-link-blank/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_blank"`);
+      template = template.replace(/data-pfx-link-parent/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_parent"`);
       return template;
     }
     function upgradeElement(element: HTMLElement, config: Configuration, oldconfig: OldConfiguration): void {

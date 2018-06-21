@@ -1,20 +1,19 @@
-import { Macro, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { AssetUtils } from "../../../openrtb/AssetUtils";
-import { OpenRTB } from "../../../openrtb/OpenRTB";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
+import { AssetUtils } from "../../openrtb/AssetUtils";
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
-import { Tracking } from "../../../misc/Tracking";
-import { Dom } from "../../../misc/Dom";
+import { Tracking } from "../../misc/Tracking";
 
-
-export class MarkupVideoMacro implements Macro {
-  constructor(private config: MacroConf) { }
-  static NAME = "MarkupVideoMacro";
+export class MarkupVideoRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
+  static NAME = "MarkupVideoRenderer";
   getName(): string {
-    return MarkupVideoMacro.NAME;
+    return MarkupVideoRenderer.NAME;
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
+  async render(context: RendererContext): Promise<RendererContext> {
     const data = <ResAssets>AssetUtils.findAsset(context.assets, AssetTypes.MARKUP_VIDEO);
     if (!data || !data.data || !context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;

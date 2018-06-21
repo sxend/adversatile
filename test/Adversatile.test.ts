@@ -1,5 +1,5 @@
 import Adversatile from '../src/Adversatile';
 
-test('exists Macro', () => {
+test.skip('exists Renderer', () => {
   expect(Adversatile.main).toBeDefined();
 });

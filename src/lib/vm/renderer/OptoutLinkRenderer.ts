@@ -1,16 +1,16 @@
-import { Macro, MacroContext } from "../../../vm/renderer/Macro";
-import { MacroConf } from "../../../Configuration";
-import { OpenRTB } from "../../../openrtb/OpenRTB";
+import { RendererContext, Renderer } from "../Renderer";
+import { RendererConf } from "../../Configuration";
+import { Dom } from "../../misc/Dom";
+import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { AssetUtils } from "../../../openrtb/AssetUtils";
-import { Dom } from "../../../misc/Dom";
+import { AssetUtils } from "../../openrtb/AssetUtils";
 
-export class OptoutLinkMacro implements Macro {
-  constructor(private config: MacroConf) { }
+export class OptoutLinkRenderer implements Renderer {
+  constructor(private config: RendererConf) { }
   getName(): string {
-    return "OptoutLinkMacro";
+    return "OptoutLinkRenderer";
   }
-  async applyMacro(context: MacroContext): Promise<MacroContext> {
+  async render(context: RendererContext): Promise<RendererContext> {
     const image = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_IMG);
     if (!image) return context;
     const targets: HTMLElement[] =
