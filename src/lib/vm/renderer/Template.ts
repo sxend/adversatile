@@ -1,4 +1,4 @@
-import { getOrElse } from "../../misc/ObjectUtils";
+import { getOrElse, nonEmpties } from "../../misc/ObjectUtils";
 import { Dom } from "../../misc/Dom";
 
 export class TemplateOps {
@@ -7,14 +7,16 @@ export class TemplateOps {
     private templateSelectorAttr: string
   ) { }
   async resolveTemplate(...ids: string[]): Promise<string | undefined> {
-    ids = ids.filter(id => !!id);
-    console.log(ids);
+    ids = nonEmpties(ids);
     for (let id of ids) {
-      const external = await Promise.all(ids.map(id => this.resolveExternalTemplate(id)))
-      if (external.length > 0) {
-        return external[0];
+      const externals =
+        nonEmpties(await Promise.all(ids.map(id => this.resolveExternalTemplate(id))));
+      if (externals.length > 0) {
+        return externals[0];
       }
-      return this.templates[id];
+      if (this.templates[id]) {
+        return this.templates[id];
+      }
     }
     return Promise.resolve(void 0);
   }

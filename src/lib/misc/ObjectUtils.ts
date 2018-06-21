@@ -39,6 +39,9 @@ export function groupBy<A>(arr: A[], condition: (a: A) => string): { [key: strin
   });
   return group;
 }
+export function nonEmpties<A>(arr: A[]): A[] {
+  return arr.filter(obj => !!obj);
+}
 export function contains<A>(arr: A[], a: A): boolean {
   return arr.indexOf(a) !== -1;
 }
