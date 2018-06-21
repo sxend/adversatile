@@ -76,7 +76,9 @@ export class ViewModel {
     return em;
   }
   private updateDefaultGroup(group: string): void {
-    this.config.em.defaultGroup = group;
+    if (group) {
+      this.config.em.defaultGroup = group;
+    }
   }
   private async createBidReqFromElementOptions(
     elementOptions: ElementOption[]

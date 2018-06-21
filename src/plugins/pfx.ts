@@ -220,7 +220,9 @@ export default {
         config.vm.selector = `.${className}`;
         const page = <Element>Dom.recursiveQuerySelector(w.document, '[data-ca-profitx-pageid]');
         pageId = page ? Number(page.getAttribute('data-ca-profitx-pageid')) : pageId;
-        config.vm.em.defaultGroup = String(pageId);
+        if (pageId) {
+          config.vm.em.defaultGroup = String(pageId);
+        }
       });
     }
     function upgradeConfig(config: Configuration, oldconfig: OldConfiguration): void {
