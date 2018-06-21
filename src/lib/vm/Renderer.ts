@@ -20,28 +20,12 @@ import { LinkJsRenderer } from "./renderer/LinkJsRenderer";
 import { LinkRenderer } from "./renderer/LinkRenderer";
 
 export class RootRenderer implements Renderer {
-  public static NAME: string = "Root"
+  public static NAME: string = "Root";
+  private renderers: Renderer[];
   constructor(
     private config: RendererConf,
   ) {
-    this.config.plugins.forEach(plugin => plugin.install(this));
-  }
-  async render(context: RendererContext): Promise<RendererContext> {
-    context.props.root.render(context);
-    context = await this.construct()(context);
-    // let rendererContext = new RendererContext(
-    //   context.model,
-    //   context.element,
-    //   context.props,
-    //   template,
-    //   context.bid
-    // );
-    // await this.rendererOps.render(rendererContext);
-    context.props.root.rendered(context);
-    return context;
-  }
-  construct(): (context: RendererContext) => Promise<RendererContext> {
-    const renderers: Renderer[] = [
+    this.renderers = [
       new BannerAdRenderer(this.config),
       new NanoTemplateRenderer(),
       new InjectRenderer(this.config),
@@ -57,8 +41,20 @@ export class RootRenderer implements Renderer {
       new LinkJsRenderer(this.config),
       new LinkRenderer(this.config)
     ];
+    this.config.plugins.forEach(plugin => {
+      plugin.install(this);
+      this.renderers.forEach(renderer => plugin.install(renderer));
+    });
+  }
+  async render(context: RendererContext): Promise<RendererContext> {
+    context.props.root.render(context);
+    context = await this.construct()(context);
+    context.props.root.rendered(context);
+    return context;
+  }
+  construct(): (context: RendererContext) => Promise<RendererContext> {
     return async (context: RendererContext) => {
-      for (let renderer of renderers) {
+      for (let renderer of this.renderers) {
         context = await renderer.render(context);
       }
       return context;
@@ -67,9 +63,6 @@ export class RootRenderer implements Renderer {
   getName(): string {
     return "Root";
   }
-  // depends(): RenderStatic[] {
-  //   return [];
-  // }
 }
 export interface RenderStatic {
   new(
@@ -81,7 +74,6 @@ export interface RenderStatic {
 export interface Renderer {
   getName(): string;
   render(context: RendererContext): Promise<RendererContext>;
-  // depends(): RenderStatic[];
 }
 export class RendererContext {
   public metadata: RendererMetadata;
