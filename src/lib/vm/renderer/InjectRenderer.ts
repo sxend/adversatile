@@ -1,8 +1,9 @@
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
-import { RendererConf } from "../../Configuration";
+import { RendererConf, ObserveType } from "../../Configuration";
 import { Async } from "../../misc/Async";
 import { Dom } from "../../misc/Dom";
 import { NanoTemplateRenderer } from "./NanoTemplateRenderer";
+import { ObserveRenderer } from "./ObserveRenderer";
 
 export class InjectRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -11,6 +12,7 @@ export class InjectRenderer implements Renderer {
     return InjectRenderer.NAME;
   }
   depends(depend: RenderDependency): void {
+    depend.before([ObserveRenderer.NAME]);
     depend.after([NanoTemplateRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
@@ -58,12 +60,12 @@ export class InjectRenderer implements Renderer {
     }
     await Async.wait(() => !!iframe.contentDocument.body);
     context.element = iframe.contentDocument.body;
-    this.observeInview(iframe, context);
+    this.setObserveAttribute(iframe, context);
     return context;
   }
   private async injectInnerHTML(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     target.innerHTML = context.template;
-    this.observeInview(target, context);
+    this.setObserveAttribute(target, context);
     return context;
   }
   private async injectSibling(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
@@ -77,39 +79,11 @@ export class InjectRenderer implements Renderer {
         childNodes.forEach((node: ChildNode) => node.remove());
       });
     });
-    this.observeInview(childNodes[0], context);
+    this.setObserveAttribute(childNodes[0], context);
     return context;
   }
-  private async observeInview(target: Element, context: RendererContext) {
-    if (!await Dom.canViewportIntersectionMeasurement) return;
-    if (await Dom.isInIframe(window)) {
-      target = window.frameElement;
-    }
-    context.model.once("rendered", async () => {
-      let timer: any;
-      const observer = new IntersectionObserver(
-        function(event) {
-          if (!event || !event[0]) return;
-          if (event[0].intersectionRatio < 0.5) {
-            if (timer) {
-              clearTimeout(timer);
-              timer = null;
-            }
-          } else {
-            if (!timer) {
-              timer = setTimeout(() => {
-                context.props.vimp(context.bid);
-                observer.unobserve(target);
-              }, 1000);
-            }
-          }
-        },
-        {
-          // root: window.document.documentElement,
-          threshold: Array(101).fill(0).map((_, i) => i / 100)
-        }
-      );
-      observer.observe(target);
-    });
+  private setObserveAttribute(element: HTMLElement, context: RendererContext) {
+    element.setAttribute(this.config.observe.selectorAttrName, context.id);
+    element.setAttribute(this.config.observe.observeTypeAttrName, String(ObserveType.INVIEW));
   }
 }

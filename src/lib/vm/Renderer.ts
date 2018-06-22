@@ -19,6 +19,8 @@ import { TitleShortRenderer } from "./renderer/TitleShortRenderer";
 import { LinkJsRenderer } from "./renderer/LinkJsRenderer";
 import { LinkRenderer } from "./renderer/LinkRenderer";
 import { Tsort } from "../misc/Tsort";
+import { RandomId } from "../misc/RandomId";
+import { ObserveRenderer } from "./renderer/ObserveRenderer";
 
 export class RootRenderer implements Renderer {
   public static NAME: string = "Root";
@@ -41,6 +43,7 @@ export class RootRenderer implements Renderer {
       new SponsoredByMessageRenderer(this.config),
       new TitleLongRenderer(this.config),
       new TitleShortRenderer(this.config),
+      new ObserveRenderer(this.config),
     ].reduce((map: { [name: string]: Renderer }, renderer) => {
       map[renderer.getName()] = renderer;
       return map;
@@ -72,24 +75,12 @@ export class RootRenderer implements Renderer {
       const depend: RenderDependency = {
         before: (names: string[]) => {
           names.forEach(name => {
-            if (name === "*") {
-              values(this.renderers).filter(r => r !== renderer).forEach(other => {
-                tsort.add(renderer, other);
-              });
-            } else {
-              tsort.add(renderer, this.renderers[name]);
-            }
+            tsort.add(renderer, this.renderers[name]);
           });
         },
         after: (names: string[]) => {
           names.forEach(name => {
-            if (name === "*") {
-              values(this.renderers).filter(r => r !== renderer).forEach(other => {
-                tsort.add(other, renderer);
-              });
-            } else {
-              tsort.add(this.renderers[name], renderer);
-            }
+            tsort.add(this.renderers[name], renderer);
           });
         }
       }
@@ -119,6 +110,7 @@ export interface RenderDependency {
   after(name: string[]): void;
 }
 export class RendererContext {
+  public id: string;
   public metadata: RendererMetadata;
   public assets: OpenRTB.NativeAd.Response.Assets[];
   public admNative: OpenRTB.NativeAd.AdResponse;
@@ -129,6 +121,7 @@ export class RendererContext {
     public props: RendererProps,
     public bid: OpenRTB.Bid
   ) {
+    this.id = RandomId.gen();
     this.assets = getOrElse(() => bid.ext.admNative.assets, []);
     this.admNative = getOrElse(() => bid.ext.admNative);
     this.metadata = new RendererMetadata();

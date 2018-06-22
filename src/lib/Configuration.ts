@@ -135,6 +135,7 @@ export class RendererConf {
   titleShort: TitleShortRendererConf = new TitleShortRendererConf();
   link: LinkRendererConf = new LinkRendererConf();
   linkJs: LinkJsRendererConf = new LinkJsRendererConf();
+  observe: ObserveRendererConf = new ObserveRendererConf();
   plugins: {
     install: (renderer: Renderer) => void
   }[] = [];
@@ -190,7 +191,14 @@ export class LinkJsRendererConf {
   selectorAttrName: string = "data-adv-renderer-link-js";
   openTargetAttrName: string = "data-adv-open-target";
 }
-
+export class ObserveRendererConf {
+  selectorAttrName: string = "data-adv-renderer-observe";
+  observeTypeAttrName: string = "data-adv-renderer-observe-type";
+  observeCallbackAttrName: string = "data-adv-renderer-observe-callback";
+}
+export enum ObserveType {
+  INVIEW
+}
 export function isConfiguration(obj: any): boolean {
   return !!obj && obj.version !== void 0;
 }
