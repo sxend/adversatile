@@ -29,6 +29,22 @@ describe.only("Tsort", () => {
       tsort.add(b, d);
       expect(tsort.sort().map(_ => _.name)).toMatchObject(["a", "b", "c", "d"]);
     });
+    it("when invalid DAG", () => {
+      const tsort = new Tsort<Node>(node => node.name);
+      const a = new Node("a");
+      const b = new Node("b");
+      const c = new Node("c");
+      const d = new Node("d");
+      tsort.add(a, b);
+      tsort.add(a, c);
+      tsort.add(a, c);
+      tsort.add(b, d);
+      tsort.add(c, d);
+      tsort.add(c, d);
+      tsort.add(b, d);
+      tsort.add(d, a); // cyclic
+      expect(() => tsort.sort()).toThrow("invalid DAG");
+    });
   });
 });
 

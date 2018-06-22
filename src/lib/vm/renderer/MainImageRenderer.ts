@@ -1,4 +1,4 @@
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
@@ -12,6 +12,7 @@ export class MainImageRenderer implements Renderer {
   getName(): string {
     return "MainImageRenderer";
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     const targets: HTMLImageElement[] =
       <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());

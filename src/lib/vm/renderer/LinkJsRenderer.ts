@@ -1,4 +1,4 @@
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { containsOr } from "../../misc/ObjectUtils";
@@ -11,6 +11,9 @@ export class LinkJsRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "LinkJsRenderer";
+  }
+  depends(depend: RenderDependency): void {
+    depend.after([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (containsOr(context.metadata.appliedRendererNames,

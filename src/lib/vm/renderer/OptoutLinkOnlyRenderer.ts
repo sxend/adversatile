@@ -1,4 +1,4 @@
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
@@ -10,6 +10,7 @@ export class OptoutLinkOnlyRenderer implements Renderer {
   getName(): string {
     return "OptoutLinkOnlyRenderer";
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     const optout = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_LINK);
     if (!optout) return context;

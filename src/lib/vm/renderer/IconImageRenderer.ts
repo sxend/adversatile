@@ -1,4 +1,4 @@
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
@@ -11,6 +11,7 @@ export class IconImageRenderer implements Renderer {
   getName(): string {
     return "IconImageRenderer";
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return context;

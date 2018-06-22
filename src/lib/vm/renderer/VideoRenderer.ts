@@ -1,5 +1,5 @@
 import { getOrElse } from "../../misc/ObjectUtils";
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
@@ -15,6 +15,7 @@ export class VideoRenderer implements Renderer {
   getName(): string {
     return VideoRenderer.NAME;
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] =

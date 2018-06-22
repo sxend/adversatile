@@ -1,5 +1,5 @@
 import { getOrElse, containsOr } from "../../misc/ObjectUtils";
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { VideoRenderer } from "./VideoRenderer";
@@ -11,6 +11,9 @@ export class LinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "LinkRenderer";
+  }
+  depends(depend: RenderDependency): void {
+    depend.after([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (containsOr(context.metadata.appliedRendererNames,

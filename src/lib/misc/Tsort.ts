@@ -26,7 +26,7 @@ export class Tsort<A> {
 
     const visit = (node: any) => {
       if (node.__mark === "parmanent") return;
-      if (node.__mark === "temporary") throw new Error("not a dag");
+      if (node.__mark === "temporary") throw new Error("invalid DAG");
       node.__mark = "temporary";
       const chidlren = this.graph[this.key(node)] || [];
       chidlren.forEach(child => visit(child));

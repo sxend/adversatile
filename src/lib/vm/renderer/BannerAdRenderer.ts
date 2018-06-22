@@ -1,5 +1,5 @@
 import { getOrElse } from "../../misc/ObjectUtils";
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { OpenRTBUtils } from "../../openrtb/OpenRTBUtils";
 import { RendererConf } from "../../Configuration";
 import { Async } from "../../misc/Async";
@@ -11,6 +11,7 @@ export class BannerAdRenderer implements Renderer {
   getName(): string {
     return BannerAdRenderer.NAME;
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     if (context.model.option.isBanner()) {
       if (context.bid.ext.filler) {

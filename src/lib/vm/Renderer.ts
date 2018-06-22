@@ -63,6 +63,7 @@ export class RootRenderer implements Renderer {
   getName(): string {
     return "Root";
   }
+  depends(_: RenderDependency): void { }
 }
 export interface RenderStatic {
   new(
@@ -74,6 +75,11 @@ export interface RenderStatic {
 export interface Renderer {
   getName(): string;
   render(context: RendererContext): Promise<RendererContext>;
+  depends(depend: RenderDependency): void;
+}
+export interface RenderDependency {
+  before(name: string[]): void;
+  after(name: string[]): void;
 }
 export class RendererContext {
   public metadata: RendererMetadata;

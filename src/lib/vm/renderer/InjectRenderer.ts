@@ -1,4 +1,4 @@
-import { RendererContext, Renderer } from "../Renderer";
+import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Async } from "../../misc/Async";
 import { Dom } from "../../misc/Dom";
@@ -8,6 +8,7 @@ export class InjectRenderer implements Renderer {
   getName(): string {
     return "InjectRenderer";
   }
+  depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
     const attrName = this.config.inject.selectorAttrName;
 
