@@ -20,9 +20,27 @@ export function assign(target: any, _varArgs: any) {
   }
   return to;
 }
+
+// https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
+export function entries(obj: any) {
+  const ownProps = Object.keys(obj);
+  let i = ownProps.length;
+  const resArray = new Array(i);
+  while (i--)
+    resArray[i] = [ownProps[i], obj[ownProps[i]]];
+  return resArray;
+}
+export function values(obj: any): any[] {
+  const result = [];
+  for (let key in obj) {
+    result.push(obj[key]);
+  }
+  return result;
+}
 export function uniq<A>(arr: A[]): A[] {
   return arr.filter((x, i, self) => self.indexOf(x) === i);
 }
+
 export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
   const flags: any = {};
   return arr.filter(x => {
@@ -31,6 +49,7 @@ export function uniqBy<A>(arr: A[], condition: (a: A) => any): A[] {
     return (flags[key] = true);
   });
 }
+
 export function groupBy<A>(arr: A[], condition: (a: A) => string): { [key: string]: A[] } {
   const group: { [key: string]: A[] } = {};
   arr.forEach(obj => {

@@ -8,6 +8,7 @@ import { AssetUtils } from "../../openrtb/AssetUtils";
 import Response = OpenRTB.NativeAd.Response;
 import ResAssets = Response.Assets;
 import { RendererUtils } from "./RendererUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class VideoRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -15,7 +16,9 @@ export class VideoRenderer implements Renderer {
   getName(): string {
     return VideoRenderer.NAME;
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] =

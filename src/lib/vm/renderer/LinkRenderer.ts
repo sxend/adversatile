@@ -9,8 +9,9 @@ import { nano } from "../../misc/StringUtils";
 
 export class LinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
+  static NAME = "LinkRenderer";
   getName(): string {
-    return "LinkRenderer";
+    return LinkRenderer.NAME;
   }
   depends(depend: RenderDependency): void {
     depend.after([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);

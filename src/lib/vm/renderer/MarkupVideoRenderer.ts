@@ -6,6 +6,7 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
 import { Tracking } from "../../misc/Tracking";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class MarkupVideoRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -13,7 +14,9 @@ export class MarkupVideoRenderer implements Renderer {
   getName(): string {
     return MarkupVideoRenderer.NAME;
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const data = <ResAssets>AssetUtils.findAsset(context.assets, AssetTypes.MARKUP_VIDEO);
     if (!data || !data.data || !context.admNative || !context.admNative.link) return context;

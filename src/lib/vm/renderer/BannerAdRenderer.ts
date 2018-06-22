@@ -4,6 +4,8 @@ import { OpenRTBUtils } from "../../openrtb/OpenRTBUtils";
 import { RendererConf } from "../../Configuration";
 import { Async } from "../../misc/Async";
 import { Dom } from "../../misc/Dom";
+import { NanoTemplateRenderer } from "./NanoTemplateRenderer";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class BannerAdRenderer implements Renderer {
   static NAME: string = "BannerAdRenderer";
@@ -11,7 +13,9 @@ export class BannerAdRenderer implements Renderer {
   getName(): string {
     return BannerAdRenderer.NAME;
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.before([InjectRenderer.NAME, NanoTemplateRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     if (context.model.option.isBanner()) {
       if (context.bid.ext.filler) {

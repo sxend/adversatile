@@ -9,8 +9,9 @@ import { RendererUtils } from "./RendererUtils";
 
 export class LinkJsRenderer implements Renderer {
   constructor(private config: RendererConf) { }
+  static NAME = "LinkJsRenderer";
   getName(): string {
-    return "LinkJsRenderer";
+    return LinkJsRenderer.NAME;
   }
   depends(depend: RenderDependency): void {
     depend.after([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);

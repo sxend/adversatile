@@ -2,13 +2,17 @@ import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Async } from "../../misc/Async";
 import { Dom } from "../../misc/Dom";
+import { NanoTemplateRenderer } from "./NanoTemplateRenderer";
 
 export class InjectRenderer implements Renderer {
   constructor(private config: RendererConf) { }
+  static NAME = "InjectRenderer";
   getName(): string {
-    return "InjectRenderer";
+    return InjectRenderer.NAME;
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([NanoTemplateRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const attrName = this.config.inject.selectorAttrName;
 

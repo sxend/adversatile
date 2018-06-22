@@ -3,7 +3,7 @@ import { TemplateOps } from "./renderer/Template";
 import { RendererConf, AssetOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
-import { LockableFunction, uniq, getOrElse } from "../misc/ObjectUtils";
+import { LockableFunction, uniq, getOrElse, values } from "../misc/ObjectUtils";
 import { BannerAdRenderer } from "./renderer/BannerAdRenderer";
 import { NanoTemplateRenderer } from "./renderer/NanoTemplateRenderer";
 import { InjectRenderer } from "./renderer/InjectRenderer";
@@ -18,14 +18,17 @@ import { TitleLongRenderer } from "./renderer/TitleLongRenderer";
 import { TitleShortRenderer } from "./renderer/TitleShortRenderer";
 import { LinkJsRenderer } from "./renderer/LinkJsRenderer";
 import { LinkRenderer } from "./renderer/LinkRenderer";
+import { Tsort } from "../misc/Tsort";
 
 export class RootRenderer implements Renderer {
   public static NAME: string = "Root";
-  private renderers: Renderer[];
+  private renderers: { [name: string]: Renderer };
   constructor(
     private config: RendererConf,
   ) {
     this.renderers = [
+      new LinkJsRenderer(this.config),
+      new LinkRenderer(this.config),
       new BannerAdRenderer(this.config),
       new NanoTemplateRenderer(),
       new InjectRenderer(this.config),
@@ -38,12 +41,13 @@ export class RootRenderer implements Renderer {
       new SponsoredByMessageRenderer(this.config),
       new TitleLongRenderer(this.config),
       new TitleShortRenderer(this.config),
-      new LinkJsRenderer(this.config),
-      new LinkRenderer(this.config)
-    ];
+    ].reduce((map: { [name: string]: Renderer }, renderer) => {
+      map[renderer.getName()] = renderer;
+      return map;
+    }, {});
     this.config.plugins.forEach(plugin => {
       plugin.install(this);
-      this.renderers.forEach(renderer => plugin.install(renderer));
+      values(this.renderers).forEach(renderer => plugin.install(renderer));
     });
   }
   async render(context: RendererContext): Promise<RendererContext> {
@@ -53,12 +57,45 @@ export class RootRenderer implements Renderer {
     return context;
   }
   construct(): (context: RendererContext) => Promise<RendererContext> {
+    const sorted = this.sort();
     return async (context: RendererContext) => {
-      for (let renderer of this.renderers) {
+      for (let renderer of sorted) {
         context = await renderer.render(context);
       }
       return context;
     }
+  }
+  sort(): Renderer[] {
+    const tsort = new Tsort<Renderer>(renderer => renderer.getName());
+    values(this.renderers).forEach(renderer => {
+      tsort.add(renderer);
+      const depend: RenderDependency = {
+        before: (names: string[]) => {
+          names.forEach(name => {
+            if (name === "*") {
+              values(this.renderers).filter(r => r !== renderer).forEach(other => {
+                tsort.add(renderer, other);
+              });
+            } else {
+              tsort.add(renderer, this.renderers[name]);
+            }
+          });
+        },
+        after: (names: string[]) => {
+          names.forEach(name => {
+            if (name === "*") {
+              values(this.renderers).filter(r => r !== renderer).forEach(other => {
+                tsort.add(other, renderer);
+              });
+            } else {
+              tsort.add(this.renderers[name], renderer);
+            }
+          });
+        }
+      }
+      renderer.depends(depend)
+    });
+    return tsort.sort();
   }
   getName(): string {
     return "Root";
