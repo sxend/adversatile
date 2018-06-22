@@ -38,6 +38,9 @@ export class Tsort<A> {
         visit(node);
       }
     }
-    return result;
+    return result.map(n => {
+      delete (<any>n).__mark;
+      return n;
+    });
   }
 }
