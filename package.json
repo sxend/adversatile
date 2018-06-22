@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf dist/",
     "test": "jest --forceExit",
     "build:test": "npm run build && npm test",
     "codeformat": "tsfmt -r",
@@ -11,7 +12,7 @@
     "gen:pb:js": "pbjs -t static-module --no-create --no-encode --no-decode --no-verify --no-convert --no-delimited -o generated-src/protobuf/messages.js src/protobuf/*.proto generated-src/protobuf/*.proto",
     "gen:pb:ts": "pbts -o generated-src/protobuf/messages.d.ts generated-src/protobuf/messages.js",
     "gen:pb": "npm run gen:pb:clean && npm run gen:pb:js && npm run gen:pb:ts",
-    "prebuild": "npm run gen:pb && npm run codeformat",
+    "prebuild": "npm run clean && npm run gen:pb && npm run codeformat",
     "build": "tsc --project ./tsconfig.json && rollup -c",
     "build:watch": "npm run build -- --watch",
     "serve": "serve -l 3000"
