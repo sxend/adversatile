@@ -1,6 +1,7 @@
 import { Renderer, RenderDependency, RendererContext } from "../Renderer";
 import { RendererConf, ObserveType } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
+import { RandomId } from "../../misc/RandomId";
 
 
 export class ObserveRenderer implements Renderer {
@@ -17,13 +18,16 @@ export class ObserveRenderer implements Renderer {
     const canInview = await Dom.canViewportIntersectionMeasurement;
     for (let target of targets) {
       const type = target.getAttribute(this.config.observe.observeTypeAttrName);
+      const callbackId = target.getAttribute(this.config.observe.observeCallbackAttrName);
+      const callback = <Function>(<any>topWindow)[callbackId];
       if (type === String(ObserveType.INVIEW) && canInview) {
-        this.observeInview(target, context);
+        this.observeInview(target, context, callback);
       }
     }
+    context.metadata.applied(this.getName());
     return context;
   }
-  private async observeInview(target: HTMLElement, context: RendererContext) {
+  private async observeInview(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
     context.model.once("rendered", async () => {
       let timer: any;
       const observer = new IntersectionObserver(
@@ -37,7 +41,7 @@ export class ObserveRenderer implements Renderer {
           } else {
             if (!timer) {
               timer = setTimeout(() => {
-                context.props.vimp(context.bid);
+                callback();
                 observer.unobserve(target);
               }, 1000);
             }
@@ -52,5 +56,18 @@ export class ObserveRenderer implements Renderer {
   }
   private selector(id: string): string {
     return `[${this.config.observe.selectorAttrName}="${id}"][${this.config.observe.observeTypeAttrName}]`;
+  }
+  static setObserveAttribute(
+    element: Element,
+    type: ObserveType,
+    config: RendererConf,
+    context: RendererContext,
+    callback: () => void
+  ) {
+    element.setAttribute(config.observe.selectorAttrName, context.id);
+    element.setAttribute(config.observe.observeTypeAttrName, String(type));
+    const callbackId = `__adv_ob_rend_${RandomId.gen()}`;
+    element.setAttribute(config.observe.observeCallbackAttrName, callbackId);
+    Dom.setTopWindowCallback(callbackId, callback);
   }
 }

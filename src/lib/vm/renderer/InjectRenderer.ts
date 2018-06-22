@@ -4,6 +4,7 @@ import { Async } from "../../misc/Async";
 import { Dom } from "../../misc/Dom";
 import { NanoTemplateRenderer } from "./NanoTemplateRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
+import INVIEW = ObserveType.INVIEW;
 
 export class InjectRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -30,12 +31,14 @@ export class InjectRenderer implements Renderer {
       method = child.getAttribute(attrName);
     }
     if (method === "iframe") {
-      return this.injectIframe(target, context);
+      this.injectIframe(target, context);
     } else if (method === "sibling") {
-      return this.injectSibling(target, context);
+      this.injectSibling(target, context);
     } else {
-      return this.injectInnerHTML(target, context);
+      this.injectInnerHTML(target, context);
     }
+    context.metadata.applied(this.getName());
+    return context;
   }
   private async injectIframe(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     const iframe = document.createElement("iframe");
@@ -60,12 +63,16 @@ export class InjectRenderer implements Renderer {
     }
     await Async.wait(() => !!iframe.contentDocument.body);
     context.element = iframe.contentDocument.body;
-    this.setObserveAttribute(iframe, context);
+    ObserveRenderer.setObserveAttribute(
+      iframe, INVIEW, this.config,
+      context, () => context.props.vimp(context.bid));
     return context;
   }
   private async injectInnerHTML(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     target.innerHTML = context.template;
-    this.setObserveAttribute(target, context);
+    ObserveRenderer.setObserveAttribute(
+      target, INVIEW, this.config, context,
+      () => context.props.vimp(context.bid));
     return context;
   }
   private async injectSibling(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
@@ -79,11 +86,10 @@ export class InjectRenderer implements Renderer {
         childNodes.forEach((node: ChildNode) => node.remove());
       });
     });
-    this.setObserveAttribute(childNodes[0], context);
+    ObserveRenderer.setObserveAttribute(
+      childNodes[0], INVIEW, this.config, context,
+      () => context.props.vimp(context.bid));
     return context;
   }
-  private setObserveAttribute(element: HTMLElement, context: RendererContext) {
-    element.setAttribute(this.config.observe.selectorAttrName, context.id);
-    element.setAttribute(this.config.observe.observeTypeAttrName, String(ObserveType.INVIEW));
-  }
+
 }

@@ -76,6 +76,12 @@ export namespace Dom {
     (<any>window)[id] = callback;
     return id;
   }
+  export function setTopWindowCallback(id: string, callback: Function): Promise<string> {
+    return TopLevelWindow.then(topW => {
+      (<any>topW)[id] = callback;
+      return id;
+    });
+  }
   let _ready: Promise<void> = (async () => {
     const topLevelWindow: Window = await Dom.TopLevelWindow;
     const readyState = topLevelWindow.document.readyState;

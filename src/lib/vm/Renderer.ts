@@ -21,6 +21,7 @@ import { LinkRenderer } from "./renderer/LinkRenderer";
 import { Tsort } from "../misc/Tsort";
 import { RandomId } from "../misc/RandomId";
 import { ObserveRenderer } from "./renderer/ObserveRenderer";
+import { RemovalRenderer } from "./renderer/RemovalRenderer";
 
 export class RootRenderer implements Renderer {
   public static NAME: string = "Root";
@@ -44,6 +45,7 @@ export class RootRenderer implements Renderer {
       new TitleLongRenderer(this.config),
       new TitleShortRenderer(this.config),
       new ObserveRenderer(this.config),
+      new RemovalRenderer(this.config),
     ].reduce((map: { [name: string]: Renderer }, renderer) => {
       map[renderer.getName()] = renderer;
       return map;

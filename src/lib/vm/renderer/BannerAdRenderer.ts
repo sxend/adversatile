@@ -29,6 +29,7 @@ export class BannerAdRenderer implements Renderer {
         });
       }
     }
+    context.metadata.applied(this.getName());
     return context;
   }
   async observeEvent(context: RendererContext) {
