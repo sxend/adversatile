@@ -21,7 +21,10 @@ export class TemplateOps {
     return Promise.resolve(void 0);
   }
   async resolveExternalTemplate(qualifier: string): Promise<string | undefined> {
-    const query = `[${this.config.templateSelectorAttr}="${qualifier}"],#${qualifier}`;
+    const query = nonEmpties([
+      `[${this.config.templateSelectorAttr}="${qualifier}"]`,
+      getOrElse(() => Number.parseInt(qualifier)) ? void 0 : `#${qualifier}`
+    ]).join(",");
     const topDocument = (await Dom.TopLevelWindow).document;
     const templateEl: Element = <Element>getOrElse(() => Dom.recursiveQuerySelector(topDocument, query));
     if (templateEl) {

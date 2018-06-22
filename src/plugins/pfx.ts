@@ -5,7 +5,7 @@ import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel } from "../lib/vm/ElementModel";
-import { getOrElse, assign } from "../lib/misc/ObjectUtils";
+import { getOrElse, assign, onceFunction } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { BannerAdRenderer } from "../lib/vm/renderer/BannerAdRenderer";
@@ -186,10 +186,11 @@ export default {
     config.vm.em.renderer.optoutLink.selectorAttrName = "data-pfx-optout-link";
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
-    Adversatile.main(config).catch(console.error);
+    let runMain = onceFunction(() => Adversatile.main(config).catch(console.error));
     let firstPageIdDetect = true;
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
+      runMain();
       Dom.TopLevelWindow.then(w => {
         config.vm.selector = `.${className}`;
         const existsPageId = !!pageId;
