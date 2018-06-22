@@ -6,6 +6,7 @@ import { VideoRenderer } from "./VideoRenderer";
 import { MarkupVideoRenderer } from "./MarkupVideoRenderer";
 import { RendererUtils } from "./RendererUtils";
 import { nano } from "../../misc/StringUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class LinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -14,7 +15,7 @@ export class LinkRenderer implements Renderer {
     return LinkRenderer.NAME;
   }
   depends(depend: RenderDependency): void {
-    depend.after([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
+    depend.after([InjectRenderer.NAME, VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (containsOr(context.metadata.appliedRendererNames,

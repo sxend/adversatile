@@ -4,6 +4,7 @@ import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 
 export class IconImageRenderer implements Renderer {
@@ -11,7 +12,9 @@ export class IconImageRenderer implements Renderer {
   getName(): string {
     return "IconImageRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return context;

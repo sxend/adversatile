@@ -44,8 +44,8 @@ export class RootRenderer implements Renderer {
       new SponsoredByMessageRenderer(this.config),
       new TitleLongRenderer(this.config),
       new TitleShortRenderer(this.config),
-      new ObserveRenderer(this.config),
       new RemovalRenderer(this.config),
+      new ObserveRenderer(this.config),
     ].reduce((map: { [name: string]: Renderer }, renderer) => {
       map[renderer.getName()] = renderer;
       return map;
@@ -63,6 +63,7 @@ export class RootRenderer implements Renderer {
   }
   construct(): (context: RendererContext) => Promise<RendererContext> {
     const sorted = this.sort();
+    console.log(sorted);
     return async (context: RendererContext) => {
       for (let renderer of sorted) {
         context = await renderer.render(context);

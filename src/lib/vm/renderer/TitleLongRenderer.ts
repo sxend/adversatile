@@ -5,13 +5,16 @@ import { OpenRTB } from "../../openrtb/OpenRTB";
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { RendererUtils } from "./RendererUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class TitleLongRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "TitleLongRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const text = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_TITLE_LONG);
     if (!text) return context;

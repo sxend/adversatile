@@ -6,13 +6,16 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import { contains } from "../../misc/ObjectUtils";
 import { VideoRenderer } from "./VideoRenderer";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class MainImageRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "MainImageRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const targets: HTMLImageElement[] =
       <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());

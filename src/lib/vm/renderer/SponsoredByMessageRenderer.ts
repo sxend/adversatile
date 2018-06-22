@@ -5,13 +5,16 @@ import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import { RendererUtils } from "./RendererUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class SponsoredByMessageRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "SponsoredByMessageRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const message = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_SPONSORED_BY_MESSAGE);
     if (!message) return context;

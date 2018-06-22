@@ -4,13 +4,16 @@ import { Dom } from "../../misc/Dom";
 import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class OptoutLinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "OptoutLinkRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const image = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_IMG);
     if (!image) return context;

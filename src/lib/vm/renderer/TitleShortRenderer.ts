@@ -5,13 +5,16 @@ import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import { RendererUtils } from "./RendererUtils";
+import { InjectRenderer } from "./InjectRenderer";
 
 export class TitleShortRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   getName(): string {
     return "TitleShortRenderer";
   }
-  depends(_: RenderDependency): void { }
+  depends(depend: RenderDependency): void {
+    depend.after([InjectRenderer.NAME]);
+  }
   async render(context: RendererContext): Promise<RendererContext> {
     const title = AssetUtils.findAsset(context.assets, AssetTypes.TITLE_SHORT);
     if (!title) return context;
