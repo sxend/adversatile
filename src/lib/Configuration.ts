@@ -88,6 +88,8 @@ export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
+  loop: boolean = false;
+  loopLimitCount: number = 3;
   isBanner = function(this: ElementOption): boolean {
     return this.formatIs("banner");
   };
@@ -114,6 +116,7 @@ export class ElementRendererOption {
 }
 export class ElementVideoOption {
   autoReplay: boolean = true;
+  playLimitCount: number = 10;
   replayDelayMillis: number = 3000;
 }
 

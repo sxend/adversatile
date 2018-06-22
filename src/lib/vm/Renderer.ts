@@ -63,7 +63,6 @@ export class RootRenderer implements Renderer {
   }
   construct(): (context: RendererContext) => Promise<RendererContext> {
     const sorted = this.sort();
-    console.log(sorted);
     return async (context: RendererContext) => {
       for (let renderer of sorted) {
         context = await renderer.render(context);
@@ -139,6 +138,7 @@ export interface RendererProps {
   vimp: LockableFunction<OpenRTB.Bid>;
   viewThrough: (bid: OpenRTB.Bid) => void;
   findAssets: (...option: AssetOption[]) => void;
+  expired: (bid: OpenRTB.Bid) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
 }
 class RendererMetadata {

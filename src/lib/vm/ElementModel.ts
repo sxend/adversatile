@@ -68,15 +68,36 @@ export class ElementModel extends EventEmitter {
       }
     });
   }
-  update(bid: OpenRTB.Bid): Promise<void> {
-    this.emit("update", bid);
-    return this.createRenderContext(bid).then(context => {
-      return this.renderer.render(context);
-    })
-      .then(_ => {
-        this.emit("updated", bid);
-      })
-      .catch(console.error);
+  update(bids: OpenRTB.Bid[]): Promise<void> {
+    this.emit("update", bids);
+    let promise;
+    if (this.option.loop) {
+      promise = this.loopDisplay(bids);
+    } else {
+      promise = this.singleDisplay(bids);
+    }
+    return promise.then(_ => {
+      this.emit("updated", bids);
+    }).catch(console.error);
+  }
+  private async loopDisplay(bids: OpenRTB.Bid[]): Promise<void> {
+    const context = await this.createRenderContext(bids.shift());
+    return this.renderer.render(context).then(_ => {
+      let loopCount = 0;
+      const onExpired = (bid: OpenRTB.Bid) => {
+        if (this.option.loop && loopCount++ < this.option.loopLimitCount) {
+          bids.push(bid);
+          this.loopDisplay(bids);
+        } else {
+          this.off("expired", onExpired);
+        }
+      };
+      this.on("expired", onExpired);
+    });
+  }
+  private async singleDisplay(bids: OpenRTB.Bid[]): Promise<void> {
+    const context = await this.createRenderContext(bids.shift());
+    return this.renderer.render(context).then(_ => void 0);
   }
   private async preRender(): Promise<void> {
     const onFindAssets = (assets: AssetOption[]) => {
@@ -86,7 +107,7 @@ export class ElementModel extends EventEmitter {
       .once("updated", () => {
         this.removeListener("find_assets", onFindAssets);
       });
-    await this.update(OpenRTBUtils.dummyBid());
+    await this.update([OpenRTBUtils.dummyBid()]);
   }
   private async createRenderContext(bid: OpenRTB.Bid): Promise<RendererContext> {
     const context = new RendererContext(
@@ -126,6 +147,9 @@ export class ElementModel extends EventEmitter {
       })),
       viewThrough: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("view_through", bid);
+      }),
+      expired: onceFunction((bid: OpenRTB.Bid) => {
+        this.emit("expired", bid);
       }),
       findAssets: (...assets: AssetOption[]) => {
         this.emit("find_assets", assets);

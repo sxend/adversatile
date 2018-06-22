@@ -52,8 +52,6 @@ export class ElementGroup {
   private updateByBids(em: ElementModel, bids: OpenRTB.Bid[]): void {
     if (bids.length === 0) return;
     em
-      .once("rendered", () => {
-      })
       .on("impression", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getState().getTrackedUrls("imp-tracking");
         const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
@@ -69,7 +67,7 @@ export class ElementGroup {
         const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "view-through-tracking", true);
       })
-      .update(bids[0]); // FIXME append em for other bid
+      .update(bids); // FIXME append em for other bid
   }
   private async createBidReqFromModels(
     ems: ElementModel[],
