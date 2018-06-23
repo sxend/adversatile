@@ -5,7 +5,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RendererProps, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, lockableFunction, flatten } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
 
@@ -13,6 +13,7 @@ export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private templateOps: TemplateOps;
   private _excludedBidders: string[] = [];
+  private children: ElementModel[] = [];
   static create(config: ElementModelConf, element: HTMLElement): Promise<ElementModel> {
     return new ElementModel(config, element).init();
   }
@@ -42,13 +43,13 @@ export class ElementModel extends EventEmitter {
   get option(): ElementOption {
     return this.config.option(this.name);
   }
-  get assets(): AssetOption[] {
+  private get assets(): AssetOption[] {
     return uniqBy(this.option.assets, asset => asset.id);
   }
-  get excludedBidders(): string[] {
+  private get excludedBidders(): string[] {
     return uniq(this.option.excludedBidders.concat(this._excludedBidders));
   }
-  async init(): Promise<ElementModel> {
+  private async init(): Promise<ElementModel> {
     return new Promise<ElementModel>(resolve => {
       const _init = () => {
         if (!this.id) {
@@ -61,10 +62,21 @@ export class ElementModel extends EventEmitter {
           this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
         }
         this.config.plugins.forEach(plugin => plugin.install(this));
-        if (this.option.preRender) {
-          this.preRender().then(_ => resolve(this));
+        if (this.option.isParent()) {
+          Promise.all(this.option.children.map(child => {
+            const element = <HTMLElement>this.element.cloneNode();
+            element.setAttribute(this.config.nameAttributeName, child);
+            return ElementModel.create(this.config, element);
+          })).then(children => {
+            this.children = children;
+            resolve(this);
+          });
         } else {
-          resolve(this)
+          if (this.option.preRender) {
+            this.preRender().then(_ => resolve(this));
+          } else {
+            resolve(this)
+          }
         }
       };
       if (this.config.hasOption(this.name)) {
@@ -75,7 +87,9 @@ export class ElementModel extends EventEmitter {
     });
   }
   async imp(): Promise<OpenRTB.Imp[]> {
-    if (this.option.isParent()) return [];
+    if (this.option.isParent()) {
+      return flatten(await Promise.all(this.children.map(child => child.imp())));
+    }
     const impExt = new OpenRTB.Ext.ImpressionExt();
     impExt.excludedBidders = this.excludedBidders;
     impExt.notrim = this.option.notrim;
@@ -90,9 +104,17 @@ export class ElementModel extends EventEmitter {
   }
   update(bids: OpenRTB.Bid[]): Promise<void> {
     this.emit("update", bids);
-    return this.render(bids).then(_ => {
-      this.emit("updated", bids);
-    }).catch(console.error);
+    return new Promise<void>(async resolve => {
+      if (this.option.isParent()) {
+        const childrenP = this.children.map(child => child.update(bids.filter(bid => bid.ext.tagid === child.name)));
+        await Promise.all(childrenP).then(_ => void 0).catch(console.error);
+      } else {
+        await this.render(bids);
+      }
+      resolve();
+    })
+      .then(_ => { this.emit("updated", bids) })
+      .catch(console.error);
   }
   private async render(bids: OpenRTB.Bid[]): Promise<void> {
     const context = await this.createRenderContext(bids);
