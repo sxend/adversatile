@@ -135,4 +135,11 @@ export namespace Dom {
     target.innerHTML = script.innerHTML;
     return target;
   }
+  export function stringToElements(str: string): Element[] {
+    const container = document.createElement('div');
+    container.innerHTML = str;
+    const elements = [].slice.call(container.children);
+    container.textContent = "";
+    return elements;
+  }
 }

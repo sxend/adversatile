@@ -3,7 +3,7 @@ import { TemplateOps } from "./renderer/Template";
 import { RendererConf, AssetOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
-import { LockableFunction, uniq, getOrElse, values } from "../misc/ObjectUtils";
+import { LockableFunction, uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
 import { BannerAdRenderer } from "./renderer/BannerAdRenderer";
 import { NanoTemplateRenderer } from "./renderer/NanoTemplateRenderer";
 import { InjectRenderer } from "./renderer/InjectRenderer";
@@ -114,19 +114,30 @@ export interface RenderDependency {
 export class RendererContext {
   public id: string;
   public metadata: RendererMetadata;
-  public assets: OpenRTB.NativeAd.Response.Assets[];
-  public admNative: OpenRTB.NativeAd.AdResponse;
   public template: string;
   constructor(
     public model: ElementModel,
     public element: HTMLElement,
     public props: RendererProps,
-    public bid: OpenRTB.Bid
+    public bids: OpenRTB.Bid[]
   ) {
     this.id = RandomId.gen();
-    this.assets = getOrElse(() => bid.ext.admNative.assets, []);
-    this.admNative = getOrElse(() => bid.ext.admNative);
     this.metadata = new RendererMetadata();
+  }
+  get bid(): OpenRTB.Bid {
+    return this.bids[0];
+  }
+  get assets(): OpenRTB.NativeAd.Response.Assets[] {
+    return getOrElse(() => this.bid.ext.admNative.assets, []);
+  }
+  get admNative(): OpenRTB.NativeAd.AdResponse {
+    return getOrElse(() => this.bid.ext.admNative);
+  }
+  addFoundAssets(...assets: AssetOption[]) {
+    this.model.option.assets = uniqBy(
+      this.model.option.assets.concat(assets),
+      asset => asset.id
+    );
   }
 }
 export interface RendererProps {
@@ -137,7 +148,6 @@ export interface RendererProps {
   impress: (bid: OpenRTB.Bid) => void;
   vimp: LockableFunction<OpenRTB.Bid>;
   viewThrough: (bid: OpenRTB.Bid) => void;
-  findAssets: (...option: AssetOption[]) => void;
   expired: (bid: OpenRTB.Bid) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
 }

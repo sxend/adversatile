@@ -28,7 +28,7 @@ export class MainImageRenderer implements Renderer {
     if (!image) return context;
     for (let target of targets) {
       target.src = image.img.url;
-      context.props.findAssets(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
+      context.addFoundAssets(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
     }
     context.metadata.applied(this.getName());
     context.props.impress(context.bid);

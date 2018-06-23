@@ -6,7 +6,6 @@ export function dummyProps(): RendererProps {
     impress: () => { },
     vimp: lockableFunction(() => { }),
     viewThrough: () => { },
-    findAssets: () => { },
     expired: () => { },
     root: {
       render: () => { },

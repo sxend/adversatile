@@ -3,7 +3,6 @@ import { RendererConf, ObserveType } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { RandomId } from "../../misc/RandomId";
 
-
 export class ObserveRenderer implements Renderer {
   constructor(private config: RendererConf) { }
   static NAME = "ObserveRenderer";

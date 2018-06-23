@@ -279,7 +279,7 @@ export default {
         element.setAttribute(config.vm.em.qualifierAttributeName, qualifier);
       }
       if (oldconfig.templateId) {
-        element.setAttribute(config.vm.em.templateUseAttr, oldconfig.templateId);
+        element.setAttribute(config.vm.em.useTemplateNameAttr, oldconfig.templateId);
       }
       if (!element.getAttribute(config.vm.em.groupAttributeName)) {
         element.setAttribute(config.vm.em.groupAttributeName, existsPageId ? config.vm.em.defaultGroup : RandomId.gen());

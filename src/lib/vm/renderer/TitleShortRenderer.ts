@@ -23,7 +23,7 @@ export class TitleShortRenderer implements Renderer {
     if (targets.length === 0) return context;
     for (let target of targets) {
       RendererUtils.insertTextAsset(target, title.title.text);
-      context.props.findAssets(AssetUtils.titleTextOption());
+      context.addFoundAssets(AssetUtils.titleTextOption());
     }
     context.metadata.applied(this.getName());
     context.props.impress(context.bid);

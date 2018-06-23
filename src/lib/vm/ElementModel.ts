@@ -7,16 +7,22 @@ import { Renderer, RendererContext, RendererProps, RootRenderer } from "../vm/Re
 import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
+import { AssetUtils } from "../openrtb/AssetUtils";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
+  private templateOps: TemplateOps;
   private _excludedBidders: string[] = [];
   static create(config: ElementModelConf, element: HTMLElement): Promise<ElementModel> {
     return new ElementModel(config, element).init();
   }
-  private constructor(private config: ElementModelConf, private element: HTMLElement) {
+  private constructor(
+    private config: ElementModelConf,
+    private element: HTMLElement,
+  ) {
     super();
     this.renderer = new RootRenderer(this.config.renderer);
+    this.templateOps = new TemplateOps(this.config);
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -30,8 +36,8 @@ export class ElementModel extends EventEmitter {
   get group(): string {
     return this.element.getAttribute(this.config.groupAttributeName);
   }
-  get useTemplate(): string {
-    return this.element.getAttribute(this.config.templateUseAttr);
+  get useTemplateName(): string {
+    return this.element.getAttribute(this.config.useTemplateNameAttr) || this.option.useTemplateName;
   }
   get option(): ElementOption {
     return this.config.option(this.name);
@@ -68,66 +74,72 @@ export class ElementModel extends EventEmitter {
       }
     });
   }
+  async imp(): Promise<OpenRTB.Imp[]> {
+    if (this.option.isParent()) return [];
+    const impExt = new OpenRTB.Ext.ImpressionExt();
+    impExt.excludedBidders = this.excludedBidders;
+    impExt.notrim = this.option.notrim;
+    const imp = await OpenRTBUtils.createImp(
+      this.id,
+      this.name,
+      this.option.format,
+      this.assets.map(AssetUtils.optionToNativeAsset),
+      impExt
+    );
+    return [imp];
+  }
   update(bids: OpenRTB.Bid[]): Promise<void> {
     this.emit("update", bids);
-    let promise;
-    if (this.option.loop) {
-      promise = this.loopDisplay(bids);
-    } else {
-      promise = this.singleDisplay(bids);
-    }
-    return promise.then(_ => {
+    return this.render(bids).then(_ => {
       this.emit("updated", bids);
     }).catch(console.error);
   }
-  private async loopDisplay(bids: OpenRTB.Bid[]): Promise<void> {
-    const context = await this.createRenderContext(bids.shift());
-    return this.renderer.render(context).then(_ => {
-      let loopCount = 0;
-      const onExpired = (bid: OpenRTB.Bid) => {
-        if (this.option.loop && loopCount++ < this.option.loopLimitCount) {
-          bids.push(bid);
-          this.loopDisplay(bids);
-        } else {
-          this.off("expired", onExpired);
-        }
-      };
-      this.on("expired", onExpired);
-    });
+  private async render(bids: OpenRTB.Bid[]): Promise<void> {
+    const context = await this.createRenderContext(bids);
+    if (this.option.loop.enabled) {
+      this.setLoop(bids);
+    }
+    this.renderWithContenxt(context);
   }
-  private async singleDisplay(bids: OpenRTB.Bid[]): Promise<void> {
-    const context = await this.createRenderContext(bids.shift());
+  private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
+    let loopCount = 0;
+    const onExpired = (context: RendererContext) => {
+      if (loopCount++ < this.option.loop.limitCount) {
+        bids.push(context.bids.shift());
+        this.renderWithContenxt(context);
+      } else {
+        this.off("expired", onExpired);
+      }
+    };
+    this.on("expired", onExpired);
+    this.once("update", () => this.off("expired", onExpired));
+  }
+  private async renderWithContenxt(context: RendererContext): Promise<void> {
     return this.renderer.render(context).then(_ => void 0);
   }
   private async preRender(): Promise<void> {
-    const onFindAssets = (assets: AssetOption[]) => {
-      this.addAssetOptions(assets);
-    };
-    this.on("find_assets", onFindAssets)
-      .once("updated", () => {
-        this.removeListener("find_assets", onFindAssets);
-      });
-    await this.update([OpenRTBUtils.dummyBid()]);
+    let dummies = [OpenRTBUtils.dummyBid()];
+    const context = await this.createRenderContext(dummies);
+    await this.renderWithContenxt(context);
   }
-  private async createRenderContext(bid: OpenRTB.Bid): Promise<RendererContext> {
+
+  private async createRenderContext(bids: OpenRTB.Bid[]): Promise<RendererContext> {
     const context = new RendererContext(
       this,
       this.element,
       this.createRenderProps(),
-      bid,
+      bids,
     );
-    const templateOps = new TemplateOps(this.config);
-    context.template = await templateOps.resolveTemplate(
-      this.useTemplate,
-      this.qualifier,
-      this.name) || "";
+    context.template = await this.resolveTemplate();
     return context;
   }
-  private addAssetOptions(assets: AssetOption[]) {
-    this.option.assets = uniqBy(
-      this.option.assets.concat(assets),
-      asset => asset.id
-    );
+  private async resolveTemplate(): Promise<string> {
+    const ids: string[] = [
+      this.useTemplateName,
+      this.qualifier,
+      this.name
+    ];
+    return this.templateOps.resolveTemplate(...ids);
   }
   private createRenderProps(): RendererProps {
     return {
@@ -148,12 +160,9 @@ export class ElementModel extends EventEmitter {
       viewThrough: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("view_through", bid);
       }),
-      expired: onceFunction((bid: OpenRTB.Bid) => {
-        this.emit("expired", bid);
-      }),
-      findAssets: (...assets: AssetOption[]) => {
-        this.emit("find_assets", assets);
-      }
+      expired: onceFunction((context: RendererContext) => {
+        this.emit("expired", context);
+      })
     };
   }
 }

@@ -58,6 +58,9 @@ export function groupBy<A>(arr: A[], condition: (a: A) => string): { [key: strin
   });
   return group;
 }
+export function flatten<A>(nested: A[][]): A[] {
+  return nested.reduce((prev, current) => prev.concat(current), []);
+}
 export function nonEmpties<A>(arr: A[]): A[] {
   return arr.filter(nonEmpty);
 }

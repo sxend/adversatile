@@ -4,8 +4,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { Store } from "../Store";
 import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { AssetUtils } from "../openrtb/AssetUtils";
-import { getOrElse, groupBy } from "../misc/ObjectUtils";
+import { getOrElse, groupBy, flatten } from "../misc/ObjectUtils";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -27,12 +26,15 @@ export class ElementGroup {
     for (let em of ems) {
       if (Object.keys(this.ems).indexOf(em.id) === -1) {
         this.ems[em.id] = em;
+        em.once("destroy", () => delete this.ems[em.id]);
       } else {
         return;
       }
     }
-    const req = await this.createBidReqFromModels(ems);
-    this.action.adcall(req);
+    const req = await this.createBidReq(ems);
+    if (req.imp.length > 0) {
+      this.action.adcall(req);
+    }
   }
   update(response: OpenRTB.BidResponse): void {
     if (this.group !== getOrElse(() => response.ext.group)) {
@@ -67,30 +69,16 @@ export class ElementGroup {
         const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "view-through-tracking", true);
       })
-      .update(bids); // FIXME append em for other bid
+      .update(bids);
   }
-  private async createBidReqFromModels(
+  private async createBidReq(
     ems: ElementModel[],
   ): Promise<OpenRTB.BidRequest> {
-    const imp: OpenRTB.Imp[] = await Promise.all(
-      ems.map(em => {
-        const impExt = new OpenRTB.Ext.ImpressionExt();
-        impExt.excludedBidders = em.excludedBidders;
-        impExt.notrim = em.option.notrim;
-        return OpenRTBUtils.createImp(
-          em.id,
-          em.name,
-          em.option.format,
-          em.assets.map(AssetUtils.optionToNativeAsset),
-          impExt
-        );
-      })
-    );
-
-    return OpenRTBUtils.createBidReqWithImp(
-      imp,
+    const req = await OpenRTBUtils.createBidReqWithImp(
+      flatten(await Promise.all(ems.map(em => em.imp()))),
       new OpenRTB.Ext.BidRequestExt(this.group),
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
+    return req;
   }
 }

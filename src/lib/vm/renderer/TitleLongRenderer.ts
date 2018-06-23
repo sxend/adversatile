@@ -23,7 +23,7 @@ export class TitleLongRenderer implements Renderer {
     if (targets.length === 0) return context;
     for (let target of targets) {
       RendererUtils.insertTextAsset(target, text.title.text);
-      context.props.findAssets(AssetUtils.descriptiveTextOption());
+      context.addFoundAssets(AssetUtils.descriptiveTextOption());
     }
     context.metadata.applied(this.getName());
     context.props.impress(context.bid);

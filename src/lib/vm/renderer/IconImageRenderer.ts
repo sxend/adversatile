@@ -23,7 +23,7 @@ export class IconImageRenderer implements Renderer {
     if (targets.length === 0) return context;
     for (let target of targets) {
       target.src = icon.img.url;
-      context.props.findAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
+      context.addFoundAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
     }
     context.props.impress(context.bid);
     return context;

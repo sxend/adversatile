@@ -31,11 +31,11 @@ export class InjectRenderer implements Renderer {
       method = child.getAttribute(attrName);
     }
     if (method === "iframe") {
-      this.injectIframe(target, context);
+      context = await this.injectIframe(target, context);
     } else if (method === "sibling") {
-      this.injectSibling(target, context);
+      context = await this.injectSibling(target, context);
     } else {
-      this.injectInnerHTML(target, context);
+      context = await this.injectInnerHTML(target, context);
     }
     context.metadata.applied(this.getName());
     return context;

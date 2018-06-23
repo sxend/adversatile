@@ -86,18 +86,7 @@ export class ViewModel {
     elementOptions: ElementOption[]
   ): Promise<OpenRTB.BidRequest> {
     const imp: OpenRTB.Imp[] = await Promise.all(
-      elementOptions.map(async option => {
-        const impExt = new OpenRTB.Ext.ImpressionExt();
-        impExt.excludedBidders = option.excludedBidders;
-        impExt.notrim = option.notrim;
-        return OpenRTBUtils.createImp(
-          RandomId.gen(),
-          option.name,
-          option.format,
-          option.assets.map(AssetUtils.optionToNativeAsset),
-          impExt
-        );
-      })
+      elementOptions.map(elementOptionToImp)
     );
     return OpenRTBUtils.createBidReqWithImp(
       imp,
@@ -105,4 +94,17 @@ export class ViewModel {
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
   }
+
+}
+async function elementOptionToImp(option: ElementOption): Promise<OpenRTB.Imp> {
+  const impExt = new OpenRTB.Ext.ImpressionExt();
+  impExt.excludedBidders = option.excludedBidders;
+  impExt.notrim = option.notrim;
+  return OpenRTBUtils.createImp(
+    RandomId.gen(),
+    option.name,
+    option.format,
+    option.assets.map(AssetUtils.optionToNativeAsset),
+    impExt
+  );
 }

@@ -57,8 +57,8 @@ export class ElementModelConf {
   nameAttributeName: string = "data-adv-em-name";
   qualifierAttributeName: string = "data-adv-em-qualifier";
   groupAttributeName: string = "data-adv-em-group";
-  templateUseAttr: string = "data-adv-em-template-use";
-  templateSelectorAttr: string = "data-adv-em-template";
+  useTemplateNameAttr: string = "data-adv-em-use-template-name";
+  templateSelectorAttr: string = "data-adv-em-define-template-name";
   defaultGroup: string = "0";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
@@ -88,23 +88,27 @@ export class ElementOption {
   constructor(public name: string) { }
   preRender: boolean = true;
   format: string = "native";
-  loop: boolean = false;
-  loopLimitCount: number = 3;
   isBanner = function(this: ElementOption): boolean {
     return this.formatIs("banner");
   };
   isNative = function(this: ElementOption): boolean {
     return this.formatIs("native");
   };
+  isParent = function(this: ElementOption): boolean {
+    return this.formatIs("parent");
+  }
   private formatIs = function(this: ElementOption, format: string): boolean {
     return this.format === format;
   };
   assets: AssetOption[] = [];
+  useTemplateName: string;
   notrim: boolean = false;
   excludedBidders: string[] = [];
   expandedClickParams: [{ name: string; value: string | number }] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
   renderer: ElementRendererOption = new ElementRendererOption();
+  loop: ElementLoopOption = new ElementLoopOption();
+  children: string[] = [];
 }
 export class ElementRendererOption {
   adScaleRatio: string = "1.0";
@@ -119,6 +123,14 @@ export class ElementVideoOption {
   playLimitCount: number = 10;
   replayDelayMillis: number = 3000;
 }
+export class ElementLoopOption {
+  enabled: boolean = false;
+  limitCount: number = 3;
+}
+// export class ElementSiblingOption {
+//   enabled: boolean = false;
+//   names: string[] = []; // ElementOption name
+// }
 
 export class AssetOption {
   constructor(public id: number, public prop: any = {}) { }

@@ -23,7 +23,7 @@ export class SponsoredByMessageRenderer implements Renderer {
     if (targets.length === 0) return context;
     for (let target of targets) {
       RendererUtils.insertTextAsset(target, message.title.text);
-      context.props.findAssets(AssetUtils.sponsoredByMessageOption());
+      context.addFoundAssets(AssetUtils.sponsoredByMessageOption());
     }
     context.metadata.applied(this.getName());
     return context;

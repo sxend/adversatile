@@ -11,14 +11,14 @@ export class TemplateOps {
     for (let id of ids) {
       const externals =
         nonEmpties(await Promise.all(ids.map(id => this.resolveExternalTemplate(id))));
-      if (externals.length > 0) {
+      if (externals.length > 0 && !!externals[0]) {
         return externals[0];
       }
       if (this.config.templates[id]) {
         return this.config.templates[id];
       }
     }
-    return Promise.resolve(void 0);
+    return Promise.resolve("");
   }
   async resolveExternalTemplate(qualifier: string): Promise<string | undefined> {
     const query = nonEmpties([
@@ -30,6 +30,6 @@ export class TemplateOps {
     if (templateEl) {
       return templateEl.innerHTML;
     }
-    return void 0;
+    return "";
   }
 }
