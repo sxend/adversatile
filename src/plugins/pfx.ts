@@ -68,6 +68,7 @@ export default {
       assets: OpenRTB.NativeAd.Request.Assets[][]
     } = <any>{};
     function init(names: any[], assets?: OpenRTB.NativeAd.Request.Assets[][]) {
+      console.log("adv init");
       names = names.map(name => name.toString());
       if (!oldcontext.config) {
         oldcontext.config = new Configuration();
@@ -76,6 +77,7 @@ export default {
       }
     };
     function render(oldconfigs: OldConfiguration[]) {
+      console.log("adv render");
       if (!oldcontext.config) {
         oldcontext.oldconfigs = oldconfigs;
         return;
