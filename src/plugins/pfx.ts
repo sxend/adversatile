@@ -241,6 +241,10 @@ export default {
         emoption.expandedClickParams = oldconfig.expandedClickParams;
         emoption.notrim = oldconfig.notrim;
         emoption.preRender = oldconfig.preRender;
+        if (oldconfig.priority !== void 0) {
+          emoption.multiple.enabled = true;
+          emoption.multiple.sizeHint = oldconfig.priority;
+        }
         emoption.format = oldconfig.adFormat;
         if (emoption.isBanner()) {
           emoption.renderer.injectMethod = "iframe";
@@ -248,6 +252,12 @@ export default {
         emoption.assets = (oldconfig.assets || []).map(asset => {
           return new AssetOption(getAssetIdByName(asset.name), asset.prop);
         });
+      } else {
+        const emoption = config.vm.em.option(name);
+        if (oldconfig.priority !== void 0) {
+          emoption.multiple.enabled = true;
+          emoption.multiple.sizeHint = Math.max(emoption.multiple.sizeHint, oldconfig.priority);
+        }
       }
       let template: string = "";
       if (oldconfig.templateHtml) {

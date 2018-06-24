@@ -99,7 +99,9 @@ export class ElementModel extends EventEmitter {
     if (this.option.loop.enabled) {
       await this.setLoop(bids);
     }
-
+    if (!this.option.multiple.enabled && bids.length > 1) {
+      bids = [bids[0]];
+    }
     const result = bids
       .map(async (bid, i) => {
         const element = <HTMLElement>this.element.cloneNode();
@@ -128,7 +130,9 @@ export class ElementModel extends EventEmitter {
   }
   private async preRender(): Promise<void> {
     let dummies = [OpenRTBUtils.dummyBid()];
-    dummies = Array(Math.max(this.option.multiple.sizeHint, 1)).fill(OpenRTBUtils.dummyBid());
+    if (this.option.multiple.enabled) {
+      dummies = Array(Math.max(this.option.multiple.sizeHint, 1)).fill(OpenRTBUtils.dummyBid());
+    }
     await this.render(dummies);
   }
 

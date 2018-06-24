@@ -125,6 +125,7 @@ export class ElementLoopOption {
   limitCount: number = 3;
 }
 export class ElementMultipleOption {
+  enabled: boolean = false;
   sizeHint: number = 1;
   useTemplateNames: string[] = [];
 }
