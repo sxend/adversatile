@@ -127,10 +127,6 @@ export class ElementLoopOption {
   enabled: boolean = false;
   limitCount: number = 3;
 }
-// export class ElementSiblingOption {
-//   enabled: boolean = false;
-//   names: string[] = []; // ElementOption name
-// }
 
 export class AssetOption {
   constructor(public id: number, public prop: any = {}) { }
