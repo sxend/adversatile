@@ -7,6 +7,7 @@ import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { getOrElse, groupBy, flatten } from "../misc/ObjectUtils";
 import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
+import Analytics from "../misc/Analytics";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -102,6 +103,13 @@ export class ElementGroup {
         const tracked = this.store.getState().getTrackedUrls("view-through-tracking");
         const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "view-through-tracking", true);
+      })
+      .on("disabled_area_viewabled", (_bid: OpenRTB.Bid) => {
+        Analytics("send", {
+          "dimension:page_histories": [
+            { "dimension:inview": 1 }
+          ]
+        });
       })
       .update(bids);
   }

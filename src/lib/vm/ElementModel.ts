@@ -170,6 +170,9 @@ export class ElementModel extends EventEmitter {
       vimp: lockableFunction(onceFunction((bid: OpenRTB.Bid) => {
         this.emit("viewable_impression", bid);
       })),
+      disabledAreaViewabled: onceFunction((bid: OpenRTB.Bid) => {
+        this.emit("disabled_area_viewabled", bid);
+      }),
       viewThrough: onceFunction((bid: OpenRTB.Bid) => {
         this.emit("view_through", bid);
       }),

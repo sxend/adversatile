@@ -19,7 +19,7 @@ export class RemovalRenderer implements Renderer {
     context.element.textContent = "";
     context.template = "";
     const callback = () => {
-      console.log("removal vimp");
+      context.props.disabledAreaViewabled(context.bid);
     };
     if (await Dom.isInIframe(window)) {
       ObserveRenderer.setObserveAttribute(
@@ -27,7 +27,7 @@ export class RemovalRenderer implements Renderer {
         INVIEW, this.config, context, callback);
     } else {
       ObserveRenderer.setObserveAttribute(
-        context.element.parentElement,
+        <Element>context.element.parentNode,
         INVIEW, this.config, context, callback);
     }
     context.metadata.applied(this.getName());

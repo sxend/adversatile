@@ -144,6 +144,7 @@ export interface RendererProps {
   }
   impress: (bid: OpenRTB.Bid) => void;
   vimp: LockableFunction<OpenRTB.Bid>;
+  disabledAreaViewabled: (bid: OpenRTB.Bid) => void;
   viewThrough: (bid: OpenRTB.Bid) => void;
   expired: (bid: OpenRTB.Bid) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
