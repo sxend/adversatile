@@ -293,6 +293,8 @@ export default {
       }
       if (!element.getAttribute(config.vm.em.groupAttributeName)) {
         element.setAttribute(config.vm.em.groupAttributeName, existsPageId ? config.vm.em.defaultGroup : RandomId.gen());
+      } else {
+        config.vm.em.defaultGroup = element.getAttribute(config.vm.em.groupAttributeName);
       }
     }
     Adversatile.use({
