@@ -5,7 +5,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RendererProps, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, lockableFunction, flatten } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
 
@@ -13,7 +13,6 @@ export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private templateOps: TemplateOps;
   private _excludedBidders: string[] = [];
-  private children: ElementModel[] = [];
   static create(config: ElementModelConf, element: HTMLElement): Promise<ElementModel> {
     return new ElementModel(config, element).init();
   }
@@ -62,21 +61,10 @@ export class ElementModel extends EventEmitter {
           this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
         }
         this.config.plugins.forEach(plugin => plugin.install(this));
-        if (this.option.isParent()) {
-          Promise.all(this.option.children.map(child => {
-            const element = <HTMLElement>this.element.cloneNode();
-            element.setAttribute(this.config.nameAttributeName, child);
-            return ElementModel.create(this.config, element);
-          })).then(children => {
-            this.children = children;
-            resolve(this);
-          });
+        if (this.option.preRender) {
+          this.preRender().then(_ => resolve(this));
         } else {
-          if (this.option.preRender) {
-            this.preRender().then(_ => resolve(this));
-          } else {
-            resolve(this)
-          }
+          resolve(this)
         }
       };
       if (this.config.hasOption(this.name)) {
@@ -87,9 +75,6 @@ export class ElementModel extends EventEmitter {
     });
   }
   async imp(): Promise<OpenRTB.Imp[]> {
-    if (this.option.isParent()) {
-      return flatten(await Promise.all(this.children.map(child => child.imp())));
-    }
     const impExt = new OpenRTB.Ext.ImpressionExt();
     impExt.excludedBidders = this.excludedBidders;
     impExt.notrim = this.option.notrim;
@@ -104,30 +89,32 @@ export class ElementModel extends EventEmitter {
   }
   update(bids: OpenRTB.Bid[]): Promise<void> {
     this.emit("update", bids);
-    return new Promise<void>(async resolve => {
-      if (this.option.isParent()) {
-        const childrenP = this.children.map(child => child.update(bids.filter(bid => bid.ext.tagid === child.name)));
-        await Promise.all(childrenP).then(_ => void 0).catch(console.error);
-      } else {
-        await this.render(bids);
-      }
-      resolve();
-    })
+    return this.render(bids)
       .then(_ => { this.emit("updated", bids) })
       .catch(console.error);
   }
   private async render(bids: OpenRTB.Bid[]): Promise<void> {
-    const context = await this.createRenderContext(bids);
+    this.element.textContent = "";
+
     if (this.option.loop.enabled) {
-      this.setLoop(bids);
+      await this.setLoop(bids);
     }
-    this.renderWithContenxt(context);
+
+    const result = bids
+      .map(async (bid, i) => {
+        const element = <HTMLElement>this.element.cloneNode();
+        this.element.appendChild(element);
+        const template = await this.resolveTemplate(this.option.multiple.useTemplateNames[i]);
+        return this.createRenderContext(bid, element, template)
+      })
+      .map(async context => this.renderWithContenxt(await context));
+    await Promise.all(result);
   }
   private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
     let loopCount = 0;
     const onExpired = (context: RendererContext) => {
       if (loopCount++ < this.option.loop.limitCount) {
-        bids.push(context.bids.shift());
+        bids.push(bids.shift());
         this.renderWithContenxt(context);
       } else {
         this.off("expired", onExpired);
@@ -141,22 +128,26 @@ export class ElementModel extends EventEmitter {
   }
   private async preRender(): Promise<void> {
     let dummies = [OpenRTBUtils.dummyBid()];
-    const context = await this.createRenderContext(dummies);
-    await this.renderWithContenxt(context);
+    dummies = Array(Math.max(this.option.multiple.sizeHint, 1)).fill(OpenRTBUtils.dummyBid());
+    await this.render(dummies);
   }
 
-  private async createRenderContext(bids: OpenRTB.Bid[]): Promise<RendererContext> {
+  private async createRenderContext(
+    bid: OpenRTB.Bid,
+    element: HTMLElement,
+    template: string): Promise<RendererContext> {
     const context = new RendererContext(
       this,
-      this.element,
+      element,
       this.createRenderProps(),
-      bids,
+      bid,
     );
-    context.template = await this.resolveTemplate();
+    context.template = template;
     return context;
   }
-  private async resolveTemplate(): Promise<string> {
+  private async resolveTemplate(...templateNames: string[]): Promise<string> {
     const ids: string[] = [
+      ...templateNames,
       this.useTemplateName,
       this.qualifier,
       this.name

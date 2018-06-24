@@ -94,9 +94,6 @@ export class ElementOption {
   isNative = function(this: ElementOption): boolean {
     return this.formatIs("native");
   };
-  isParent = function(this: ElementOption): boolean {
-    return this.formatIs("parent");
-  }
   private formatIs = function(this: ElementOption, format: string): boolean {
     return this.format === format;
   };
@@ -108,7 +105,7 @@ export class ElementOption {
   video: ElementVideoOption = new ElementVideoOption();
   renderer: ElementRendererOption = new ElementRendererOption();
   loop: ElementLoopOption = new ElementLoopOption();
-  children: string[] = [];
+  multiple: ElementMultipleOption = new ElementMultipleOption();
 }
 export class ElementRendererOption {
   adScaleRatio: string = "1.0";
@@ -127,7 +124,10 @@ export class ElementLoopOption {
   enabled: boolean = false;
   limitCount: number = 3;
 }
-
+export class ElementMultipleOption {
+  sizeHint: number = 1;
+  useTemplateNames: string[] = [];
+}
 export class AssetOption {
   constructor(public id: number, public prop: any = {}) { }
 }

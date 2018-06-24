@@ -119,13 +119,10 @@ export class RendererContext {
     public model: ElementModel,
     public element: HTMLElement,
     public props: RendererProps,
-    public bids: OpenRTB.Bid[]
+    public bid: OpenRTB.Bid
   ) {
     this.id = RandomId.gen();
     this.metadata = new RendererMetadata();
-  }
-  get bid(): OpenRTB.Bid {
-    return this.bids[0];
   }
   get assets(): OpenRTB.NativeAd.Response.Assets[] {
     return getOrElse(() => this.bid.ext.admNative.assets, []);

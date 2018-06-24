@@ -17,6 +17,8 @@ export class InjectRenderer implements Renderer {
     depend.after([NanoTemplateRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
+    if (!context.template) return context;
+    context.element.textContent = "";
     const attrName = this.config.inject.selectorAttrName;
 
     let target: HTMLElement = context.element;
@@ -62,13 +64,7 @@ export class InjectRenderer implements Renderer {
       iframe.contentDocument.close();
     }
     await Async.wait(() => !!iframe.contentDocument.body);
-    const oldelement = context.element;
     context.element = iframe.contentDocument.body;
-    context.model.once("updated", () => {
-      context.model.once("update", () => {
-        oldelement.textContent = "";
-      });
-    });
     ObserveRenderer.setObserveAttribute(
       iframe, INVIEW, this.config,
       context, () => context.props.vimp(context.bid));
@@ -76,11 +72,6 @@ export class InjectRenderer implements Renderer {
   }
   private async injectInnerHTML(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
     target.innerHTML = context.template;
-    context.model.once("updated", () => {
-      context.model.once("update", () => {
-        context.element.textContent = "";
-      });
-    });
     ObserveRenderer.setObserveAttribute(
       target, INVIEW, this.config, context,
       () => context.props.vimp(context.bid));

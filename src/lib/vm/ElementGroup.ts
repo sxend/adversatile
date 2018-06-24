@@ -4,7 +4,8 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { Store } from "../Store";
 import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { getOrElse, groupBy, flatten } from "../misc/ObjectUtils";
+import { getOrElse, groupBy, flatten, values } from "../misc/ObjectUtils";
+import { RouletteWheel } from "../misc/RouletteWheel";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -44,12 +45,43 @@ export class ElementGroup {
     if (!sbid || !sbid.bid) {
       throw new Error("is empty sbid");
     }
-    const group = groupBy(sbid.bid, bid => bid.impid);
-    Object.keys(group).forEach(id => {
+    const bidsGroup = groupBy(sbid.bid, bid => bid.impid);
+    if (sbid.ext) {
+      this.convertBidsGroup(sbid.ext, bidsGroup);
+    }
+    Object.keys(bidsGroup).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
-      this.updateByBids(em, group[id]);
+      this.updateByBids(em, bidsGroup[id]);
     });
+  }
+  convertBidsGroup(ext: OpenRTB.Ext.SeatBidExt, bidsGroup: { [id: string]: OpenRTB.Bid[] }): void {
+    const patterns = ext.pagePatterns;
+    if (!patterns) return;
+    const roulette = new RouletteWheel<OpenRTB.Ext.Adhoc.PagePattern>(p => p.displayRatio);
+    patterns.forEach(pattern => roulette.add(pattern));
+    const pattern = roulette.select();
+    if (pattern) {
+      pattern.id // set pattern id for tracking
+      const convert = (bids: OpenRTB.Bid[], tag: OpenRTB.Ext.Adhoc.TagOverride) => {
+        bids.forEach(bid => {
+          if (tag.plcmtcnt === 0) {
+            bid.ext.disabled = true;
+          }
+          setPatternToVimpTrackers(bid.ext, pattern);
+          setPatternToClickUrls(bid.ext, pattern);
+        });
+      };
+      const bidsArr: OpenRTB.Bid[][] = values(bidsGroup);
+      for (let tag of pattern.tagOverrides) {
+        for (let bids of bidsArr) {
+          if (bids[0].ext.tagid === tag.tagid) {
+            convert(bids, tag);
+            break;
+          }
+        }
+      }
+    }
   }
   private updateByBids(em: ElementModel, bids: OpenRTB.Bid[]): void {
     if (bids.length === 0) return;
@@ -81,4 +113,35 @@ export class ElementGroup {
     );
     return req;
   }
+}
+function setPatternToClickUrls(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
+  if (hasClickUrls(ext)) {
+    ext.admNative.link.url =
+      appendPatternIdToUrl(ext.admNative.link.url, pattern.id);
+  }
+}
+function setPatternToVimpTrackers(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
+  if (hasVimpTrackers(ext)) {
+    var trackerLength = ext.admNative.ext.viewableImptrackers.length;
+    for (var i = 0; i < trackerLength; i++) {
+      ext.admNative.ext.viewableImptrackers[i] =
+        appendPatternIdToUrl(ext.admNative.ext.viewableImptrackers[i], pattern.id);
+    }
+  }
+}
+function hasClickUrls(ext: OpenRTB.Ext.BidExt): boolean {
+  return ext &&
+    ext.admNative &&
+    ext.admNative.link &&
+    ext.admNative.link.url !== void 0;
+}
+function hasVimpTrackers(ext: OpenRTB.Ext.BidExt): boolean {
+  return ext &&
+    ext.admNative &&
+    ext.admNative.ext &&
+    ext.admNative.ext.viewableImptrackers !== void 0;
+}
+function appendPatternIdToUrl(url: string, id: number): string {
+  var delimiter = (url.indexOf("?") === -1) ? "?" : "&";
+  return url + delimiter + "pattern=" + id;
 }

@@ -92,7 +92,6 @@ export default {
     config.vm.em.plugins.push({
       install: function(model: ElementModel) {
         try {
-          const oldconfig = _oldconfigs.find(x => x.tagId === model.name);
           model.on("render", function render(context: RendererContext) {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
             if (window.onpfxadload) {
@@ -100,19 +99,20 @@ export default {
             }
           });
           model.on("rendered", function rendered(context: RendererContext) {
-            if (OpenRTBUtils.isDummyBid(context.bid)) return;
+            if (OpenRTBUtils.isDummyBid(context.bid) || context.bid.ext.disabled) return;
+            const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadrendered) {
               oldconfig.onpfxadrendered(context.bid, null, context.element);
             }
             if (window.onpfxadrendered) {
               window.onpfxadrendered(context.model.qualifier);
             }
-            model.removeListener("rendered", rendered);
           });
-          model.once("impression", () => {
+          model.on("impression", () => {
             window.postMessage('onpfximpression', '*');
           });
-          model.once("viewable_impression", () => {
+          model.on("viewable_impression", (bid: OpenRTB.Bid) => {
+            const oldconfig = _oldconfigs.find(x => x.tagId === bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadinview) {
               oldconfig.onpfxadinview();
             }

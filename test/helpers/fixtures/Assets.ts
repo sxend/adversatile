@@ -14,12 +14,12 @@ export function dummyRendererContext(element: HTMLElement): RendererContext {
     mockElementModel(),
     element,
     dummyProps(),
-    [dummyBid()]
+    dummyBid()
   );
 }
 export function mockElementModel(): ElementModel {
   return <any>{
-    option: (<any> deepmerge)(new ElementOption("mock"), {
+    option: (<any>deepmerge)(new ElementOption("mock"), {
       expandedClickParams: [{ "expand_key": "expand_value" }]
     })
   };
