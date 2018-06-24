@@ -1,8 +1,8 @@
 export class RouletteWheel<A> {
   private elements: A[] = [];
   constructor(private weight: (element: A) => number) { }
-  add(element: A): void {
-    this.elements.push(element);
+  add(...elements: A[]): void {
+    this.elements.push(...elements);
   }
   private createWheel(): { sum: number, pockets: { threshold: number, element: A }[] } {
     let sum = 0;
