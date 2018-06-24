@@ -126,4 +126,35 @@ export namespace OpenRTBUtils {
     }
     return viewThroughUrls;
   }
+  export function setPatternToClickUrls(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
+    if (hasClickUrls(ext)) {
+      ext.admNative.link.url =
+        appendPatternIdToUrl(ext.admNative.link.url, pattern.id);
+    }
+  }
+  export function setPatternToVimpTrackers(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
+    if (hasVimpTrackers(ext)) {
+      var trackerLength = ext.admNative.ext.viewableImptrackers.length;
+      for (var i = 0; i < trackerLength; i++) {
+        ext.admNative.ext.viewableImptrackers[i] =
+          appendPatternIdToUrl(ext.admNative.ext.viewableImptrackers[i], pattern.id);
+      }
+    }
+  }
+  function hasClickUrls(ext: OpenRTB.Ext.BidExt): boolean {
+    return ext &&
+      ext.admNative &&
+      ext.admNative.link &&
+      ext.admNative.link.url !== void 0;
+  }
+  function hasVimpTrackers(ext: OpenRTB.Ext.BidExt): boolean {
+    return ext &&
+      ext.admNative &&
+      ext.admNative.ext &&
+      ext.admNative.ext.viewableImptrackers !== void 0;
+  }
+  function appendPatternIdToUrl(url: string, id: number): string {
+    var delimiter = (url.indexOf("?") === -1) ? "?" : "&";
+    return url + delimiter + "pattern=" + id;
+  }
 }

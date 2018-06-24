@@ -6,6 +6,7 @@ import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { getOrElse, groupBy, flatten } from "../misc/ObjectUtils";
 import { RouletteWheel } from "../misc/RouletteWheel";
+import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -59,8 +60,12 @@ export class ElementGroup {
     if (!sbid || !sbid.ext || !sbid.ext.pagePatterns ||
       sbid.ext.pagePatterns.length === 0) return sbid;
 
-    const roulette = new RouletteWheel<OpenRTB.Ext.Adhoc.PagePattern>(p => p.displayRatio);
-    roulette.add(...sbid.ext.pagePatterns);
+    const roulette = new RouletteWheel<PagePattern>(p => p.displayRatio);
+    for (let pattern of sbid.ext.pagePatterns) {
+      if (isAvaiablePattern(pattern, sbid.bid)) {
+        roulette.add(pattern);
+      }
+    }
     const pattern = roulette.select();
     if (!pattern) return sbid;
 
@@ -68,8 +73,8 @@ export class ElementGroup {
       if (tag.plcmtcnt === 0) {
         bid.ext.disabled = true;
       }
-      setPatternToVimpTrackers(bid.ext, pattern);
-      setPatternToClickUrls(bid.ext, pattern);
+      OpenRTBUtils.setPatternToVimpTrackers(bid.ext, pattern);
+      OpenRTBUtils.setPatternToClickUrls(bid.ext, pattern);
     };
     for (let tag of pattern.tagOverrides) {
       for (let bid of sbid.bid) {
@@ -111,34 +116,12 @@ export class ElementGroup {
     return req;
   }
 }
-function setPatternToClickUrls(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
-  if (hasClickUrls(ext)) {
-    ext.admNative.link.url =
-      appendPatternIdToUrl(ext.admNative.link.url, pattern.id);
-  }
-}
-function setPatternToVimpTrackers(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
-  if (hasVimpTrackers(ext)) {
-    var trackerLength = ext.admNative.ext.viewableImptrackers.length;
-    for (var i = 0; i < trackerLength; i++) {
-      ext.admNative.ext.viewableImptrackers[i] =
-        appendPatternIdToUrl(ext.admNative.ext.viewableImptrackers[i], pattern.id);
+function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
+  for (let tag of pattern.tagOverrides) {
+    const tagBids = bids.filter(bid => bid.ext.tagid === tag.tagid);
+    if (tagBids.length < tag.plcmtcnt) {
+      return false;
     }
   }
-}
-function hasClickUrls(ext: OpenRTB.Ext.BidExt): boolean {
-  return ext &&
-    ext.admNative &&
-    ext.admNative.link &&
-    ext.admNative.link.url !== void 0;
-}
-function hasVimpTrackers(ext: OpenRTB.Ext.BidExt): boolean {
-  return ext &&
-    ext.admNative &&
-    ext.admNative.ext &&
-    ext.admNative.ext.viewableImptrackers !== void 0;
-}
-function appendPatternIdToUrl(url: string, id: number): string {
-  var delimiter = (url.indexOf("?") === -1) ? "?" : "&";
-  return url + delimiter + "pattern=" + id;
+  return true;
 }
