@@ -10,6 +10,7 @@ import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
 import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
+import deepmerge from "deepmerge";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -254,6 +255,11 @@ export default {
         emoption.assets = (oldconfig.assets || []).map(asset => {
           return new AssetOption(getAssetIdByName(asset.name), asset.prop);
         });
+        if (oldconfig.videoSetting) {
+          emoption.video = deepmerge(emoption.video, oldconfig.videoSetting);
+          emoption.loop.enabled = true;
+          emoption.loop.limitCount = oldconfig.maxVideoPlayTotalNth / emoption.video.playLimitCount;
+        }
       } else {
         const emoption = config.vm.em.option(name);
         if (oldconfig.priority > 1) {

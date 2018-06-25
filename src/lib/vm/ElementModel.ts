@@ -90,16 +90,15 @@ export class ElementModel extends EventEmitter {
   update(bids: OpenRTB.Bid[]): Promise<void> {
     if (bids.length === 0) return void 0;
     this.emit("update", bids);
+    if (this.option.loop.enabled) {
+      this.setLoop(bids);
+    }
     return this.render(bids)
       .then(_ => { this.emit("updated", bids) })
       .catch(console.error);
   }
   private async render(bids: OpenRTB.Bid[]): Promise<void> {
     this.element.textContent = "";
-
-    if (this.option.loop.enabled) {
-      await this.setLoop(bids);
-    }
     if (this.option.multiple.enabled && bids.length > 1) {
       await this.renderMultiple(bids);
     } else {
@@ -124,17 +123,16 @@ export class ElementModel extends EventEmitter {
   }
   private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
     let loopCount = 0;
-    const onExpired = (context: RendererContext) => {
-      if (loopCount++ < this.option.loop.limitCount) {
+    const onExpired = (_context: RendererContext) => {
+      if (++loopCount < this.option.loop.limitCount) {
         bids.push(bids.shift());
-        context.bid = bids[0];
-        this.renderWithContenxt(context);
+        this.render(bids);
       } else {
-        this.off("expired", onExpired);
+        this.removeListener("expired", onExpired);
       }
     };
     this.on("expired", onExpired);
-    this.once("update", () => this.off("expired", onExpired));
+    this.once("update", () => this.removeListener("expired", onExpired));
   }
   private async renderWithContenxt(context: RendererContext): Promise<void> {
     return this.renderer.render(context).then(_ => void 0);

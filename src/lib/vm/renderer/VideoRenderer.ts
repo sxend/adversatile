@@ -67,7 +67,11 @@ export class VideoRenderer implements Renderer {
       onContinuousVideoPlayHandler(2000, () => {
         vimp(context.bid);
       }),
-      () => context.events.expired(context.bid)
+      () => {
+        setTimeout(() => {
+          context.events.expired(context.bid);
+        }, context.model.option.video.replayDelayMillis);
+      }
     );
     player.load();
     context.metadata.applied(this.getName());
