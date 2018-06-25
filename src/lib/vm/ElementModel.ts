@@ -88,6 +88,7 @@ export class ElementModel extends EventEmitter {
     return [imp];
   }
   update(bids: OpenRTB.Bid[]): Promise<void> {
+    if (bids.length === 0) return void 0;
     this.emit("update", bids);
     return this.render(bids)
       .then(_ => { this.emit("updated", bids) })
@@ -125,6 +126,7 @@ export class ElementModel extends EventEmitter {
     const onExpired = (context: RendererContext) => {
       if (loopCount++ < this.option.loop.limitCount) {
         bids.push(bids.shift());
+        context.bid = bids[0];
         this.renderWithContenxt(context);
       } else {
         this.off("expired", onExpired);
