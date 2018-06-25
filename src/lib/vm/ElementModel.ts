@@ -119,7 +119,8 @@ export class ElementModel extends EventEmitter {
   }
   private async renderSingle(bid: OpenRTB.Bid): Promise<void> {
     const template = await this.resolveTemplate();
-    await this.createRenderContext(bid, this.element, template);
+    const context = await this.createRenderContext(bid, this.element, template);
+    await this.renderWithContenxt(context);
   }
   private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
     let loopCount = 0;

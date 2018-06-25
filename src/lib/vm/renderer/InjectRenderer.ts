@@ -1,10 +1,11 @@
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf, ObserveType } from "../../Configuration";
 import { Async } from "../../misc/Async";
-import { Dom } from "../../misc/Dom";
 import { NanoTemplateRenderer } from "./NanoTemplateRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
 import INVIEW = ObserveType.INVIEW;
+import SELECTOR = ObserveType.SELECTOR;
+import { getOrElse } from "../../misc/ObjectUtils";
 
 export class InjectRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -17,32 +18,34 @@ export class InjectRenderer implements Renderer {
     depend.after([NanoTemplateRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
-    if (!context.template) return context;
-    context.element.textContent = "";
-    const attrName = this.config.inject.selectorAttrName;
+    let injectMethod: string = context.model.option.renderer.injectMethod;
 
-    let target: HTMLElement = context.element;
-    let method: string = context.model.option.renderer.injectMethod;
-    if (context.element.getAttribute(attrName)) {
-      target = context.element;
-      method = context.element.getAttribute(attrName);
+    if (context.model.option.isBanner()) {
+      context.template = context.template || getOrElse(() => context.bid.ext.bannerHtml);
+    } else if (context.filler) {
+      context.template = context.filler;
+      injectMethod = "iframe";
     }
-    const child = <HTMLElement>Dom.recursiveQuerySelector(context.element, `[${attrName}]`);
-    if (child) {
-      target = <HTMLElement>child;
-      method = child.getAttribute(attrName);
-    }
-    if (method === "iframe") {
-      context = await this.injectIframe(target, context);
-    } else if (method === "sibling") {
-      context = await this.injectSibling(target, context);
+    if (!context.template) return context;
+
+    if (injectMethod === "iframe") {
+      context = await this.injectIframe(context);
+    } else if (injectMethod === "sibling") {
+      context = await this.injectSibling(context);
     } else {
-      context = await this.injectInnerHTML(target, context);
+      context = await this.injectInnerHTML(context);
+    }
+
+    if (context.model.option.isBanner()) {
+      context.element.setAttribute(this.config.observe.selector.observeSelectorAttrName, this.config.inject.bannerAdImpSelector);
+      ObserveRenderer.setObserveAttribute(
+        context.element, SELECTOR, this.config,
+        context, () => context.props.impress(context.bid));
     }
     context.metadata.applied(this.getName());
     return context;
   }
-  private async injectIframe(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
+  private async injectIframe(context: RendererContext): Promise<RendererContext> {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
       style: context.model.option.renderer.injectedIframeStyle,
@@ -54,7 +57,7 @@ export class InjectRenderer implements Renderer {
     Object.keys(attributes).forEach(attr => {
       iframe.setAttribute(attr, attributes[attr]);
     });
-    target.appendChild(iframe);
+    context.element.appendChild(iframe);
 
     await Async.wait(() => !!iframe.contentDocument);
     try {
@@ -65,33 +68,31 @@ export class InjectRenderer implements Renderer {
     }
     await Async.wait(() => !!iframe.contentDocument.body);
     context.element = iframe.contentDocument.body;
-    ObserveRenderer.setObserveAttribute(
-      iframe, INVIEW, this.config,
-      context, () => context.props.vimp(context.bid));
+    this.setObserveInview(iframe, context);
     return context;
   }
-  private async injectInnerHTML(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
-    target.innerHTML = context.template;
-    ObserveRenderer.setObserveAttribute(
-      target, INVIEW, this.config, context,
-      () => context.props.vimp(context.bid));
+  private async injectInnerHTML(context: RendererContext): Promise<RendererContext> {
+    context.element.innerHTML = context.template;
+    this.setObserveInview(context.element, context);
     return context;
   }
-  private async injectSibling(target: HTMLElement, context: RendererContext): Promise<RendererContext> {
-    context = await this.injectInnerHTML(target, context);
-    const childNodes = [].slice.call(target.childNodes);
+  private async injectSibling(context: RendererContext): Promise<RendererContext> {
+    context = await this.injectInnerHTML(context);
+    const childNodes = [].slice.call(context.element.childNodes);
     context.model.once("updated", () => {
       childNodes.forEach((node: Node) => {
-        target.parentElement.insertBefore(node, target.nextSibling || target);
+        context.element.parentElement.insertBefore(node, context.element.nextSibling || context.element);
       });
       context.model.once("update", () => {
         childNodes.forEach((node: ChildNode) => node.remove());
       });
     });
-    ObserveRenderer.setObserveAttribute(
-      childNodes[0], INVIEW, this.config, context,
-      () => context.props.vimp(context.bid));
+    this.setObserveInview(childNodes[0], context);
     return context;
   }
-
+  private setObserveInview(target: HTMLElement, context: RendererContext) {
+    ObserveRenderer.setObserveAttribute(
+      target, INVIEW, this.config, context,
+      () => context.props.vimp(context.bid));
+  }
 }

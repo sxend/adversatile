@@ -2,6 +2,7 @@ import { Renderer, RenderDependency, RendererContext } from "../Renderer";
 import { RendererConf, ObserveType } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { RandomId } from "../../misc/RandomId";
+import { Async } from "../../misc/Async";
 
 export class ObserveRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -21,6 +22,8 @@ export class ObserveRenderer implements Renderer {
       const callback = <Function>(<any>topWindow)[callbackId];
       if (type === String(ObserveType.INVIEW) && canInview) {
         this.observeInview(target, context, callback);
+      } else if (type === String(ObserveType.SELECTOR)) {
+        this.observeSelector(target, context, callback);
       }
     }
     context.metadata.applied(this.getName());
@@ -51,6 +54,18 @@ export class ObserveRenderer implements Renderer {
         }
       );
       observer.observe(target);
+    });
+  }
+  private async observeSelector(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
+    context.model.once("rendered", async () => {
+      const selector = target.getAttribute(this.config.observe.selector.observeSelectorAttrName);
+      let elements: Node[];
+      Async.wait(() => {
+        elements = Dom.recursiveQuerySelectorAll(target, selector);
+        return elements.length > 0;
+      }, 50).then(_ => {
+        callback(elements);
+      });
     });
   }
   private selector(id: string): string {

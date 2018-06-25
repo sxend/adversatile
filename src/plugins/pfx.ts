@@ -8,8 +8,8 @@ import { ElementModel } from "../lib/vm/ElementModel";
 import { getOrElse, assign, onceFunction } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
-import { BannerAdRenderer } from "../lib/vm/renderer/BannerAdRenderer";
 import { RandomId } from "../lib/misc/RandomId";
+import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -127,7 +127,7 @@ export default {
     });
     config.vm.em.renderer.plugins.push({
       install: function(renderer: Renderer) {
-        if (renderer.getName() !== BannerAdRenderer.NAME) return;
+        if (renderer.getName() !== NanoTemplateRenderer.NAME) return;
         const original = renderer.render;
         renderer.render = function(context: RendererContext) {
           try {
@@ -160,7 +160,7 @@ export default {
     });
     config.vm.em.renderer.plugins.push({
       install: function(renderer: Renderer) {
-        if (renderer.getName() !== BannerAdRenderer.NAME) return;
+        if (renderer.getName() !== NanoTemplateRenderer.NAME) return;
         const original = renderer.render;
         renderer.render = function(context: RendererContext) {
           try {
@@ -175,7 +175,7 @@ export default {
         };
       }
     });
-    config.vm.em.renderer.bannerAd.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
+    config.vm.em.renderer.inject.bannerAdImpSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
     config.vm.em.renderer.link.selectorAttrName = "data-pfx-link";
     config.vm.em.renderer.link.markedClass = "pfx-link-added";
     config.vm.em.renderer.link.anchorMarkedClass = "pfx-anchor-link";

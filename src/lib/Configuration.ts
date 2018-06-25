@@ -134,7 +134,6 @@ export class AssetOption {
 }
 
 export class RendererConf {
-  bannerAd: BannerAdRendererConf = new BannerAdRendererConf();
   inject: InjectRendererConf = new InjectRendererConf();
   video: VideoRendererConf = new VideoRendererConf();
   markupVideo: MarkupVideoRendererConf = new MarkupVideoRendererConf();
@@ -152,11 +151,9 @@ export class RendererConf {
     install: (renderer: Renderer) => void
   }[] = [];
 }
-export class BannerAdRendererConf {
-  impSelector: string = "a"
-}
 export class InjectRendererConf {
   selectorAttrName: string = "data-adv-renderer-inject-method";
+  bannerAdImpSelector: string = "a";
 }
 export class VideoRendererConf {
   selectorAttrName: string = "data-adv-renderer-video";
@@ -207,9 +204,14 @@ export class ObserveRendererConf {
   selectorAttrName: string = "data-adv-renderer-observe";
   observeTypeAttrName: string = "data-adv-renderer-observe-type";
   observeCallbackAttrName: string = "data-adv-renderer-observe-callback";
+  selector: ObserveSelectorConf = new ObserveSelectorConf()
+}
+export class ObserveSelectorConf {
+  observeSelectorAttrName: string = "data-adv-renderer-observe-selector";
 }
 export enum ObserveType {
-  INVIEW
+  INVIEW,
+  SELECTOR
 }
 export function isConfiguration(obj: any): boolean {
   return !!obj && obj.version !== void 0;

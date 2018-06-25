@@ -4,7 +4,6 @@ import { RendererConf, AssetOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { LockableFunction, uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
-import { BannerAdRenderer } from "./renderer/BannerAdRenderer";
 import { NanoTemplateRenderer } from "./renderer/NanoTemplateRenderer";
 import { InjectRenderer } from "./renderer/InjectRenderer";
 import { VideoRenderer } from "./renderer/VideoRenderer";
@@ -32,7 +31,6 @@ export class RootRenderer implements Renderer {
     this.renderers = [
       new LinkJsRenderer(this.config),
       new LinkRenderer(this.config),
-      new BannerAdRenderer(this.config),
       new NanoTemplateRenderer(),
       new InjectRenderer(this.config),
       new VideoRenderer(this.config),
@@ -129,6 +127,9 @@ export class RendererContext {
   }
   get admNative(): OpenRTB.NativeAd.AdResponse {
     return getOrElse(() => this.bid.ext.admNative);
+  }
+  get filler(): string {
+    return getOrElse(() => this.bid.ext.filler);
   }
   addFoundAssets(...assets: AssetOption[]) {
     this.model.option.assets = uniqBy(
