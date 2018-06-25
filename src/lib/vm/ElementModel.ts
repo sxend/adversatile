@@ -154,10 +154,10 @@ export class ElementModel extends EventEmitter {
     const context = new RendererContext(
       this,
       element,
+      template,
       this.createRendererEvents(),
       bid,
     );
-    context.template = template;
     return context;
   }
   private async resolveTemplate(...templateNames: string[]): Promise<string> {

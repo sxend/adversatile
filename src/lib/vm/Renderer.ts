@@ -112,10 +112,10 @@ export interface RenderDependency {
 export class RendererContext {
   public id: string;
   public metadata: RendererMetadata;
-  public template: string;
   constructor(
     public model: ElementModel,
     public element: HTMLElement,
+    public template: string,
     public events: RendererEvents,
     public bid: OpenRTB.Bid
   ) {
@@ -130,6 +130,9 @@ export class RendererContext {
   }
   get filler(): string {
     return getOrElse(() => this.bid.ext.filler);
+  }
+  get bannerHtml(): string {
+    return getOrElse(() => this.bid.ext.bannerHtml);
   }
   addFoundAssets(...assets: AssetOption[]) {
     this.model.option.assets = uniqBy(

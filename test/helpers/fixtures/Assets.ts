@@ -13,6 +13,7 @@ export function dummyRendererContext(element: HTMLElement): RendererContext {
   return new RendererContext(
     mockElementModel(),
     element,
+    "",
     dummyProps(),
     dummyBid()
   );
