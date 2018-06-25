@@ -101,12 +101,12 @@ export class ElementModel extends EventEmitter {
       await this.setLoop(bids);
     }
     if (!this.option.multiple.enabled && bids.length > 1) {
-      await this.updateMultiple(bids);
+      await this.renderMultiple(bids);
     } else {
-      await this.updateSingle(bids[0]);
+      await this.renderSingle(bids[0]);
     }
   }
-  private async updateMultiple(bids: OpenRTB.Bid[]): Promise<void> {
+  private async renderMultiple(bids: OpenRTB.Bid[]): Promise<void> {
     const result = bids
       .map(async (bid, i) => {
         const element = <HTMLElement>this.element.cloneNode();
@@ -117,7 +117,7 @@ export class ElementModel extends EventEmitter {
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
   }
-  private async updateSingle(bid: OpenRTB.Bid): Promise<void> {
+  private async renderSingle(bid: OpenRTB.Bid): Promise<void> {
     const template = await this.resolveTemplate();
     await this.createRenderContext(bid, this.element, template);
   }
