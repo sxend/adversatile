@@ -243,7 +243,7 @@ export default {
         emoption.expandedClickParams = oldconfig.expandedClickParams;
         emoption.notrim = oldconfig.notrim;
         emoption.preRender = oldconfig.preRender;
-        if (oldconfig.priority !== void 0) {
+        if (oldconfig.priority > 1) {
           emoption.multiple.enabled = true;
           emoption.multiple.sizeHint = oldconfig.priority;
         }
@@ -256,7 +256,7 @@ export default {
         });
       } else {
         const emoption = config.vm.em.option(name);
-        if (oldconfig.priority !== void 0) {
+        if (oldconfig.priority > 1) {
           emoption.multiple.enabled = true;
           emoption.multiple.sizeHint = Math.max(emoption.multiple.sizeHint, oldconfig.priority);
         }

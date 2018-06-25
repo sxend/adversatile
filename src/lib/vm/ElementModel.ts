@@ -100,7 +100,7 @@ export class ElementModel extends EventEmitter {
     if (this.option.loop.enabled) {
       await this.setLoop(bids);
     }
-    if (!this.option.multiple.enabled && bids.length > 1) {
+    if (this.option.multiple.enabled && bids.length > 1) {
       await this.renderMultiple(bids);
     } else {
       await this.renderSingle(bids[0]);
