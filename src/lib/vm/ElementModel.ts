@@ -3,7 +3,7 @@ import { RandomId } from "../misc/RandomId";
 import { EventEmitter } from "events";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { Renderer, RendererContext, RendererProps, RootRenderer } from "../vm/Renderer";
+import { Renderer, RendererContext, RendererEvents, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
@@ -154,7 +154,7 @@ export class ElementModel extends EventEmitter {
     const context = new RendererContext(
       this,
       element,
-      this.createRenderProps(),
+      this.createRendererEvents(),
       bid,
     );
     context.template = template;
@@ -169,7 +169,7 @@ export class ElementModel extends EventEmitter {
     ];
     return this.templateOps.resolveTemplate(...ids);
   }
-  private createRenderProps(): RendererProps {
+  private createRendererEvents(): RendererEvents {
     return {
       root: {
         render: onceFunction((context: RendererContext) => {

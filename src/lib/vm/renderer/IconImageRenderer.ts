@@ -25,7 +25,7 @@ export class IconImageRenderer implements Renderer {
       target.src = icon.img.url;
       context.addFoundAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));
     }
-    context.props.impress(context.bid);
+    context.events.impress(context.bid);
     return context;
   }
   private selector(): string {

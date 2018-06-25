@@ -36,10 +36,10 @@ export class LinkRenderer implements Renderer {
     );
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
-      if (!!context.props.onClickForSDKBridge) {
+      if (!!context.events.onClickForSDKBridge) {
         anchor.onclick = () => {
           const passingAppId: string | null = appId;
-          context.props.onClickForSDKBridge(clickUrl, passingAppId);
+          context.events.onClickForSDKBridge(clickUrl, passingAppId);
         };
       } else {
         const urlFormat = target.getAttribute(this.config.link.selectorAttrName);

@@ -50,11 +50,11 @@ export class VideoRenderer implements Renderer {
       context.model.option.expandedClickParams
     );
     let onVideoClickHandler: () => void = undefined;
-    if (!!context.props.onClickForSDKBridge) {
+    if (!!context.events.onClickForSDKBridge) {
       onVideoClickHandler = () =>
-        context.props.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
+        context.events.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
     }
-    const vimp = context.props.vimp.lock();
+    const vimp = context.events.vimp.lock();
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
       video.video.vasttag,
       element,
@@ -67,11 +67,11 @@ export class VideoRenderer implements Renderer {
       onContinuousVideoPlayHandler(2000, () => {
         vimp(context.bid);
       }),
-      () => context.props.expired(context.bid)
+      () => context.events.expired(context.bid)
     );
     player.load();
     context.metadata.applied(this.getName());
-    context.props.impress(context.bid);
+    context.events.impress(context.bid);
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {

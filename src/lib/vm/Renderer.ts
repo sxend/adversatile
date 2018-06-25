@@ -54,9 +54,9 @@ export class RootRenderer implements Renderer {
     });
   }
   async render(context: RendererContext): Promise<RendererContext> {
-    context.props.root.render(context);
+    context.events.root.render(context);
     context = await this.construct()(context);
-    context.props.root.rendered(context);
+    context.events.root.rendered(context);
     return context;
   }
   construct(): (context: RendererContext) => Promise<RendererContext> {
@@ -116,7 +116,7 @@ export class RendererContext {
   constructor(
     public model: ElementModel,
     public element: HTMLElement,
-    public props: RendererProps,
+    public events: RendererEvents,
     public bid: OpenRTB.Bid
   ) {
     this.id = RandomId.gen();
@@ -138,7 +138,7 @@ export class RendererContext {
     );
   }
 }
-export interface RendererProps {
+export interface RendererEvents {
   root: {
     render: (context: RendererContext) => void
     rendered: (context: RendererContext) => void

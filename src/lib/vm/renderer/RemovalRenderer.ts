@@ -19,7 +19,7 @@ export class RemovalRenderer implements Renderer {
     context.element.textContent = "";
     context.template = "";
     const callback = () => {
-      context.props.disabledAreaViewabled(context.bid);
+      context.events.disabledAreaViewabled(context.bid);
     };
     if (await Dom.isInIframe(window)) {
       ObserveRenderer.setObserveAttribute(
