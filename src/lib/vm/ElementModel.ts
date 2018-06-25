@@ -100,26 +100,21 @@ export class ElementModel extends EventEmitter {
   private async render(bids: OpenRTB.Bid[]): Promise<void> {
     this.element.textContent = "";
     if (this.option.multiple.enabled && bids.length > 1) {
-      await this.renderMultiple(bids);
+      await this.renderBids(...bids);
     } else {
-      await this.renderSingle(bids[0]);
+      await this.renderBids(bids[0]);
     }
   }
-  private async renderMultiple(bids: OpenRTB.Bid[]): Promise<void> {
+  private async renderBids(...bids: OpenRTB.Bid[]): Promise<void> {
     const result = bids
-      .map(async (bid, i) => {
+      .map(async (bid, index) => {
         const element = <HTMLElement>this.element.cloneNode();
         this.element.appendChild(element);
-        const template = await this.resolveTemplate(this.option.multiple.useTemplateNames[i]);
-        return this.createRenderContext(bid, element, template)
+        const template = await this.resolveTemplate(this.option.multiple.useTemplateNames[index]);
+        return this.createRenderContext(bid, index, element, template)
       })
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
-  }
-  private async renderSingle(bid: OpenRTB.Bid): Promise<void> {
-    const template = await this.resolveTemplate();
-    const context = await this.createRenderContext(bid, this.element, template);
-    await this.renderWithContenxt(context);
   }
   private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
     let loopCount = 0;
@@ -147,6 +142,7 @@ export class ElementModel extends EventEmitter {
 
   private async createRenderContext(
     bid: OpenRTB.Bid,
+    index: number,
     element: HTMLElement,
     template: string): Promise<RendererContext> {
     const context = new RendererContext(
@@ -155,6 +151,7 @@ export class ElementModel extends EventEmitter {
       template,
       this.createRendererEvents(),
       bid,
+      index
     );
     return context;
   }

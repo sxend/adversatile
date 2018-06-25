@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>index.html</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="adversatile" data-adv-em-name="10005"></div>
+  <script type="text/x-adv-template" data-adv-em-template-define="10005">
+    <div class="adv-container">
+        <a data-adv-renderer-link>
+            <img data-adv-renderer-icon style="width: 32px; height: 32px"/>
+            <img data-adv-renderer-img style="width: 100px; height: 100px"/>
+            <div data-adv-renderer-video></div>
+            <div>suponsored: <span data-adv-renderer-sponsored-by-message></span></div>
+            <div>short: <span data-adv-renderer-title-short></span></div>
+            <div>long: <span data-adv-renderer-title-long></span></div>
+            <div><span data-adv-renderer-optout-link>PR</span></div>
+            <div><span data-adv-renderer-optout-link-only>PR(LinkOnly)</span></div>
+        </a>
+    </div>
+    <style>
+      .adv-container {
+        border: 1px solid;
+      }
+    </style>
+  </script>
+  <script async src="../dist/adversatile.js" onload="__advr_main()"></script>
+  <script>
+    function __advr_main() {
+      Adversatile.use({
+        install: function(adv) {
+          adv.plugin.bridge = adv.plugin.bridge || {};
+          adv.plugin.bridge.ifa = "ifa";
+        }
+      });
+      Adversatile.main({
+        version: 1,
+        vm: {
+          selector: ".adversatile",
+          em: {
+            templates: {
+            },
+            options: {
+              "10005": {
+                video: {
+                  autoReplay: true,
+                  playLimitCount: 2,
+                  replayDelayMillis: 3000,
+                },
+                loop: {
+                  enabled: true,
+                  limitCount: 3,
+                }
+              }
+            }
+          }
+        },
+        ext: {
+        }
+      });
+    }
+  </script>
+  <div style="padding-bottom: 600px;"></div>
+</body>
+</html>
