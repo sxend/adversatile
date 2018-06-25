@@ -5,7 +5,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RendererEvents, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, lockableFunction } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, lockableFunction, rotate } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
 
@@ -99,28 +99,40 @@ export class ElementModel extends EventEmitter {
   }
   private async render(bids: OpenRTB.Bid[]): Promise<void> {
     this.element.textContent = "";
-    if (this.option.multiple.enabled && bids.length > 1) {
-      await this.renderBids(...bids);
-    } else {
-      await this.renderBids(bids[0]);
-    }
+    await this.renderBids(...bids.slice(0, this.option.placement.size));
   }
   private async renderBids(...bids: OpenRTB.Bid[]): Promise<void> {
     const result = bids
       .map(async (bid, index) => {
-        const element = <HTMLElement>this.element.cloneNode();
-        this.element.appendChild(element);
-        const template = await this.resolveTemplate(this.option.multiple.useTemplateNames[index]);
-        return this.createRenderContext(bid, index, element, template)
+        const sandbox = this.createSandboxElement(index);
+        const template = await this.resolveTemplate(this.option.placement.useTemplateNames[index]);
+        return this.createRenderContext(bid, index, sandbox, template)
       })
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
   }
+  private createSandboxElement(index: number): HTMLElement {
+    const sandbox = <HTMLElement>this.element.cloneNode();
+    this.element.parentElement.insertBefore(sandbox, this.element.nextSibling);
+    this.once("rendered", () => {
+      const onRender = (context: RendererContext) => {
+        if (context.index === index) {
+          sandbox.remove();
+          this.removeListener("render", onRender);
+        }
+      };
+      this.on("render", onRender);
+    });
+    return sandbox;
+  }
   private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
     let loopCount = 0;
+    let expireCount = 0;
     const onExpired = (_context: RendererContext) => {
+      if (++expireCount !== this.option.placement.size) return;
+      expireCount = 0;
       if (++loopCount < this.option.loop.limitCount) {
-        bids.push(bids.shift());
+        rotate(bids, this.option.placement.size);
         this.render(bids);
       } else {
         this.removeListener("expired", onExpired);
@@ -133,10 +145,7 @@ export class ElementModel extends EventEmitter {
     return this.renderer.render(context).then(_ => void 0);
   }
   private async preRender(): Promise<void> {
-    let dummies = [OpenRTBUtils.dummyBid()];
-    if (this.option.multiple.enabled) {
-      dummies = Array(Math.max(this.option.multiple.sizeHint, 1)).fill(OpenRTBUtils.dummyBid());
-    }
+    const dummies = Array(this.option.placement.size).fill(OpenRTBUtils.dummyBid());
     await this.render(dummies);
   }
 

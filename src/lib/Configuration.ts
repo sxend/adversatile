@@ -105,7 +105,7 @@ export class ElementOption {
   video: ElementVideoOption = new ElementVideoOption();
   renderer: ElementRendererOption = new ElementRendererOption();
   loop: ElementLoopOption = new ElementLoopOption();
-  multiple: ElementMultipleOption = new ElementMultipleOption();
+  placement: ElementPlacementOption = new ElementPlacementOption();
 }
 export class ElementRendererOption {
   adScaleRatio: string = "1.0";
@@ -124,9 +124,8 @@ export class ElementLoopOption {
   enabled: boolean = false;
   limitCount: number = 3;
 }
-export class ElementMultipleOption {
-  enabled: boolean = false;
-  sizeHint: number = 1;
+export class ElementPlacementOption {
+  size: number = 1;
   useTemplateNames: string[] = [];
 }
 export class AssetOption {

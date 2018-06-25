@@ -245,8 +245,7 @@ export default {
         emoption.notrim = oldconfig.notrim;
         emoption.preRender = oldconfig.preRender;
         if (oldconfig.priority > 1) {
-          emoption.multiple.enabled = true;
-          emoption.multiple.sizeHint = oldconfig.priority;
+          emoption.placement.size = oldconfig.priority;
         }
         emoption.format = oldconfig.adFormat;
         if (emoption.isBanner()) {
@@ -263,8 +262,7 @@ export default {
       } else {
         const emoption = config.vm.em.option(name);
         if (oldconfig.priority > 1) {
-          emoption.multiple.enabled = true;
-          emoption.multiple.sizeHint = Math.max(emoption.multiple.sizeHint, oldconfig.priority);
+          emoption.placement.size = Math.max(emoption.placement.size, oldconfig.priority);
         }
       }
       let template: string = "";
