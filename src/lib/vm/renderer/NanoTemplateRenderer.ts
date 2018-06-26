@@ -10,10 +10,10 @@ export class NanoTemplateRenderer implements Renderer {
   }
   depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
-    context.template = nano(context.template || "", context);
     if (context.bannerHtml) {
       context.bid.ext.bannerHtml = nano(context.bannerHtml, context);
     }
+    context.template = nano(context.template || "", context);
     return context;
   }
 }

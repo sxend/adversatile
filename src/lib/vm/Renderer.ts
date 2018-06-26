@@ -151,7 +151,7 @@ export interface RendererEvents {
   vimp: LockableFunction<OpenRTB.Bid>;
   disabledAreaViewabled: (bid: OpenRTB.Bid) => void;
   viewThrough: (bid: OpenRTB.Bid) => void;
-  expired: (bid: OpenRTB.Bid) => void;
+  expired: (context: RendererContext) => void;
   onClickForSDKBridge?: (url: string, appId?: string) => void;
 }
 class RendererMetadata {

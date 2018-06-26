@@ -85,55 +85,60 @@ export class ElementModel extends EventEmitter {
       this.assets.map(AssetUtils.optionToNativeAsset),
       impExt
     );
-    return [imp];
+    return [imp]; // FIXME multiple imp
   }
-  update(bids: OpenRTB.Bid[]): Promise<void> {
+  update(context: UpdateContext): Promise<void> {
+    const bids = context.bids;
     if (bids.length === 0) return void 0;
     this.emit("update", bids);
+    this.element.textContent = "";
+
     if (this.option.loop.enabled) {
-      this.setLoop(bids);
+      this.setLoop(context);
     }
-    return this.render(bids)
+    return this.applyUpdate(context)
       .then(_ => { this.emit("updated", bids) })
       .catch(console.error);
   }
-  private async render(bids: OpenRTB.Bid[]): Promise<void> {
-    this.element.textContent = "";
-    await this.renderBids(...bids.slice(0, this.option.placement.size));
-  }
-  private async renderBids(...bids: OpenRTB.Bid[]): Promise<void> {
+  private async applyUpdate(context: UpdateContext): Promise<void> {
+    const size = context.plcmtcntOrElse(this.option.placement.size);
+    const bids = context.bids.slice(0, size);
     const result = bids
       .map(async (bid, index) => {
-        const sandbox = this.createSandboxElement(index);
-        const template = await this.resolveTemplate(this.option.placement.useTemplateNames[index]);
-        return this.createRenderContext(bid, index, sandbox, template)
+        return this.createRendererContextWithBid(context, bid, index);
       })
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
   }
-  private createSandboxElement(index: number): HTMLElement {
+  private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, index: number) {
+    const sandbox = this.createSandboxElement(context, index);
+    const template = await this.resolveTemplate(this.option.placement.useTemplateNames[index]);
+    return this.createRenderContext(bid, index, sandbox, template)
+  }
+  private createSandboxElement(context: UpdateContext, index: number): HTMLElement {
     const sandbox = <HTMLElement>this.element.cloneNode();
-    this.element.parentElement.insertBefore(sandbox, this.element.nextSibling);
-    this.once("rendered", () => {
-      const onRender = (context: RendererContext) => {
-        if (context.index === index) {
-          sandbox.remove();
-          this.removeListener("render", onRender);
+    if (context.sandboxes[index]) {
+      this.element.parentElement.replaceChild(sandbox, context.sandboxes[index]);
+    } else {
+      let replaceTarget = this.element.nextSibling;
+      if (context.dynamic && context.dynamic.override && context.dynamic.override.position) {
+        const replaceIndex = context.dynamic.override.position[index];
+        if (replaceIndex !== void 0) {
+          replaceTarget = this.element.parentElement.children[replaceIndex];
         }
-      };
-      this.on("render", onRender);
-    });
+      }
+      this.element.parentElement.insertBefore(sandbox, replaceTarget);
+    }
+    context.sandboxes[index] = sandbox;
+    this.once("update", () => sandbox.remove());
     return sandbox;
   }
-  private async setLoop(bids: OpenRTB.Bid[]): Promise<void> {
-    let loopCount = 0;
-    let expireCount = 0;
-    const onExpired = (_context: RendererContext) => {
-      if (++expireCount !== this.option.placement.size) return;
-      expireCount = 0;
-      if (++loopCount < this.option.loop.limitCount) {
-        rotate(bids, this.option.placement.size);
-        this.render(bids);
+  private async setLoop(context: UpdateContext): Promise<void> {
+    const onExpired = async (rc: RendererContext) => {
+      if (++context.loopCount < this.option.loop.limitCount) {
+        rotate(context.bids, 1);
+        rc = await this.createRendererContextWithBid(context, context.bids[0], rc.index);
+        this.renderWithContenxt(rc);
       } else {
         this.removeListener("expired", onExpired);
       }
@@ -146,7 +151,7 @@ export class ElementModel extends EventEmitter {
   }
   private async preRender(): Promise<void> {
     const dummies = Array(this.option.placement.size).fill(OpenRTBUtils.dummyBid());
-    await this.render(dummies);
+    await this.applyUpdate(new UpdateContext(dummies));
   }
 
   private async createRenderContext(
@@ -199,5 +204,27 @@ export class ElementModel extends EventEmitter {
         this.emit("expired", context);
       })
     };
+  }
+}
+export class UpdateContext {
+  public id: string = RandomId.gen("upd")
+  public loopCount: number = 0;
+  public sandboxes: { [index: number]: HTMLElement } = {};
+  constructor(
+    public bids: OpenRTB.Bid[],
+    public dynamic: UpdateDynamic = new UpdateDynamic()
+  ) { }
+  plcmtcntOrElse(plcmtcnt: number = 1): number {
+    if (this.dynamic.override && this.dynamic.override.plcmtcnt !== void 0) {
+      plcmtcnt = this.dynamic.override.plcmtcnt;
+    }
+    return plcmtcnt;
+  }
+}
+export class UpdateDynamic {
+  constructor(
+    public pattern?: OpenRTB.Ext.Adhoc.PagePattern,
+    public override?: OpenRTB.Ext.Adhoc.TagOverride
+  ) {
   }
 }

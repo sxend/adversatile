@@ -69,7 +69,7 @@ export class VideoRenderer implements Renderer {
       }),
       () => {
         setTimeout(() => {
-          context.events.expired(context.bid);
+          context.events.expired(context);
         }, context.model.option.video.replayDelayMillis);
       }
     );

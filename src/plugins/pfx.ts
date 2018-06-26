@@ -193,7 +193,7 @@ export default {
     let firstPageIdDetect = true;
     function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
-      runMain();
+      runMain(null);
       Dom.TopLevelWindow.then(w => {
         config.vm.selector = `.${className}`;
         const existsPageId = !!pageId;

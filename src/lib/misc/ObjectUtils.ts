@@ -91,7 +91,7 @@ export function getOrElse<A>(fn: () => A, el?: A): A {
   } catch (e) { }
   return el;
 }
-export function onceFunction(fn: Function): () => void {
+export function onceFunction<A>(fn: FunctionA<A>): FunctionA<A> {
   let first = true;
   return (...args: any[]) => {
     if (first) {
@@ -101,7 +101,7 @@ export function onceFunction(fn: Function): () => void {
   };
 }
 
-type FunctionA<A> = (a: A) => void;
+type FunctionA<A> = (_: A) => void;
 
 export interface LockableFunction<A> extends FunctionA<A> {
   lock(): FunctionA<A>

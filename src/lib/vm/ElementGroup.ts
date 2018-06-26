@@ -1,4 +1,4 @@
-import { ElementModel } from "./ElementModel";
+import { ElementModel, UpdateDynamic, UpdateContext } from "./ElementModel";
 import { ViewModelConf } from "../Configuration";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { Store } from "../Store";
@@ -47,47 +47,20 @@ export class ElementGroup {
     if (!sbid || !sbid.bid) {
       throw new Error("is empty sbid");
     }
-    this.preupdate(sbid).then(sbid => {
-      const bidsGroup = groupBy(sbid.bid, bid => bid.impid);
-      Object.keys(bidsGroup).forEach(id => {
-        const em = this.ems[id];
-        if (!em) return;
-        this.updateByBids(em, bidsGroup[id]);
-      });
-    }).catch(console.error);
+    const pattern = selectPattern(sbid);
+    const bidsGroup = groupBy(sbid.bid, bid => bid.impid);
+    Object.keys(bidsGroup).forEach(id => {
+      const em = this.ems[id];
+      if (!em) return;
+      const override = pattern && pattern.tagOverrides &&
+        pattern.tagOverrides.find(tag => tag.tagid === em.name);
+      const context = new UpdateContext(bidsGroup[id], new UpdateDynamic(pattern, override));
+      this.updateByBids(em, context);
+    });
   }
 
-  private async preupdate(sbid: OpenRTB.SeatBid): Promise<OpenRTB.SeatBid> {
-    if (!sbid || !sbid.ext || !sbid.ext.pagePatterns ||
-      sbid.ext.pagePatterns.length === 0) return sbid;
-
-    const roulette = new RouletteWheel<PagePattern>(p => p.displayRatio);
-    for (let pattern of sbid.ext.pagePatterns) {
-      if (isAvaiablePattern(pattern, sbid.bid)) {
-        roulette.add(pattern);
-      }
-    }
-    const pattern = roulette.select();
-    if (!pattern) return sbid;
-
-    const convert = (bid: OpenRTB.Bid, tag: OpenRTB.Ext.Adhoc.TagOverride) => {
-      if (tag.plcmtcnt === 0) {
-        bid.ext.disabled = true;
-      }
-      OpenRTBUtils.setPatternToVimpTrackers(bid.ext, pattern);
-      OpenRTBUtils.setPatternToClickUrls(bid.ext, pattern);
-    };
-    for (let tag of pattern.tagOverrides) {
-      for (let bid of sbid.bid) {
-        if (bid.ext.tagid === tag.tagid) {
-          convert(bid, tag);
-        }
-      }
-    }
-    return sbid;
-  }
-  private updateByBids(em: ElementModel, bids: OpenRTB.Bid[]): void {
-    if (bids.length === 0) return;
+  private updateByBids(em: ElementModel, context: UpdateContext): void {
+    if (context.bids.length === 0) return;
     em
       .on("impression", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getState().getTrackedUrls("imp-tracking");
@@ -111,7 +84,7 @@ export class ElementGroup {
           ]
         });
       })
-      .update(bids);
+      .update(context);
   }
   private async createBidReq(
     ems: ElementModel[],
@@ -132,4 +105,27 @@ function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
     }
   }
   return true;
+}
+function selectPattern(sbid: OpenRTB.SeatBid): PagePattern {
+  if (!sbid || !sbid.ext || !sbid.ext.pagePatterns ||
+    sbid.ext.pagePatterns.length === 0) return void 0;
+
+  const roulette = new RouletteWheel<PagePattern>(p => p.displayRatio);
+  for (let pattern of sbid.ext.pagePatterns) {
+    if (isAvaiablePattern(pattern, sbid.bid)) {
+      roulette.add(pattern);
+    }
+  }
+  const pattern = roulette.select();
+  if (!pattern) return void 0;
+
+  for (let tag of pattern.tagOverrides) {
+    for (let bid of sbid.bid) {
+      if (bid.ext.tagid === tag.tagid) {
+        OpenRTBUtils.setPatternToVimpTrackers(bid.ext, pattern);
+        OpenRTBUtils.setPatternToClickUrls(bid.ext, pattern);
+      }
+    }
+  }
+  return pattern;
 }
