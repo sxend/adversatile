@@ -5,7 +5,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RendererEvents, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, lockableFunction, rotate } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, lockableFunction, rotate, getOrElse } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
 
@@ -121,8 +121,9 @@ export class ElementModel extends EventEmitter {
       this.element.parentElement.replaceChild(sandbox, context.sandboxes[index]);
     } else {
       let replaceTarget = this.element.nextSibling;
-      if (context.dynamic && context.dynamic.override && context.dynamic.override.position) {
-        const replaceIndex = context.dynamic.override.position[index];
+      const position = getOrElse(() => context.dynamic.override.position);
+      if (position) {
+        const replaceIndex = position[index];
         if (replaceIndex !== void 0) {
           replaceTarget = this.element.parentElement.children[replaceIndex];
         }
@@ -215,10 +216,7 @@ export class UpdateContext {
     public dynamic: UpdateDynamic = new UpdateDynamic()
   ) { }
   plcmtcntOrElse(plcmtcnt: number = 1): number {
-    if (this.dynamic.override && this.dynamic.override.plcmtcnt !== void 0) {
-      plcmtcnt = this.dynamic.override.plcmtcnt;
-    }
-    return plcmtcnt;
+    return getOrElse(() => this.dynamic.override.plcmtcnt, plcmtcnt);
   }
 }
 export class UpdateDynamic {

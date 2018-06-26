@@ -87,7 +87,10 @@ export function containsOr<A>(arr: A[], ...conds: A[]): boolean {
 }
 export function getOrElse<A>(fn: () => A, el?: A): A {
   try {
-    return fn();
+    const result = fn();
+    if (result !== void 0) {
+      return result;
+    }
   } catch (e) { }
   return el;
 }

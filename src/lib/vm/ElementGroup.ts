@@ -29,7 +29,7 @@ export class ElementGroup {
     for (let em of ems) {
       if (Object.keys(this.ems).indexOf(em.id) === -1) {
         this.ems[em.id] = em;
-        em.once("destroy", () => delete this.ems[em.id]);
+        this.setEvents(em);
       } else {
         return;
       }
@@ -52,15 +52,16 @@ export class ElementGroup {
     Object.keys(bidsGroup).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
-      const override = pattern && pattern.tagOverrides &&
-        pattern.tagOverrides.find(tag => tag.tagid === em.name);
+      const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
       const context = new UpdateContext(bidsGroup[id], new UpdateDynamic(pattern, override));
-      this.updateByBids(em, context);
+      this.updateWithContext(em, context);
     });
   }
-
-  private updateByBids(em: ElementModel, context: UpdateContext): void {
+  private updateWithContext(em: ElementModel, context: UpdateContext): void {
     if (context.bids.length === 0) return;
+    em.update(context);
+  }
+  private setEvents(em: ElementModel): void {
     em
       .on("impression", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getState().getTrackedUrls("imp-tracking");
@@ -83,8 +84,7 @@ export class ElementGroup {
             { "dimension:inview": 1 }
           ]
         });
-      })
-      .update(context);
+      });
   }
   private async createBidReq(
     ems: ElementModel[],
