@@ -5,14 +5,19 @@ import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Store extends EventEmitter {
   private internal: any = {};
-  private state: State = new State(this.internal);
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
-    this.dispatcher.onDispatch("BidRequest", (request: OpenRTB.BidRequest) => {
+    this.dispatcher.onDispatch("BidRequest:New", (request: OpenRTB.BidRequest) => {
       this.addBidRequest(request);
     });
-    this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
+    this.dispatcher.onDispatch("BidRequest:Consume", (request: OpenRTB.BidRequest) => {
+      delete this.internal.requests[request.id];
+    });
+    this.dispatcher.onDispatch("BidResponse:New", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
+    });
+    this.dispatcher.onDispatch("BidResponse:Consume", (response: OpenRTB.BidResponse) => {
+      delete this.internal.responses[response.id];
     });
     this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
       this.internal.trackedUrls = this.internal.trackedUrls || {};
@@ -20,6 +25,7 @@ export class Store extends EventEmitter {
     });
   }
   private addBidRequest(request: OpenRTB.BidRequest) {
+    if (this.internal.requests[request.id]) return;
     (this.internal.requests = this.internal.requests || {});
     this.internal.requests[request.id] = request;
     if (this.config.bidRequestExpireMilli !== -1) {
@@ -30,6 +36,7 @@ export class Store extends EventEmitter {
     this.emit("AddBidRequest", request);
   }
   private addBidResponse(response: OpenRTB.BidResponse) {
+    if (this.internal.responses[response.id]) return;
     (this.internal.responses = this.internal.responses || {});
     this.internal.responses[response.id] = response;
     if (this.config.bidResponseExpireMilli !== -1) {
@@ -39,13 +46,6 @@ export class Store extends EventEmitter {
     }
     this.emit("AddBidResponse", response);
   }
-  getState(): State {
-    return this.state;
-  }
-}
-
-export class State {
-  constructor(private internal: any) { }
   hasBidRequest(id: string): boolean {
     return !!this.internal.requests && !!this.internal.requests[id] && this.internal.requests[id].length > 0;
   }
