@@ -8,7 +8,6 @@ export class Store extends EventEmitter {
   private state: State = new State(this.internal);
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
-    this.config.toString(); // FIXME
     this.dispatcher.onDispatch("BidRequest", (request: OpenRTB.BidRequest) => {
       this.addBidRequest(request);
     });
