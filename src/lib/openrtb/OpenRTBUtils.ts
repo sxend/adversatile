@@ -43,7 +43,7 @@ export namespace OpenRTBUtils {
       device = JSON.parse(CookieUtils.getItem("pfx_req_device") || "{}");
     }
     const req = new OpenRTB.BidRequest();
-    req.id = RandomId.gen();
+    req.id = RandomId.gen("rtb");
     req.imp = imp;
     req.site = site;
     req.device = device;
@@ -127,34 +127,30 @@ export namespace OpenRTBUtils {
     return viewThroughUrls;
   }
   export function setPatternToClickUrls(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
-    if (hasClickUrls(ext)) {
+    const url = getOrElse(() => ext.admNative.link.url);
+    if (url) {
       ext.admNative.link.url =
-        appendPatternIdToUrl(ext.admNative.link.url, pattern.id);
+        appendPatternIdToUrl(url, pattern.id);
     }
   }
   export function setPatternToVimpTrackers(ext: OpenRTB.Ext.BidExt, pattern: OpenRTB.Ext.Adhoc.PagePattern) {
-    if (hasVimpTrackers(ext)) {
-      var trackerLength = ext.admNative.ext.viewableImptrackers.length;
-      for (var i = 0; i < trackerLength; i++) {
+    let trackers = getOrElse(() => ext.viewableImptrackers);
+    if (trackers) {
+      for (let i in trackers) {
+        ext.viewableImptrackers[i] =
+          appendPatternIdToUrl(trackers[i], pattern.id);
+      }
+    }
+    trackers = getOrElse(() => ext.admNative.ext.viewableImptrackers);
+    if (trackers) {
+      for (let i in trackers) {
         ext.admNative.ext.viewableImptrackers[i] =
-          appendPatternIdToUrl(ext.admNative.ext.viewableImptrackers[i], pattern.id);
+          appendPatternIdToUrl(trackers[i], pattern.id);
       }
     }
   }
-  function hasClickUrls(ext: OpenRTB.Ext.BidExt): boolean {
-    return ext &&
-      ext.admNative &&
-      ext.admNative.link &&
-      ext.admNative.link.url !== void 0;
-  }
-  function hasVimpTrackers(ext: OpenRTB.Ext.BidExt): boolean {
-    return ext &&
-      ext.admNative &&
-      ext.admNative.ext &&
-      ext.admNative.ext.viewableImptrackers !== void 0;
-  }
   function appendPatternIdToUrl(url: string, id: number): string {
-    var delimiter = (url.indexOf("?") === -1) ? "?" : "&";
+    const delimiter = (url.indexOf("?") === -1) ? "?" : "&";
     return url + delimiter + "pattern=" + id;
   }
 }

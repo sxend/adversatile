@@ -9,28 +9,36 @@ export class Store extends EventEmitter {
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
     this.config.toString(); // FIXME
+    this.dispatcher.onDispatch("BidRequest", (request: OpenRTB.BidRequest) => {
+      this.addBidRequest(request);
+    });
     this.dispatcher.onDispatch("BidResponse", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
-      if (!response.seatbid) return;
-      response.seatbid.forEach(sbid => {
-        if (!sbid.bid) return;
-        sbid.bid.forEach(bid => this.addBid(bid));
-      });
     });
     this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
       this.internal.trackedUrls = this.internal.trackedUrls || {};
       this.internal.trackedUrls[data.name] = (this.internal.trackedUrls[data.name] || []).concat(data.urls);
     });
   }
+  private addBidRequest(request: OpenRTB.BidRequest) {
+    (this.internal.requests = this.internal.requests || {});
+    this.internal.requests[request.id] = request;
+    if (this.config.bidRequestExpireMilli !== -1) {
+      setTimeout(() => {
+        delete this.internal.requests[request.id];
+      }, this.config.bidRequestExpireMilli);
+    }
+    this.emit("AddBidRequest", request);
+  }
   private addBidResponse(response: OpenRTB.BidResponse) {
     (this.internal.responses = this.internal.responses || {});
-    (this.internal.responses[response.id] = this.internal.responses[response.id] || []).push(response);
+    this.internal.responses[response.id] = response;
+    if (this.config.bidResponseExpireMilli !== -1) {
+      setTimeout(() => {
+        delete this.internal.responses[response.id];
+      }, this.config.bidResponseExpireMilli);
+    }
     this.emit("AddBidResponse", response);
-  }
-  private addBid(bid: OpenRTB.Bid) {
-    (this.internal.bids = this.internal.bids || {});
-    (this.internal.bids[bid.impid] = this.internal.bids[bid.impid] || []).push(bid);
-    this.emit("AddBid", bid);
   }
   getState(): State {
     return this.state;
@@ -39,17 +47,17 @@ export class Store extends EventEmitter {
 
 export class State {
   constructor(private internal: any) { }
+  hasBidRequest(id: string): boolean {
+    return !!this.internal.requests && !!this.internal.requests[id] && this.internal.requests[id].length > 0;
+  }
+  getBidRequest(id: string): OpenRTB.BidRequest {
+    return this.internal.requests[id];
+  }
   hasBidResponse(id: string): boolean {
     return !!this.internal.responses && !!this.internal.responses[id] && this.internal.responses[id].length > 0;
   }
   getBidResponse(id: string): OpenRTB.Bid {
-    return (this.internal.responses[id] || []).shift();
-  }
-  hasBid(id: string): boolean {
-    return !!this.internal.bids && !!this.internal.bids[id] && this.internal.bids[id].length > 0;
-  }
-  getBid(id: string): OpenRTB.Bid {
-    return (this.internal.bids[id] || []).shift();
+    return this.internal.responses[id];
   }
   getTrackedUrls(name: string): string[] {
     if (this.internal.trackedUrls) {

@@ -88,8 +88,6 @@ export class ElementModel extends EventEmitter {
     return [imp]; // FIXME multiple imp
   }
   update(context: UpdateContext): Promise<void> {
-    const bids = context.bids;
-    if (bids.length === 0) return void 0;
     this.emit("update", context);
     this.element.textContent = "";
 

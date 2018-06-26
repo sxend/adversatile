@@ -4,7 +4,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { Store } from "../Store";
 import { Action } from "../Action";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { getOrElse, groupBy, flatten } from "../misc/ObjectUtils";
+import { getOrElse, groupBy, flatten, contains, uniqBy } from "../misc/ObjectUtils";
 import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
 import Analytics from "../misc/Analytics";
@@ -18,10 +18,11 @@ export class ElementGroup {
     private action: Action
   ) {
     this.store.on("AddBidResponse", (response: OpenRTB.BidResponse) => {
-      if (!response.ext || !response.ext.group || response.ext.group !== this.group) {
+      const request = this.store.getState().getBidRequest(response.id);
+      if (!request || !response.ext || !response.ext.group || response.ext.group !== this.group) {
         return;
       }
-      this.update(response);
+      this.update(request, response);
     });
     this.config.group.plugins.forEach(plugin => plugin.install(this));
   }
@@ -39,7 +40,7 @@ export class ElementGroup {
       this.action.adcall(req);
     }
   }
-  update(response: OpenRTB.BidResponse): void {
+  update(request: OpenRTB.BidRequest, response: OpenRTB.BidResponse): void {
     if (this.group !== getOrElse(() => response.ext.group)) {
       throw new Error(`invalid response.ext.group: ${getOrElse(() => response.ext.group)}`);
     }
@@ -49,17 +50,20 @@ export class ElementGroup {
     }
     const pattern = selectPattern(sbid);
     const bidsGroup = groupBy(sbid.bid, bid => bid.impid);
+    const updated: string[] = [];
     Object.keys(bidsGroup).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
       const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
       const context = new UpdateContext(bidsGroup[id], new UpdateDynamic(pattern, override));
-      this.updateWithContext(em, context);
+      em.update(context);
+      updated.push(em.id);
     });
-  }
-  private updateWithContext(em: ElementModel, context: UpdateContext): void {
-    if (context.bids.length === 0) return;
-    em.update(context);
+    uniqBy(request.imp, imp => imp.id).forEach(imp => {
+      if (contains(updated, imp.id) || !this.ems[imp.id]) return;
+      const em = this.ems[imp.id];
+      em.update(new UpdateContext([]));
+    });
   }
   private setEvents(em: ElementModel): void {
     em

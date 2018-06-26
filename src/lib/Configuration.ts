@@ -28,7 +28,10 @@ export class BackendConf {
   }[] = [];
 }
 
-export class StoreConf { }
+export class StoreConf {
+  bidRequestExpireMilli: number = -1;
+  bidResponseExpireMilli: number = -1;
+}
 
 export class ViewModelConf {
   selector: string = ".adversatile";
