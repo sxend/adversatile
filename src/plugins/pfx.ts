@@ -39,7 +39,8 @@ declare var window: {
     },
     pa: Function
   },
-  postMessage: Function
+  postMessage: Function,
+  pfxbridge: any
 }
 export default {
   install: function(Adversatile: any) {
@@ -333,10 +334,10 @@ export default {
     }
     Adversatile.use({
       install: function(adv: any) {
-        adv.plugin.bridge = adv.plugin.bridge || {};
+        adv.plugin.bridge = adv.plugin.bridge || window.pfxbridge;
         setInterval(() => {
           if (ProFitX.Global.ifa) {
-            adv.bridge.ifa = ProFitX.Global.ifa;
+            adv.plugin.bridge.ifa = ProFitX.Global.ifa;
           }
         }, 50);
       }
