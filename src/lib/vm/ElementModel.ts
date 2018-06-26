@@ -18,7 +18,7 @@ export class ElementModel extends EventEmitter {
   }
   private constructor(
     private config: ElementModelConf,
-    private element: HTMLElement,
+    readonly element: HTMLElement,
   ) {
     super();
     this.renderer = new RootRenderer(this.config.renderer);

@@ -77,18 +77,16 @@ export class ElementGroup {
         const tracked = this.store.getTrackedUrls("viewable-imp-tracking");
         const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "viewable-imp-tracking", true);
-      })
-      .on("view_through", (bid: OpenRTB.Bid) => {
-        const tracked = this.store.getTrackedUrls("view-through-tracking");
-        const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-        this.action.tracking(urls, "view-through-tracking", true);
-      })
-      .on("disabled_area_viewabled", (_bid: OpenRTB.Bid) => {
         Analytics("send", {
           "dimension:page_histories": [
             { "dimension:inview": 1 }
           ]
         });
+      })
+      .on("view_through", (bid: OpenRTB.Bid) => {
+        const tracked = this.store.getTrackedUrls("view-through-tracking");
+        const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        this.action.tracking(urls, "view-through-tracking", true);
       });
   }
   private async createBidReq(

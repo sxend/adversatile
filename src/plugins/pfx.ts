@@ -4,13 +4,15 @@ import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
-import { ElementModel } from "../lib/vm/ElementModel";
+import { ElementModel, UpdateContext } from "../lib/vm/ElementModel";
 import { getOrElse, assign, onceFunction } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
 import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 import deepmerge from "deepmerge";
+import { isString } from "../lib/misc/TypeCheck";
+import { ViewableObserver } from "../lib/misc/ViewableObserver";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -126,6 +128,29 @@ export default {
         }
       }
     });
+    config.vm.em.plugins.push({
+      install: function(model: ElementModel) {
+        const oldconfig = _oldconfigs.find(x => x.tagId === model.name);
+        const original = model.update;
+        model.update = function update(context: UpdateContext): Promise<void> {
+          const size = getOrElse(() => context.dynamic.override.plcmtcnt);
+          if (size === 0) {
+            let target = <HTMLElement>model.element.parentNode;
+            if (oldconfig.displayAreaParentNode) {
+              target = <HTMLElement>oldconfig.displayAreaParentNode(context.dynamic.pattern, context.dynamic.override, {});
+            }
+            ViewableObserver.onceInview(target, () => {
+              Analytics("send", {
+                "dimension:page_histories": [
+                  { "dimension:inview": 1 }
+                ]
+              });
+            });
+          }
+          return original.call(model, context);
+        };
+      }
+    });
     config.vm.em.renderer.plugins.push({
       install: function(renderer: Renderer) {
         if (renderer.getName() !== NanoTemplateRenderer.NAME) return;
@@ -191,7 +216,10 @@ export default {
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     let runMain = onceFunction(() => Adversatile.main(config).catch(console.error));
     let firstPageIdDetect = true;
-    function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
+    function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
+      if (!isString(className)) {
+        setup("ca_profitx_ad", className, className.pageIds[0]);
+      }
       console.log("adv setup");
       runMain(null);
       Dom.TopLevelWindow.then(w => {

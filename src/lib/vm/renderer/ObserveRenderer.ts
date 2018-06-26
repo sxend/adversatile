@@ -3,6 +3,7 @@ import { RendererConf, ObserveType } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
 import { RandomId } from "../../misc/RandomId";
 import { Async } from "../../misc/Async";
+import { ViewableObserver } from "../../misc/ViewableObserver";
 
 export class ObserveRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -31,29 +32,9 @@ export class ObserveRenderer implements Renderer {
   }
   private async observeInview(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
     context.model.once("rendered", async () => {
-      let timer: any;
-      const observer = new IntersectionObserver(
-        function(event) {
-          if (!event || !event[0]) return;
-          if (event[0].intersectionRatio < 0.5) {
-            if (timer) {
-              clearTimeout(timer);
-              timer = null;
-            }
-          } else {
-            if (!timer) {
-              timer = setTimeout(() => {
-                callback();
-                observer.unobserve(target);
-              }, 1000);
-            }
-          }
-        },
-        {
-          threshold: Array(101).fill(0).map((_, i) => i / 100)
-        }
-      );
-      observer.observe(target);
+      ViewableObserver.onceInview(target, () => {
+        callback();
+      });
     });
   }
   private async observeSelector(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
