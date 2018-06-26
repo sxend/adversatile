@@ -7,6 +7,8 @@ export class Store extends EventEmitter {
   private internal: any = {};
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
+    (this.internal.requests = this.internal.requests || {});
+    (this.internal.responses = this.internal.responses || {});
     this.dispatcher.onDispatch("BidRequest:New", (request: OpenRTB.BidRequest) => {
       this.addBidRequest(request);
     });
@@ -26,7 +28,6 @@ export class Store extends EventEmitter {
   }
   private addBidRequest(request: OpenRTB.BidRequest) {
     if (this.internal.requests[request.id]) return;
-    (this.internal.requests = this.internal.requests || {});
     this.internal.requests[request.id] = request;
     if (this.config.bidRequestExpireMilli !== -1) {
       setTimeout(() => {
@@ -37,7 +38,6 @@ export class Store extends EventEmitter {
   }
   private addBidResponse(response: OpenRTB.BidResponse) {
     if (this.internal.responses[response.id]) return;
-    (this.internal.responses = this.internal.responses || {});
     this.internal.responses[response.id] = response;
     if (this.config.bidResponseExpireMilli !== -1) {
       setTimeout(() => {

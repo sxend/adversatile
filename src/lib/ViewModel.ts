@@ -67,7 +67,7 @@ export class ViewModel {
         if (!this.groups[key]) {
           this.groups[key] = new ElementGroup(key, this.config, this.store, this.action);
         }
-        this.groups[key].register(groups[key]);
+        this.groups[key].register(groups[key]).catch(console.error);
       });
     }).catch(console.error);
   }

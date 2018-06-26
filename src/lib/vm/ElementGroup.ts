@@ -64,6 +64,7 @@ export class ElementGroup {
       const em = this.ems[imp.id];
       em.update(new UpdateContext([]));
     });
+    this.action.consumeBidReqRes(request, response);
   }
   private setEvents(em: ElementModel): void {
     em

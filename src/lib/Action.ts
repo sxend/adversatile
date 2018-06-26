@@ -13,7 +13,7 @@ export class Action {
     this.backend = new Backend(this.config.backend);
   }
   adcall(request: OpenRTB.BidRequest): void {
-    this.dispatcher.dispatch({ event: "BidRequest:New", data: request })
+    this.dispatcher.dispatch({ event: "BidRequest:New", data: request });
     const responseP = this.backend.adcall(request);
     responseP
       .then(response => {
