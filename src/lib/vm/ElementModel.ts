@@ -90,14 +90,14 @@ export class ElementModel extends EventEmitter {
   update(context: UpdateContext): Promise<void> {
     const bids = context.bids;
     if (bids.length === 0) return void 0;
-    this.emit("update", bids);
+    this.emit("update", context);
     this.element.textContent = "";
 
     if (this.option.loop.enabled) {
       this.setLoop(context);
     }
     return this.applyUpdate(context)
-      .then(_ => { this.emit("updated", bids) })
+      .then(_ => { this.emit("updated", context) })
       .catch(console.error);
   }
   private async applyUpdate(context: UpdateContext): Promise<void> {
