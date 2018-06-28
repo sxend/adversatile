@@ -10,7 +10,7 @@ export class Backend {
   }
   async adcall(req: OpenRTB.BidRequest): Promise<OpenRTB.BidResponse> {
     const cb = `${this.config.adcallCallbackPrefix}${RandomId.gen()}`;
-    const result = <OpenRTB.SeatBid>await Jsonp.fetch(
+    const result = await Jsonp.fetch<OpenRTB.SeatBid>(
       this.config.apiUrl +
       `${this.config.adcallPath}?${reqToParams(req)}&callback=${cb}`,
       cb
@@ -20,7 +20,7 @@ export class Backend {
     res.seatbid = [result];
     res.ext = new OpenRTB.Ext.BidResponseExt(req.ext.group);
 
-    const group: any = groupBy(result.bid, bid => bid.ext.tagid);
+    const group = groupBy(result.bid, bid => bid.ext.tagid);
     Object.keys(group).forEach(tagId => {
       const imps = req.imp.filter(imp => imp.tagid === tagId);
       const defaultImp = imps[0];

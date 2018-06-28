@@ -1,8 +1,8 @@
 import { Dom } from "./Dom";
 export namespace Jsonp {
-  export function fetch(url: string, callbackName: string): Promise<any> {
+  export function fetch<A>(url: string, callbackName: string): Promise<A> {
     return new Promise(resolve => {
-      (<any>window)[callbackName] = function(data: any) {
+      (<any>window)[callbackName] = function(data: A) {
         resolve(data);
       };
       const script = Dom.createScriptElement();

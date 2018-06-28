@@ -72,12 +72,12 @@ export class ElementGroup {
       .on("impression", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getTrackedUrls("imp-tracking");
         const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-        this.action.tracking(urls, "imp-tracking", true);
+        this.action.tracking(urls, "imp-tracking");
       })
       .on("viewable_impression", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getTrackedUrls("viewable-imp-tracking");
         const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-        this.action.tracking(urls, "viewable-imp-tracking", true);
+        this.action.tracking(urls, "viewable-imp-tracking");
         Analytics("send", {
           "dimension:page_histories": [
             { "dimension:inview": 1 }
@@ -87,7 +87,7 @@ export class ElementGroup {
       .on("view_through", (bid: OpenRTB.Bid) => {
         const tracked = this.store.getTrackedUrls("view-through-tracking");
         const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
-        this.action.tracking(urls, "view-through-tracking", true);
+        this.action.tracking(urls, "view-through-tracking");
       });
   }
   private async createBidReq(

@@ -26,11 +26,9 @@ export class Action {
     this.dispatcher.dispatch({ event: "BidRequest:Consume", data: req });
     this.dispatcher.dispatch({ event: "BidResponse:Consume", data: res });
   }
-  tracking(urls: string[], trackingName: string, historied: boolean = false) {
+  tracking(urls: string[], trackingName: string) {
     Tracking.trackingCall(urls, trackingName).then(_ => {
-      if (historied) {
-        this.dispatcher.dispatch({ event: "Tracked", data: { name: trackingName, urls } });
-      }
+      this.dispatcher.dispatch({ event: "Tracked", data: { name: trackingName, urls } });
     });
   }
 }
