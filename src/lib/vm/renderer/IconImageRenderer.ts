@@ -5,6 +5,7 @@ import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import { InjectRenderer } from "./InjectRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 
 export class IconImageRenderer implements Renderer {
@@ -20,7 +21,7 @@ export class IconImageRenderer implements Renderer {
     if (!icon) return context;
     const targets: HTMLImageElement[] =
       <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       target.src = icon.img.url;
       context.addFoundAssets(AssetUtils.iconImageOption(target.clientWidth, target.clientHeight));

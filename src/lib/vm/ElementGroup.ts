@@ -8,6 +8,7 @@ import { getOrElse, groupBy, flatten, contains, uniqBy } from "../misc/ObjectUti
 import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
 import Analytics from "../misc/Analytics";
+import { isEmptyArray } from "../misc/TypeCheck";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -111,7 +112,7 @@ function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
 }
 function selectPattern(sbid: OpenRTB.SeatBid): PagePattern {
   if (!sbid || !sbid.ext || !sbid.ext.pagePatterns ||
-    sbid.ext.pagePatterns.length === 0) return void 0;
+    isEmptyArray(sbid.ext.pagePatterns)) return void 0;
 
   const roulette = new RouletteWheel<PagePattern>(p => p.displayRatio);
   for (let pattern of sbid.ext.pagePatterns) {

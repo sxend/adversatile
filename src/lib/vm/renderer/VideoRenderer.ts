@@ -10,6 +10,7 @@ import ResAssets = Response.Assets;
 import { RendererUtils } from "./RendererUtils";
 import { InjectRenderer } from "./InjectRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class VideoRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -27,7 +28,7 @@ export class VideoRenderer implements Renderer {
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     if (!video) {
       targets.forEach(target => target.remove());
       return context;

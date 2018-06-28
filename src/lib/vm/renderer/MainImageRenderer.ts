@@ -7,6 +7,7 @@ import { AssetUtils } from "../../openrtb/AssetUtils";
 import { contains } from "../../misc/ObjectUtils";
 import { VideoRenderer } from "./VideoRenderer";
 import { InjectRenderer } from "./InjectRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class MainImageRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -19,7 +20,7 @@ export class MainImageRenderer implements Renderer {
   async render(context: RendererContext): Promise<RendererContext> {
     const targets: HTMLImageElement[] =
       <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     if (contains(context.metadata.appliedRendererNames, VideoRenderer.NAME)) {
       targets.forEach(target => target.remove());
       return context;

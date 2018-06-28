@@ -1,9 +1,11 @@
+import { isEmptyArray } from "../../misc/TypeCheck";
+
 export namespace RendererUtils {
   export function addExpandParams(
     url: string,
     expandParams: { name: string; value: string | number }[]
   ): string {
-    if (!expandParams || expandParams.length === 0) {
+    if (!expandParams || isEmptyArray(expandParams)) {
       return url;
     }
     let params: string = url.match(/\?.*/) ? "&" : "?";

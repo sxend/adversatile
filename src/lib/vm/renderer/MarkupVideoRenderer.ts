@@ -7,6 +7,7 @@ import { AssetUtils } from "../../openrtb/AssetUtils";
 import ResAssets = OpenRTB.NativeAd.Response.Assets;
 import { Tracking } from "../../misc/Tracking";
 import { InjectRenderer } from "./InjectRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class MarkupVideoRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -23,7 +24,7 @@ export class MarkupVideoRenderer implements Renderer {
     const link = context.admNative.link;
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       const divChildElement: HTMLElement = document.createElement("div");
       divChildElement.className = target.className;

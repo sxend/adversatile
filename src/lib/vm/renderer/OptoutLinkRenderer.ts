@@ -5,6 +5,7 @@ import { OpenRTB } from "../../openrtb/OpenRTB";
 import AssetTypes = OpenRTB.NativeAd.AssetTypes;
 import { AssetUtils } from "../../openrtb/AssetUtils";
 import { InjectRenderer } from "./InjectRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class OptoutLinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -19,7 +20,7 @@ export class OptoutLinkRenderer implements Renderer {
     if (!image) return context;
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       const optoutLink: HTMLAnchorElement = document.createElement("a");
       optoutLink.href = image.link.url;

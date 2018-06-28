@@ -9,6 +9,7 @@ import { groupBy } from "./misc/ObjectUtils";
 import { AssetUtils } from "./openrtb/AssetUtils";
 import { ElementGroup } from "./vm/ElementGroup";
 import { Dom } from "./misc/Dom";
+import { isEmptyArray } from "./misc/TypeCheck";
 
 export class ViewModel {
   private groups: { [group: string]: ElementGroup } = {};
@@ -22,7 +23,7 @@ export class ViewModel {
     config.plugins.forEach(plugin => plugin.install(this));
   }
   private prefetch(): void {
-    if (!this.config.prefetch || this.config.prefetch.length === 0) return;
+    if (!this.config.prefetch || isEmptyArray(this.config.prefetch)) return;
     for (let target of this.config.prefetch) {
       const option = this.config.em.option(target.name);
       if (option.assets.length > 0) {
@@ -51,7 +52,7 @@ export class ViewModel {
         element.classList.add(this.config.markedClass);
         return element;
       });
-    if (newElements.length !== 0) {
+    if (!isEmptyArray(newElements)) {
       this.initNewElements(newElements);
     }
   }

@@ -7,6 +7,7 @@ import { MarkupVideoRenderer } from "./MarkupVideoRenderer";
 import { Tracking } from "../../misc/Tracking";
 import { RendererUtils } from "./RendererUtils";
 import { InjectRenderer } from "./InjectRenderer";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class LinkJsRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -32,7 +33,7 @@ export class LinkJsRenderer implements Renderer {
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
 
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       target.style.cursor = "auto";
       target.onclick = async () => {

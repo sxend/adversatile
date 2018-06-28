@@ -4,6 +4,7 @@ import { Dom } from "../../misc/Dom";
 import { RandomId } from "../../misc/RandomId";
 import { Async } from "../../misc/Async";
 import { ViewableObserver } from "../../misc/ViewableObserver";
+import { isEmptyArray } from "../../misc/TypeCheck";
 
 export class ObserveRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -15,7 +16,7 @@ export class ObserveRenderer implements Renderer {
   async render(context: RendererContext): Promise<RendererContext> {
     const topWindow = await Dom.TopLevelWindow;
     const targets = <HTMLElement[]>Dom.recursiveQuerySelectorAll(topWindow.document, this.selector(context.id));
-    if (targets.length === 0) return context;
+    if (isEmptyArray(targets)) return context;
     const canInview = await Dom.canViewportIntersectionMeasurement;
     for (let target of targets) {
       const type = target.getAttribute(this.config.observe.observeTypeAttrName);

@@ -12,6 +12,9 @@ export function isArray(o: any): boolean {
 export function isDefined(o: any): boolean {
   return o !== void 0;
 }
+export function isEmptyArray<A>(arr: A[]): boolean {
+  return arr.length === 0;
+}
 function matchToString(expect: string, o: any): boolean {
   return expect === ProtoToString.call(Object(o));
 }
