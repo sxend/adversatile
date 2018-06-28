@@ -9,7 +9,7 @@ import ResAssets = Response.Assets;
 import { RendererUtils } from "./RendererUtils";
 import { InjectRenderer } from "./InjectRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
-import { isDefined } from "../../misc/TypeCheck";
+import { isEmptyArray } from "../../misc/TypeCheck";
 import { getOrElse } from "../../misc/ObjectUtils";
 
 export class VideoRenderer implements Renderer {
@@ -24,13 +24,13 @@ export class VideoRenderer implements Renderer {
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
-    const target: HTMLElement =
-      <HTMLElement>Dom.recursiveQuerySelector(context.element, this.selector());
+    const targets: HTMLElement[] =
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
-    if (!isDefined(target)) return context;
+    if (isEmptyArray(targets)) return context;
     if (!video) {
-      target.remove();
+      targets.forEach(_ => _.remove());
       return context;
     }
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
@@ -40,7 +40,11 @@ export class VideoRenderer implements Renderer {
     ) {
       await this.loadVideoPlayer();
     }
-    this.onVideoPlayerLoaded(target, video, image, context);
+    const players = targets.map(target => {
+      return this.onVideoPlayerLoaded(target, video, image, context);
+    });
+    context.metadata.applied(this.getName(), { players });
+    context.events.impress(context);
     return context;
   }
   private onVideoPlayerLoaded(element: HTMLElement, video: ResAssets, image: ResAssets, context: RendererContext) {
@@ -77,8 +81,7 @@ export class VideoRenderer implements Renderer {
       }
     );
     player.load();
-    context.metadata.applied(this.getName(), { player });
-    context.events.impress(context);
+    return player;
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {

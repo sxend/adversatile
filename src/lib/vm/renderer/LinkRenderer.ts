@@ -48,12 +48,11 @@ export class LinkRenderer implements Renderer {
           if (isDefined(videoAttachment)) {
             clickUrlWithPlayCount = RendererUtils.addExpandParams(clickUrl, [{
               name: "video_play_nth",
-              value: videoAttachment.player.getPlayCount() || 0
+              value: videoAttachment.players[0].getPlayCount() || 0
             }]);
           } else {
             clickUrlWithPlayCount = clickUrl;
           }
-
           if (anchor.target === '_self') {
             window.location.href = clickUrlWithPlayCount;
           } else {
