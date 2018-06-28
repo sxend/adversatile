@@ -111,7 +111,12 @@ export class ElementModel extends EventEmitter {
   }
   private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, bidIndex: number) {
     const sandbox = this.createSandboxElement(context, bidIndex);
-    const template = await this.resolveTemplate(this.option.placement.useTemplateNames[bidIndex]);
+    const patternId = getOrElse(() => context.dynamic.pattern.id);
+    const patternTemplates = this.option.dynamic.useTemplateNamesByPattern[patternId];
+    const template = await this.resolveTemplate(
+      isDefined(patternTemplates) ? patternTemplates[bidIndex] : void 0,
+      this.option.placement.useTemplateNames[bidIndex]
+    );
     return this.createRenderContext(bid, bidIndex, sandbox, template)
   }
   private createSandboxElement(context: UpdateContext, bidIndex: number): HTMLElement {

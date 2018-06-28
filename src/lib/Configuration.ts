@@ -79,7 +79,6 @@ export class ElementModelConf {
     install: (model: ElementModel) => void
   }[] = [];
 }
-
 export class ElementGroupConf {
   plugins: {
     install: (model: ElementGroup) => void
@@ -108,6 +107,10 @@ export class ElementOption {
   renderer: ElementRendererOption = new ElementRendererOption();
   loop: ElementLoopOption = new ElementLoopOption();
   placement: ElementPlacementOption = new ElementPlacementOption();
+  dynamic: ElementDynamicOption = new ElementDynamicOption();
+}
+export class ElementDynamicOption {
+  useTemplateNamesByPattern: { [pattern: string]: string[] } = {};
 }
 export class ElementRendererOption {
   adScaleRatio: string = "1.0";

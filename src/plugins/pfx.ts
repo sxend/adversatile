@@ -5,13 +5,13 @@ import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel, UpdateContext } from "../lib/vm/ElementModel";
-import { getOrElse, assign, onceFunction } from "../lib/misc/ObjectUtils";
+import { getOrElse, assign, onceFunction, entries } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
 import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 import deepmerge from "deepmerge";
-import { isString } from "../lib/misc/TypeCheck";
+import { isString, isDefined } from "../lib/misc/TypeCheck";
 import { ViewableObserver } from "../lib/misc/ViewableObserver";
 
 declare var window: {
@@ -89,6 +89,7 @@ export default {
       }
     }
     function preRender() {
+      console.log("adv preRender");
     }
     const config = new Configuration();
     config.version = 1;
@@ -137,7 +138,7 @@ export default {
         model.update = function update(context: UpdateContext): Promise<void> {
           const size = getOrElse(() => context.dynamic.override.plcmtcnt);
           if (size === 0) {
-            let target = Dom.isInIframe ? (<any>window).frameElement : model.element.parentNode;
+            let target = Dom.isInIframe(<any>window) ? (<any>window).frameElement : model.element.parentNode;
             if (oldconfig.displayAreaParentNode) {
               target = <HTMLElement>oldconfig.displayAreaParentNode(context.dynamic.pattern, context.dynamic.override, {});
             }
@@ -221,6 +222,7 @@ export default {
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
       if (!isString(className)) {
         setup("ca_profitx_ad", className, className.pageIds[0]);
+        return;
       }
       console.log("adv setup");
       runMain(null);
@@ -277,6 +279,14 @@ export default {
         if (oldconfig.priority > 1) {
           emoption.placement.size = oldconfig.priority;
         }
+        emoption.placement.useTemplateNames.push(qualifier || name);
+        if (isDefined(oldconfig.templateHtmlsByPattern)) {
+          entries(oldconfig.templateHtmlsByPattern).forEach(entry => {
+            const dynamicTemplateId = RandomId.gen("tmpl");
+            emoption.dynamic.useTemplateNamesByPattern[entry[0]] = [dynamicTemplateId];
+            config.vm.em.templates[dynamicTemplateId] = entry[1];
+          });
+        }
         emoption.format = oldconfig.adFormat;
         if (emoption.isBanner()) {
           emoption.renderer.injectMethod = "iframe";
@@ -289,11 +299,17 @@ export default {
           emoption.loop.enabled = true;
           emoption.loop.limitCount = oldconfig.maxVideoPlayTotalNth / emoption.video.playLimitCount;
         }
+        if (isDefined(oldconfig.sdkIntegrationSetting) && oldconfig.sdkIntegrationSetting.enabled) {
+          window.advNativeBridge = {
+            open: () => { }
+          };
+        }
       } else {
         const emoption = config.vm.em.option(name);
         if (oldconfig.priority > 1) {
           emoption.placement.size = Math.max(emoption.placement.size, oldconfig.priority);
         }
+        emoption.placement.useTemplateNames.push(qualifier || name);
       }
       let template: string = "";
       if (oldconfig.templateHtml) {
@@ -308,6 +324,7 @@ export default {
           config.vm.em.templates[qualifier] = template;
         }
       }
+      console.log(JSON.stringify(config, null, "  "));
       _oldconfigs.push(oldconfig);
     }
     function upgradeTemplate(template: string = "", config: Configuration): string {

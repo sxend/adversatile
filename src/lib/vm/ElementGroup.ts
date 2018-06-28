@@ -114,6 +114,7 @@ function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
   return true;
 }
 function selectPattern(sbid: OpenRTB.SeatBid): PagePattern {
+  window.top.console.log("select pattern");
   if (!sbid || !sbid.ext || !sbid.ext.pagePatterns ||
     isEmptyArray(sbid.ext.pagePatterns)) return void 0;
 
@@ -125,7 +126,7 @@ function selectPattern(sbid: OpenRTB.SeatBid): PagePattern {
   }
   const pattern = roulette.select();
   if (!pattern) return void 0;
-
+  window.top.console.log(JSON.stringify(pattern, null, "  "));
   for (let tag of pattern.tagOverrides) {
     for (let bid of sbid.bid) {
       if (bid.ext.tagid === tag.tagid) {
