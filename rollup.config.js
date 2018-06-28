@@ -13,12 +13,13 @@ export default {
     file: 'dist/adversatile.js',
     format: 'iife',
     name: "__adv__",
-    intro: [ // inject Promise polyfill rollup-plugin-inject notwork in typescript.
-      "var Promise = (function() {",
-      fs.readFileSync(require.resolve('es6-promise')).toString(),
-      "return this;",
-      "}).call({}).ES6Promise;",
-    ].join("\n")
+    intro: `
+      // inject Promise polyfill. rollup-plugin-inject notwork in typescript.
+      var Promise = (function() {
+        ${fs.readFileSync(require.resolve('es6-promise')).toString()}
+        return this;
+      }).call({}).ES6Promise;
+    `
   },
   plugins: [
     preprocess({
@@ -47,7 +48,7 @@ export default {
     typescript({
       tsconfig: "tsconfig.json"
     }),
-    // uglify(),
+    process.env["BUILD_TARGET"] === "production" ? uglify() : void 0,
     license({
       banner: [
         'See OSS Licenses',

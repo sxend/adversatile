@@ -8,14 +8,14 @@ export default function(...args: any[]) {
     send(args[1]);
   }
 };
-const API_URL = "/* @echo API_URL */";
+const BACKEND_API_URL = "/* @echo BACKEND_API_URL */";
 function send(params: any) {
   if (isString(params)) return;
   const query = entries(params).map((entry) => {
     return `${encodeURIComponent(entry[0])}=${encodeURIComponent(JSON.stringify(entry[1]))}`;
   }).join("&");
   const img = document.createElement("img");
-  img.src = `${API_URL}/v1/collect?${query}`;
+  img.src = `${BACKEND_API_URL}/v1/collect?${query}`;
   img.style.display = "none";
   document.body.appendChild(img);
 }
