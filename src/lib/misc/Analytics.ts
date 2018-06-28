@@ -1,5 +1,6 @@
 import { entries } from "./ObjectUtils";
 import { isString } from "./TypeCheck";
+import { RandomId } from "./RandomId";
 
 // FIXME migrate to pajs
 export default function(...args: any[]) {
@@ -11,6 +12,7 @@ export default function(...args: any[]) {
 const BACKEND_API_URL = "/* @echo BACKEND_API_URL */";
 function send(params: any) {
   if (isString(params)) return;
+  params["_"] = RandomId.gen(); // cache buster
   const query = entries(params).map((entry) => {
     return `${encodeURIComponent(entry[0])}=${encodeURIComponent(JSON.stringify(entry[1]))}`;
   }).join("&");
