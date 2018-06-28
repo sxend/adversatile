@@ -9,6 +9,7 @@ import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
 import { isEmptyArray } from "../misc/TypeCheck";
 import { RendererContext } from "./Renderer";
+import Analytics from "../misc/Analytics";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -78,6 +79,11 @@ export class ElementGroup {
         const tracked = this.store.getTrackedUrls("viewable-imp-tracking");
         const urls = OpenRTBUtils.concatVimpTrackers(context.bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "viewable-imp-tracking");
+        Analytics("send", {
+          "dimension:page_histories": [
+            { "dimension:inview": 1 }
+          ]
+        });
       })
       .on("view_through", (context: RendererContext) => {
         const tracked = this.store.getTrackedUrls("view-through-tracking");
