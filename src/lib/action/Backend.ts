@@ -9,10 +9,10 @@ export class Backend {
     this.config.plugins.forEach(plugin => plugin.install(this));
   }
   async adcall(req: OpenRTB.BidRequest): Promise<OpenRTB.BidResponse> {
-    const cb = `${this.config.fetchCallbackPrefix}${RandomId.gen()}`;
+    const cb = `${this.config.adcallCallbackPrefix}${RandomId.gen()}`;
     const result = <OpenRTB.SeatBid>await Jsonp.fetch(
       this.config.apiUrl +
-      `${this.config.jsonpFetchPath}?${reqToParams(req)}&callback=${cb}`,
+      `${this.config.adcallPath}?${reqToParams(req)}&callback=${cb}`,
       cb
     );
     const res = new OpenRTB.BidResponse();

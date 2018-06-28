@@ -92,7 +92,7 @@ export default {
     const config = new Configuration();
     config.version = 1;
     config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
-    config.action.backend.fetchCallbackPrefix = "pfxCallback_";
+    config.action.backend.adcallCallbackPrefix = "pfxCallback_";
     config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
     const _oldconfigs: OldConfiguration[] = [];
     config.vm.em.plugins.push({

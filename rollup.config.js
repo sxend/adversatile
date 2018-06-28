@@ -25,10 +25,9 @@ export default {
       include: ['**/*.ts'],
       context: (() => {
         let context = {
-          API_URL: "",
-          JSON_FETCH_PATH: "",
-          JSONP_FETCH_PATH: "",
-          VIDEO_PLAYER_SCRIPT_URI: "",
+          BACKEND_API_URL: "",
+          BACKEND_ADCALL_PATH: "",
+          VIDEO_PLAYER_SCRIPT_URL: "",
           VIDEO_PLAYER_OBJECT_NAME: "",
         };
         try {
@@ -58,5 +57,5 @@ export default {
         'https://raw.githubusercontent.com/trix/nano/master/MIT-LICENSE'
       ].join('\n')
     })
-  ]
+  ].filter(_ => !!_)
 };

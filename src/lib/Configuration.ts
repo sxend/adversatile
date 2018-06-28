@@ -19,11 +19,9 @@ export class ActionConf {
 }
 
 export class BackendConf {
-  apiUrl: string = "/* @echo API_URL */";
-  jsonFetchPath: string = "/* @echo JSON_FETCH_PATH */" || "/demo/sample.json";
-  jsonpFetchPath: string =
-    "/* @echo JSONP_FETCH_PATH */" || "/demo/sample.jsonp";
-  fetchCallbackPrefix: string = "__adv_cb_";
+  apiUrl: string = "/* @echo BACKEND_API_URL */";
+  adcallPath: string = "/* @echo BACKEND_ADCALL_PATH */";
+  adcallCallbackPrefix: string = "__adv_cb_";
   plugins: {
     install: (model: Backend) => void
   }[] = [];
@@ -160,7 +158,7 @@ export class InjectRendererConf {
 }
 export class VideoRendererConf {
   selectorAttrName: string = "data-adv-renderer-video";
-  videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URI */" || "";
+  videoPlayerScriptUrl: string = "/* @echo VIDEO_PLAYER_SCRIPT_URL */" || "";
   videoPlayerObjectName: string = "/* @echo VIDEO_PLAYER_OBJECT_NAME */" || "";
 }
 export class MarkupVideoRendererConf {
