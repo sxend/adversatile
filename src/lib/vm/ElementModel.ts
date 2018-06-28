@@ -115,7 +115,7 @@ export class ElementModel extends EventEmitter {
     const patternTemplates = this.option.dynamic.useTemplateNamesByPattern[patternId];
     const template = await this.resolveTemplate(
       isDefined(patternTemplates) ? patternTemplates[bidIndex] : void 0,
-      this.option.placement.useTemplateNames[bidIndex]
+      bidIndex > 0 ? this.option.placement.useTemplateNames[bidIndex] : void 0 // FIXME placement resolution
     );
     return this.createRenderContext(bid, bidIndex, sandbox, template)
   }

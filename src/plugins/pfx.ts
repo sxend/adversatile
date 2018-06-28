@@ -307,8 +307,8 @@ export default {
         const emoption = config.vm.em.option(name);
         if (oldconfig.priority > 1) {
           emoption.placement.size = Math.max(emoption.placement.size, oldconfig.priority);
+          emoption.placement.useTemplateNames.push(qualifier || name);
         }
-        emoption.placement.useTemplateNames.push(qualifier || name);
       }
       let template: string = "";
       if (oldconfig.templateHtml) {
