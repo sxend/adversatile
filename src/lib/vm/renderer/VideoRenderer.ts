@@ -9,7 +9,7 @@ import ResAssets = Response.Assets;
 import { RendererUtils } from "./RendererUtils";
 import { InjectRenderer } from "./InjectRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
-import { isEmptyArray } from "../../misc/TypeCheck";
+import { isDefined } from "../../misc/TypeCheck";
 import { getOrElse } from "../../misc/ObjectUtils";
 
 export class VideoRenderer implements Renderer {
@@ -24,13 +24,13 @@ export class VideoRenderer implements Renderer {
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
-    const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+    const target: HTMLElement =
+      <HTMLElement>Dom.recursiveQuerySelector(context.element, this.selector());
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
-    if (isEmptyArray(targets)) return context;
+    if (!isDefined(target)) return context;
     if (!video) {
-      targets.forEach(target => target.remove());
+      target.remove();
       return context;
     }
     const VideoPlayerObjectName = this.config.video.videoPlayerObjectName;
@@ -40,9 +40,7 @@ export class VideoRenderer implements Renderer {
     ) {
       await this.loadVideoPlayer();
     }
-    for (let target of targets) {
-      this.onVideoPlayerLoaded(target, video, image, context);
-    }
+    this.onVideoPlayerLoaded(target, video, image, context);
     return context;
   }
   private onVideoPlayerLoaded(element: HTMLElement, video: ResAssets, image: ResAssets, context: RendererContext) {
@@ -79,7 +77,7 @@ export class VideoRenderer implements Renderer {
       }
     );
     player.load();
-    context.metadata.applied(this.getName());
+    context.metadata.applied(this.getName(), { player });
     context.events.impress(context);
   }
   private loadVideoPlayer(): Promise<void> {

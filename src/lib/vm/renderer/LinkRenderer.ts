@@ -1,4 +1,4 @@
-import { containsOr, getOrElse } from "../../misc/ObjectUtils";
+import { getOrElse, containsOr } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -7,7 +7,7 @@ import { MarkupVideoRenderer } from "./MarkupVideoRenderer";
 import { RendererUtils } from "./RendererUtils";
 import { nano } from "../../misc/StringUtils";
 import { InjectRenderer } from "./InjectRenderer";
-import { isEmptyArray } from "../../misc/TypeCheck";
+import { isEmptyArray, isDefined } from "../../misc/TypeCheck";
 
 export class LinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -19,11 +19,6 @@ export class LinkRenderer implements Renderer {
     depend.after([InjectRenderer.NAME, VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
-    if (containsOr(context.metadata.appliedRendererNames,
-      VideoRenderer.NAME,
-      MarkupVideoRenderer.NAME)) {
-      return context;
-    }
     if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const selector = this.selector();
@@ -34,21 +29,38 @@ export class LinkRenderer implements Renderer {
       link.url,
       context.model.option.expandedClickParams
     );
+    const appId = getOrElse(() => context.bid.ext.appId);
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
-
+      anchor.target = this.detectAnchorTarget(target);
       if (context.environment.hasNativeBridge) {
-        const clickUrlWithExpandedParams: string = RendererUtils.addExpandParams(
-          context.admNative.link.url,
-          context.model.option.expandedClickParams
-        );
-        const appId = getOrElse(() => context.bid.ext.appId);
         anchor.onclick = () => {
           context.events.click(context);
-          context.environment.nativeBridge.open(clickUrlWithExpandedParams, appId);
+          context.environment.nativeBridge.open(clickUrl, appId);
+        };
+      } else if ((containsOr(context.metadata.appliedRendererNames,
+        VideoRenderer.NAME,
+        MarkupVideoRenderer.NAME))) {
+        anchor.onclick = () => {
+          context.events.click(context);
+          let clickUrlWithPlayCount: string;
+          const videoAttachment = context.metadata.appliedRendererAttachments[VideoRenderer.NAME];
+          if (isDefined(videoAttachment)) {
+            clickUrlWithPlayCount = RendererUtils.addExpandParams(clickUrl, [{
+              name: "video_play_nth",
+              value: videoAttachment.player.getPlayCount() || 0
+            }]);
+          } else {
+            clickUrlWithPlayCount = clickUrl;
+          }
+
+          if (anchor.target === '_self') {
+            window.location.href = clickUrlWithPlayCount;
+          } else {
+            window.open(clickUrlWithPlayCount, anchor.target);
+          }
         };
       } else {
-        anchor.onclick = () => context.events.click(context);
         const urlFormat = target.getAttribute(this.config.link.selectorAttrName);
         const nanoContext = {
           [this.config.link.urlPlaceholder]: clickUrl,
@@ -56,7 +68,7 @@ export class LinkRenderer implements Renderer {
         };
         anchor.href = urlFormat === "" ? clickUrl : nano(urlFormat, nanoContext);
       }
-      anchor.target = this.detectAnchorTarget(target);
+
       anchor.classList.add(this.config.link.anchorMarkedClass);
       if (target.parentElement) {
         target.parentElement.insertBefore(anchor, target);

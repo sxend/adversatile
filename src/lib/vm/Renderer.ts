@@ -159,8 +159,12 @@ export interface RendererEvents {
 }
 export class RendererMetadata {
   public appliedRendererNames: string[] = [];
-  public applied(name: string): void {
+  public appliedRendererAttachments: { [name: string]: any } = {};
+  public applied(name: string, attachment?: any): void {
     this.appliedRendererNames = uniq(this.appliedRendererNames.concat(name));
+    if (isDefined(attachment)) {
+      this.appliedRendererAttachments[name] = attachment;
+    }
   }
 }
 export class RendererEnvironment {

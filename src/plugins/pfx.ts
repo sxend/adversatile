@@ -300,9 +300,8 @@ export default {
           emoption.loop.limitCount = oldconfig.maxVideoPlayTotalNth / emoption.video.playLimitCount;
         }
         if (isDefined(oldconfig.sdkIntegrationSetting) && oldconfig.sdkIntegrationSetting.enabled) {
-          window.advNativeBridge = {
-            open: () => { }
-          };
+          (<any>window).enableSDK = true;
+          window.advNativeBridge = window.pfxbridge;
         }
       } else {
         const emoption = config.vm.em.option(name);
@@ -324,7 +323,6 @@ export default {
           config.vm.em.templates[qualifier] = template;
         }
       }
-      console.log(JSON.stringify(config, null, "  "));
       _oldconfigs.push(oldconfig);
     }
     function upgradeTemplate(template: string = "", config: Configuration): string {
@@ -353,7 +351,7 @@ export default {
     Adversatile.use({
       install: function(adv: any) {
         const setBridges = () => {
-          if (window.pfxbridge) {
+          if (window.pfxbridge && (<any>window).enableSDK) {
             window.advNativeBridge = window.pfxbridge;
           }
           if (ProFitX.Global.ifa) {
