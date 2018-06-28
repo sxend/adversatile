@@ -32,8 +32,7 @@
     function __advr_main() {
       Adversatile.use({
         install: function(adv) {
-          adv.plugin.bridge = adv.plugin.bridge || {};
-          adv.plugin.bridge.ifa = "ifa";
+          adv.plugin.ifa = "ifa";
         }
       });
       Adversatile.main({

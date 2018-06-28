@@ -334,12 +334,16 @@ export default {
     }
     Adversatile.use({
       install: function(adv: any) {
-        adv.plugin.bridge = adv.plugin.bridge || window.pfxbridge;
-        setInterval(() => {
-          if (ProFitX.Global.ifa) {
-            adv.plugin.bridge.ifa = ProFitX.Global.ifa;
+        const setBridges = () => {
+          if (window.pfxbridge) {
+            adv.plugin.pfxbridge = window.pfxbridge;
           }
-        }, 50);
+          if (ProFitX.Global.ifa) {
+            adv.plugin.ifa = ProFitX.Global.ifa;
+          }
+        };
+        setInterval(setBridges, 500);
+        setBridges();
       }
     });
   }

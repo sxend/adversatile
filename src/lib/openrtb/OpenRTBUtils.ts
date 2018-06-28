@@ -73,7 +73,7 @@ export namespace OpenRTBUtils {
       }
     }
     const Adversatile = (<any>window).Adversatile;
-    return getOrElse(() => Adversatile.bridge.ifa);
+    return getOrElse(() => Adversatile.plugin.ifa);
   }
 
   export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
