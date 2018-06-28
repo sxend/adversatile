@@ -83,6 +83,8 @@ export class ElementGroup {
         const tracked = this.store.getTrackedUrls("view-through-tracking");
         const urls = OpenRTBUtils.concatViewThroughTrackers(context.bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "view-through-tracking");
+      })
+      .on("click", (_context: RendererContext) => {
       });
   }
   private async createBidReq(

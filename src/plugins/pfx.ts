@@ -40,7 +40,8 @@ declare var window: {
     pa: Function
   },
   postMessage: Function,
-  pfxbridge: any
+  pfxbridge: any,
+  advNativeBridge: any
 }
 export default {
   install: function(Adversatile: any) {
@@ -336,7 +337,7 @@ export default {
       install: function(adv: any) {
         const setBridges = () => {
           if (window.pfxbridge) {
-            adv.plugin.pfxbridge = window.pfxbridge;
+            window.advNativeBridge = window.pfxbridge;
           }
           if (ProFitX.Global.ifa) {
             adv.plugin.ifa = ProFitX.Global.ifa;

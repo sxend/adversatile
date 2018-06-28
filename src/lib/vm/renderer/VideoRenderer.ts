@@ -10,6 +10,7 @@ import { RendererUtils } from "./RendererUtils";
 import { InjectRenderer } from "./InjectRenderer";
 import { ObserveRenderer } from "./ObserveRenderer";
 import { isEmptyArray } from "../../misc/TypeCheck";
+import { getOrElse } from "../../misc/ObjectUtils";
 
 export class VideoRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -49,11 +50,7 @@ export class VideoRenderer implements Renderer {
       context.admNative.link.url,
       context.model.option.expandedClickParams
     );
-    const onVideoClickHandler = () => context.events.click(context);
-    // if (!!context.events.onClickForSDKBridge) {
-    //   onVideoClickHandler = () =>
-    //     context.events.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
-    // }
+
     const vimp = context.events.vimp;
     context.events.vimp = () => { }; // force undertake.
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
@@ -63,7 +60,14 @@ export class VideoRenderer implements Renderer {
       function() { },
       clickUrlWithExpandedParams,
       (!!image && !!image.img) ? image.img.url : void 0,
-      onVideoClickHandler,
+      context.environment.hasNativeBridge ? function() {
+        const appId = getOrElse(() => context.bid.ext.appId);
+        const clickUrlWithPlayCount = RendererUtils.addExpandParams(clickUrlWithExpandedParams, [{
+          name: "video_play_nth",
+          value: player.getPlayCount() || 0
+        }]);
+        context.environment.nativeBridge.open(clickUrlWithPlayCount, appId);
+      } : void 0,
       context.model.option.video,
       onContinuousVideoPlayHandler(2000, () => {
         vimp(context);

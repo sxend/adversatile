@@ -1,4 +1,4 @@
-import { containsOr } from "../../misc/ObjectUtils";
+import { containsOr, getOrElse } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -37,9 +37,18 @@ export class LinkRenderer implements Renderer {
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
 
-      if (context.environment.isNativeApp) {
-        anchor.onclick = () => context.events.click(context);
+      if (context.environment.hasNativeBridge) {
+        const clickUrlWithExpandedParams: string = RendererUtils.addExpandParams(
+          context.admNative.link.url,
+          context.model.option.expandedClickParams
+        );
+        const appId = getOrElse(() => context.bid.ext.appId);
+        anchor.onclick = () => {
+          context.events.click(context);
+          context.environment.nativeBridge.open(clickUrlWithExpandedParams, appId);
+        };
       } else {
+        anchor.onclick = () => context.events.click(context);
         const urlFormat = target.getAttribute(this.config.link.selectorAttrName);
         const nanoContext = {
           [this.config.link.urlPlaceholder]: clickUrl,

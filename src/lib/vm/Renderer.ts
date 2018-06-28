@@ -21,6 +21,8 @@ import { Tsort } from "../misc/Tsort";
 import { RandomId } from "../misc/RandomId";
 import { ObserveRenderer } from "./renderer/ObserveRenderer";
 import { RemovalRenderer } from "./renderer/RemovalRenderer";
+import { isDefined } from "../misc/TypeCheck";
+import { NativeBridge } from "../../ext/NativeBridge";
 
 export class RootRenderer implements Renderer {
   public static NAME: string = "Root";
@@ -112,7 +114,7 @@ export interface RenderDependency {
 export class RendererContext {
   public id: string;
   public metadata: RendererMetadata;
-  public environment: RenderEnvironment;
+  public environment: RendererEnvironment;
   constructor(
     public model: ElementModel,
     public element: HTMLElement,
@@ -123,7 +125,7 @@ export class RendererContext {
   ) {
     this.id = RandomId.gen();
     this.metadata = new RendererMetadata();
-    this.environment = new RenderEnvironment()
+    this.environment = new RendererEnvironment()
   }
   get assets(): OpenRTB.NativeAd.Response.Assets[] {
     return getOrElse(() => this.bid.ext.admNative.assets, []);
@@ -161,6 +163,7 @@ export class RendererMetadata {
     this.appliedRendererNames = uniq(this.appliedRendererNames.concat(name));
   }
 }
-export class RenderEnvironment {
-  public isNativeApp: boolean = false;
+export class RendererEnvironment {
+  public nativeBridge: NativeBridge = (<any>window).advNativeBridge;
+  public hasNativeBridge: boolean = isDefined(this.nativeBridge);
 }

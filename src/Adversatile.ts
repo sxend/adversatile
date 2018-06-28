@@ -7,7 +7,6 @@ const Adversatile = (() => {
     assign(Adversatile, {
       main: main.bind(Adversatile),
       use: use.bind(Adversatile),
-      bridge: {} // external modules
     });
     Object.defineProperty(window, "Adversatile", {
       value: Adversatile,
