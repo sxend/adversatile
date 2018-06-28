@@ -118,7 +118,7 @@ export class RendererContext {
     public template: string,
     public events: RendererEvents,
     public bid: OpenRTB.Bid,
-    public index: number,
+    public bidIndex: number,
   ) {
     this.id = RandomId.gen();
     this.metadata = new RendererMetadata();

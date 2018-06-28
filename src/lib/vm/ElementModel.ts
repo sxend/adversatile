@@ -8,6 +8,7 @@ import { TemplateOps } from "./renderer/Template";
 import { uniqBy, uniq, onceFunction, lockableFunction, rotate, getOrElse } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
+import { isDefined } from "../misc/TypeCheck";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
@@ -108,27 +109,27 @@ export class ElementModel extends EventEmitter {
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
   }
-  private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, index: number) {
-    const sandbox = this.createSandboxElement(context, index);
-    const template = await this.resolveTemplate(this.option.placement.useTemplateNames[index]);
-    return this.createRenderContext(bid, index, sandbox, template)
+  private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, bidIndex: number) {
+    const sandbox = this.createSandboxElement(context, bidIndex);
+    const template = await this.resolveTemplate(this.option.placement.useTemplateNames[bidIndex]);
+    return this.createRenderContext(bid, bidIndex, sandbox, template)
   }
-  private createSandboxElement(context: UpdateContext, index: number): HTMLElement {
+  private createSandboxElement(context: UpdateContext, bidIndex: number): HTMLElement {
     const sandbox = <HTMLElement>this.element.cloneNode();
-    if (context.sandboxes[index]) {
-      this.element.parentElement.replaceChild(sandbox, context.sandboxes[index]);
+    if (context.sandboxes[bidIndex]) {
+      this.element.parentElement.replaceChild(sandbox, context.sandboxes[bidIndex]);
     } else {
-      let replaceTarget = this.element.nextSibling;
+      let insertTarget = this.element.nextSibling; // insert after this.element
       const position = getOrElse(() => context.dynamic.override.position);
       if (position) {
-        const replaceIndex = position[index];
-        if (replaceIndex !== void 0) {
-          replaceTarget = this.element.parentElement.children[replaceIndex];
+        const insertTargetIndex = position[bidIndex];
+        if (isDefined(insertTargetIndex)) {
+          insertTarget = this.element.parentElement.children[insertTargetIndex];
         }
       }
-      this.element.parentElement.insertBefore(sandbox, replaceTarget);
+      this.element.parentElement.insertBefore(sandbox, insertTarget);
     }
-    context.sandboxes[index] = sandbox;
+    context.sandboxes[bidIndex] = sandbox;
     this.once("update", () => sandbox.remove());
     return sandbox;
   }
@@ -136,7 +137,7 @@ export class ElementModel extends EventEmitter {
     const onExpired = async (rc: RendererContext) => {
       if (++context.loopCount < this.option.loop.limitCount) {
         rotate(context.bids, 1);
-        rc = await this.createRendererContextWithBid(context, context.bids[0], rc.index);
+        rc = await this.createRendererContextWithBid(context, context.bids[0], rc.bidIndex);
         this.renderWithContenxt(rc);
       } else {
         this.removeListener("expired", onExpired);
@@ -155,7 +156,7 @@ export class ElementModel extends EventEmitter {
 
   private async createRenderContext(
     bid: OpenRTB.Bid,
-    index: number,
+    bidIndex: number,
     element: HTMLElement,
     template: string): Promise<RendererContext> {
     const context = new RendererContext(
@@ -164,7 +165,7 @@ export class ElementModel extends EventEmitter {
       template,
       this.createRendererEvents(),
       bid,
-      index
+      bidIndex
     );
     return context;
   }
