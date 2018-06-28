@@ -6,6 +6,7 @@ import { ObserveRenderer } from "./ObserveRenderer";
 import INVIEW = ObserveType.INVIEW;
 import SELECTOR = ObserveType.SELECTOR;
 import { getOrElse } from "../../misc/ObjectUtils";
+import { isDefined } from "../../misc/TypeCheck";
 
 export class InjectRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -49,8 +50,8 @@ export class InjectRenderer implements Renderer {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
       style: context.model.option.renderer.injectedIframeStyle,
-      width: context.bid.w !== void 0 ? context.bid.w.toString() : void 0,
-      height: context.bid.h !== void 0 ? context.bid.h.toString() : void 0,
+      width: isDefined(context.bid.w) ? context.bid.w.toString() : void 0,
+      height: isDefined(context.bid.h) ? context.bid.h.toString() : void 0,
       scrolling: context.model.option.renderer.injectedIframeScrolling,
       frameborder: context.model.option.renderer.injectedIframeFrameBorder
     };

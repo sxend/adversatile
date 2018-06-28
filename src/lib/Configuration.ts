@@ -5,6 +5,7 @@ import { assign } from "./misc/ObjectUtils";
 import { ElementGroup } from "./vm/ElementGroup";
 import { Backend } from "./action/Backend";
 import { Renderer } from "./vm/Renderer";
+import { isDefined } from "./misc/TypeCheck";
 
 export default class Configuration {
   version: number;
@@ -65,7 +66,7 @@ export class ElementModelConf {
   defaultGroup: string = "0";
   options: { [name: string]: ElementOption } = {};
   hasOption: (name: string) => boolean = function(this: ElementModelConf, name) {
-    return this.options[name] !== void 0;
+    return isDefined(this.options[name]);
   };
   option: (name: string) => ElementOption = function(this: ElementModelConf, name) {
     if (!this.hasOption(name) || !(<any>this.options[name]).__init__) {
@@ -216,7 +217,7 @@ export enum ObserveType {
   SELECTOR
 }
 export function isConfiguration(obj: any): boolean {
-  return !!obj && obj.version !== void 0;
+  return !!obj && isDefined(obj.version);
 }
 
 export function asConfituration(obj: any): Configuration {

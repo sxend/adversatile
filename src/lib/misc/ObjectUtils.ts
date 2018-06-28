@@ -1,6 +1,7 @@
+import { isDefined } from "./TypeCheck";
 
 export function firstDefined<A>(arr: A[]): A | undefined {
-  return (arr || []).filter(_ => _ !== void 0)[0];
+  return (arr || []).filter(isDefined)[0];
 }
 
 // Object.assign polyfill https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -98,7 +99,7 @@ export function containsOr<A>(arr: A[], ...conds: A[]): boolean {
 export function getOrElse<A>(fn: () => A, el?: A): A {
   try {
     const result = fn();
-    if (result !== void 0) {
+    if (isDefined(result)) {
       return result;
     }
   } catch (e) { }

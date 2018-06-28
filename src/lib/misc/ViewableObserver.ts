@@ -1,3 +1,5 @@
+import { isDefined } from "./TypeCheck";
+
 const threshold = Array(101)
   .fill(0)
   .map((_, i) => i / 100);
@@ -32,7 +34,7 @@ export class ViewableObserver {
 export namespace ViewableObserver {
   export function onceInview(target: HTMLElement, callback: () => void) {
     let ratio = 0.5;
-    const height = window.innerHeight !== void 0 ? window.innerHeight : document.body.clientHeight;
+    const height = isDefined(window.innerHeight) ? window.innerHeight : document.body.clientHeight;
     if (height < target.clientHeight) {
       ratio = height / target.clientHeight - 0.01;
     }
