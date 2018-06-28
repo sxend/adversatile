@@ -1,4 +1,4 @@
-import { getOrElse, containsOr } from "../../misc/ObjectUtils";
+import { containsOr } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -26,7 +26,6 @@ export class LinkRenderer implements Renderer {
     }
     if (!context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
-    const appId = getOrElse(() => context.bid.ext.appId);
     const selector = this.selector();
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
@@ -37,11 +36,9 @@ export class LinkRenderer implements Renderer {
     );
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
-      if (!!context.events.onClickForSDKBridge) {
-        anchor.onclick = () => {
-          const passingAppId: string | null = appId;
-          context.events.onClickForSDKBridge(clickUrl, passingAppId);
-        };
+
+      if (context.environment.isNativeApp) {
+        anchor.onclick = () => context.events.click(context);
       } else {
         const urlFormat = target.getAttribute(this.config.link.selectorAttrName);
         const nanoContext = {

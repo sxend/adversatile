@@ -7,8 +7,8 @@ import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { getOrElse, groupBy, flatten, contains, uniqBy } from "../misc/ObjectUtils";
 import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
-import Analytics from "../misc/Analytics";
 import { isEmptyArray } from "../misc/TypeCheck";
+import { RendererContext } from "./Renderer";
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -69,24 +69,19 @@ export class ElementGroup {
   }
   private setEvents(em: ElementModel): void {
     em
-      .on("impression", (bid: OpenRTB.Bid) => {
+      .on("impression", (context: RendererContext) => {
         const tracked = this.store.getTrackedUrls("imp-tracking");
-        const urls = OpenRTBUtils.concatImpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        const urls = OpenRTBUtils.concatImpTrackers(context.bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "imp-tracking");
       })
-      .on("viewable_impression", (bid: OpenRTB.Bid) => {
+      .on("viewable_impression", (context: RendererContext) => {
         const tracked = this.store.getTrackedUrls("viewable-imp-tracking");
-        const urls = OpenRTBUtils.concatVimpTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        const urls = OpenRTBUtils.concatVimpTrackers(context.bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "viewable-imp-tracking");
-        Analytics("send", {
-          "dimension:page_histories": [
-            { "dimension:inview": 1 }
-          ]
-        });
       })
-      .on("view_through", (bid: OpenRTB.Bid) => {
+      .on("view_through", (context: RendererContext) => {
         const tracked = this.store.getTrackedUrls("view-through-tracking");
-        const urls = OpenRTBUtils.concatViewThroughTrackers(bid).filter(i => tracked.indexOf(i) === -1);
+        const urls = OpenRTBUtils.concatViewThroughTrackers(context.bid).filter(i => tracked.indexOf(i) === -1);
         this.action.tracking(urls, "view-through-tracking");
       });
   }

@@ -5,7 +5,7 @@ import { OpenRTB } from "../openrtb/OpenRTB";
 import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { Renderer, RendererContext, RendererEvents, RootRenderer } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, lockableFunction, rotate, getOrElse } from "../misc/ObjectUtils";
+import { uniqBy, uniq, onceFunction, rotate, getOrElse } from "../misc/ObjectUtils";
 import { Async } from "../misc/Async";
 import { AssetUtils } from "../openrtb/AssetUtils";
 import { isDefined } from "../misc/TypeCheck";
@@ -188,17 +188,17 @@ export class ElementModel extends EventEmitter {
           this.emit("rendered", context);
         })
       },
-      impress: onceFunction((bid: OpenRTB.Bid) => {
-        this.emit("impression", bid);
+      impress: onceFunction((context: RendererContext) => {
+        this.emit("impression", context);
       }),
-      vimp: lockableFunction(onceFunction((bid: OpenRTB.Bid) => {
-        this.emit("viewable_impression", bid);
-      })),
-      disabledAreaViewabled: onceFunction((bid: OpenRTB.Bid) => {
-        this.emit("disabled_area_viewabled", bid);
+      vimp: onceFunction((context: RendererContext) => {
+        this.emit("viewable_impression", context);
       }),
-      viewThrough: onceFunction((bid: OpenRTB.Bid) => {
-        this.emit("view_through", bid);
+      viewThrough: onceFunction((context: RendererContext) => {
+        this.emit("view_through", context);
+      }),
+      click: onceFunction((context: RendererContext) => {
+        this.emit("click", context);
       }),
       expired: onceFunction((context: RendererContext) => {
         this.emit("expired", context);

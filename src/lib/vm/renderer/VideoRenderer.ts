@@ -1,4 +1,3 @@
-import { getOrElse } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -50,12 +49,13 @@ export class VideoRenderer implements Renderer {
       context.admNative.link.url,
       context.model.option.expandedClickParams
     );
-    let onVideoClickHandler: () => void = undefined;
-    if (!!context.events.onClickForSDKBridge) {
-      onVideoClickHandler = () =>
-        context.events.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
-    }
-    const vimp = context.events.vimp.lock();
+    const onVideoClickHandler = () => context.events.click(context);
+    // if (!!context.events.onClickForSDKBridge) {
+    //   onVideoClickHandler = () =>
+    //     context.events.onClickForSDKBridge(clickUrlWithExpandedParams, getOrElse(() => context.bid.ext.appId));
+    // }
+    const vimp = context.events.vimp;
+    context.events.vimp = () => { }; // force undertake.
     const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
       video.video.vasttag,
       element,
@@ -66,7 +66,7 @@ export class VideoRenderer implements Renderer {
       onVideoClickHandler,
       context.model.option.video,
       onContinuousVideoPlayHandler(2000, () => {
-        vimp(context.bid);
+        vimp(context);
       }),
       () => {
         setTimeout(() => {
@@ -76,7 +76,7 @@ export class VideoRenderer implements Renderer {
     );
     player.load();
     context.metadata.applied(this.getName());
-    context.events.impress(context.bid);
+    context.events.impress(context);
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {

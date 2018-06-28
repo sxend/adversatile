@@ -114,11 +114,11 @@ export default {
               window.onpfxadrendered(context.model.qualifier);
             }
           });
-          model.on("impression", () => {
+          model.on("impression", (_context: RendererContext) => {
             window.postMessage('onpfximpression', '*');
           });
-          model.on("viewable_impression", (bid: OpenRTB.Bid) => {
-            const oldconfig = _oldconfigs.find(x => x.tagId === bid.ext.tagid);
+          model.on("viewable_impression", (context: RendererContext) => {
+            const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadinview) {
               oldconfig.onpfxadinview();
             }
@@ -136,7 +136,7 @@ export default {
         model.update = function update(context: UpdateContext): Promise<void> {
           const size = getOrElse(() => context.dynamic.override.plcmtcnt);
           if (size === 0) {
-            let target = <HTMLElement>model.element.parentNode;
+            let target = Dom.isInIframe ? (<any>window).frameElement : model.element.parentNode;
             if (oldconfig.displayAreaParentNode) {
               target = <HTMLElement>oldconfig.displayAreaParentNode(context.dynamic.pattern, context.dynamic.override, {});
             }

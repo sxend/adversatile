@@ -41,7 +41,7 @@ export class InjectRenderer implements Renderer {
       context.element.setAttribute(this.config.observe.selector.observeSelectorAttrName, this.config.inject.bannerAdImpSelector);
       ObserveRenderer.setObserveAttribute(
         context.element, SELECTOR, this.config,
-        context, () => context.events.impress(context.bid));
+        context, () => context.events.impress(context));
     }
     context.metadata.applied(this.getName());
     return context;
@@ -94,6 +94,6 @@ export class InjectRenderer implements Renderer {
   private setObserveInview(target: HTMLElement, context: RendererContext) {
     ObserveRenderer.setObserveAttribute(
       target, INVIEW, this.config, context,
-      () => context.events.vimp(context.bid));
+      () => context.events.vimp(context));
   }
 }

@@ -27,7 +27,7 @@ export class TitleShortRenderer implements Renderer {
       context.addFoundAssets(AssetUtils.titleTextOption());
     }
     context.metadata.applied(this.getName());
-    context.events.impress(context.bid);
+    context.events.impress(context);
     return context;
   }
   private selector(): string {

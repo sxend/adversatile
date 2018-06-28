@@ -27,7 +27,7 @@ export class TitleLongRenderer implements Renderer {
       context.addFoundAssets(AssetUtils.descriptiveTextOption());
     }
     context.metadata.applied(this.getName());
-    context.events.impress(context.bid);
+    context.events.impress(context);
     return context;
   }
   private selector(): string {

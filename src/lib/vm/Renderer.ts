@@ -3,7 +3,7 @@ import { TemplateOps } from "./renderer/Template";
 import { RendererConf, AssetOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
-import { LockableFunction, uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
+import { uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
 import { NanoTemplateRenderer } from "./renderer/NanoTemplateRenderer";
 import { InjectRenderer } from "./renderer/InjectRenderer";
 import { VideoRenderer } from "./renderer/VideoRenderer";
@@ -112,6 +112,7 @@ export interface RenderDependency {
 export class RendererContext {
   public id: string;
   public metadata: RendererMetadata;
+  public environment: RenderEnvironment;
   constructor(
     public model: ElementModel,
     public element: HTMLElement,
@@ -122,6 +123,7 @@ export class RendererContext {
   ) {
     this.id = RandomId.gen();
     this.metadata = new RendererMetadata();
+    this.environment = new RenderEnvironment()
   }
   get assets(): OpenRTB.NativeAd.Response.Assets[] {
     return getOrElse(() => this.bid.ext.admNative.assets, []);
@@ -147,16 +149,18 @@ export interface RendererEvents {
     render: (context: RendererContext) => void
     rendered: (context: RendererContext) => void
   }
-  impress: (bid: OpenRTB.Bid) => void;
-  vimp: LockableFunction<OpenRTB.Bid>;
-  disabledAreaViewabled: (bid: OpenRTB.Bid) => void;
-  viewThrough: (bid: OpenRTB.Bid) => void;
+  impress: (context: RendererContext) => void;
+  vimp: (context: RendererContext) => void;
+  viewThrough: (context: RendererContext) => void;
+  click: (context: RendererContext) => void;
   expired: (context: RendererContext) => void;
-  onClickForSDKBridge?: (url: string, appId?: string) => void;
 }
-class RendererMetadata {
+export class RendererMetadata {
   public appliedRendererNames: string[] = [];
   public applied(name: string): void {
     this.appliedRendererNames = uniq(this.appliedRendererNames.concat(name));
   }
+}
+export class RenderEnvironment {
+  public isNativeApp: boolean = false;
 }

@@ -7,7 +7,7 @@ export function dummyProps(): RendererEvents {
     vimp: lockableFunction(() => { }),
     viewThrough: () => { },
     expired: () => { },
-    disabledAreaViewabled: () => { },
+    click: () => { },
     root: {
       render: () => { },
       rendered: () => { },

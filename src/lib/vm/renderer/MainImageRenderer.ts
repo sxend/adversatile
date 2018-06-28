@@ -32,7 +32,7 @@ export class MainImageRenderer implements Renderer {
       context.addFoundAssets(AssetUtils.mainImageOption(target.clientWidth, target.clientHeight))
     }
     context.metadata.applied(this.getName());
-    context.events.impress(context.bid);
+    context.events.impress(context);
     return context;
   }
   private selector(): string {
