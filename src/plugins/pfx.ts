@@ -107,7 +107,7 @@ export default {
             }
           });
           model.on("rendered", function rendered(context: RendererContext) {
-            if (OpenRTBUtils.isDummyBid(context.bid) || context.bid.ext.disabled) return;
+            if (OpenRTBUtils.isDummyBid(context.bid)) return;
             const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadrendered) {
               oldconfig.onpfxadrendered(context.bid, null, context.element);

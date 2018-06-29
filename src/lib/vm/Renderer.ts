@@ -1,4 +1,3 @@
-// import { RendererOps } from "./renderer/Renderer";
 import { TemplateOps } from "./renderer/Template";
 import { RendererConf, AssetOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
@@ -20,7 +19,6 @@ import { LinkRenderer } from "./renderer/LinkRenderer";
 import { Tsort } from "../misc/Tsort";
 import { RandomId } from "../misc/RandomId";
 import { ObserveRenderer } from "./renderer/ObserveRenderer";
-import { RemovalRenderer } from "./renderer/RemovalRenderer";
 import { isDefined } from "../misc/TypeCheck";
 import { NativeBridge } from "../../ext/NativeBridge";
 
@@ -44,7 +42,6 @@ export class RootRenderer implements Renderer {
       new SponsoredByMessageRenderer(this.config),
       new TitleLongRenderer(this.config),
       new TitleShortRenderer(this.config),
-      new RemovalRenderer(this.config),
       new ObserveRenderer(this.config),
     ].reduce((map: { [name: string]: Renderer }, renderer) => {
       map[renderer.getName()] = renderer;

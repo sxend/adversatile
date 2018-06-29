@@ -214,7 +214,6 @@ export namespace OpenRTB {
       viewThroughUrls?: string[];
       bannerHtml?: string;
       appId?: string;
-      disabled?: boolean;
     }
     export class LinkExt {
       urlEncoded?: string;
