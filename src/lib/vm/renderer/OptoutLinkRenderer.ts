@@ -19,7 +19,7 @@ export class OptoutLinkRenderer implements Renderer {
     const image = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_IMG);
     if (!image) return context;
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       const optoutLink: HTMLAnchorElement = document.createElement("a");

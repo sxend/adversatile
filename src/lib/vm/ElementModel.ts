@@ -1,29 +1,31 @@
-import { ElementOption, ElementModelConf, AssetOption } from "../Configuration";
+import { ElementOption, ElementModelConf } from "../Configuration";
 import { RandomId } from "../misc/RandomId";
 import { EventEmitter } from "events";
 import { OpenRTB } from "../openrtb/OpenRTB";
-import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
-import { Renderer, RendererContext, RendererEvents, RootRenderer } from "../vm/Renderer";
+import { Renderer, RendererContext, RendererEvents, RootRenderer, RendererElement } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { uniqBy, uniq, onceFunction, rotate, getOrElse } from "../misc/ObjectUtils";
-import { Async } from "../misc/Async";
-import { AssetUtils } from "../openrtb/AssetUtils";
+import { onceFunction, rotate, getOrElse } from "../misc/ObjectUtils";
 import { isDefined } from "../misc/TypeCheck";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
   private templateOps: TemplateOps;
-  private _excludedBidders: string[] = [];
-  static create(config: ElementModelConf, element: HTMLElement): Promise<ElementModel> {
-    return new ElementModel(config, element).init();
-  }
-  private constructor(
+  constructor(
     private config: ElementModelConf,
     readonly element: HTMLElement,
   ) {
     super();
     this.renderer = new RootRenderer(this.config.renderer);
     this.templateOps = new TemplateOps(this.config);
+    if (!this.id) {
+      this.element.setAttribute(this.config.idAttributeName, RandomId.gen());
+    }
+    if (!this.name) {
+      this.element.setAttribute(this.config.nameAttributeName, RandomId.gen());
+    }
+    if (!this.group) {
+      this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
+    }
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
@@ -37,70 +39,20 @@ export class ElementModel extends EventEmitter {
   get group(): string {
     return this.element.getAttribute(this.config.groupAttributeName);
   }
-  get useTemplateName(): string {
-    return this.element.getAttribute(this.config.useTemplateNameAttr) || this.option.useTemplateName;
-  }
-  get option(): ElementOption {
-    return this.config.option(this.name);
-  }
-  private get assets(): AssetOption[] {
-    return uniqBy(this.option.assets, asset => asset.id);
-  }
-  private get excludedBidders(): string[] {
-    return uniq(this.option.excludedBidders.concat(this._excludedBidders));
-  }
-  private async init(): Promise<ElementModel> {
-    return new Promise<ElementModel>(resolve => {
-      const _init = () => {
-        if (!this.id) {
-          this.element.setAttribute(this.config.idAttributeName, RandomId.gen());
-        }
-        if (!this.name) {
-          this.element.setAttribute(this.config.nameAttributeName, RandomId.gen());
-        }
-        if (!this.group) {
-          this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
-        }
-        this.config.plugins.forEach(plugin => plugin.install(this));
-        if (this.option.preRender) {
-          this.preRender().then(_ => resolve(this));
-        } else {
-          resolve(this)
-        }
-      };
-      if (this.config.hasOption(this.name)) {
-        _init();
-      } else { // for old type main execution
-        Async.wait(() => this.config.hasOption(this.name), 50).then(_ => _init());
-      }
-    });
-  }
-  async imp(): Promise<OpenRTB.Imp[]> {
-    const impExt = new OpenRTB.Ext.ImpressionExt();
-    impExt.excludedBidders = this.excludedBidders;
-    impExt.notrim = this.option.notrim;
-    const imp = await OpenRTBUtils.createImp(
-      this.id,
-      this.name,
-      this.option.format,
-      this.assets.map(AssetUtils.optionToNativeAsset),
-      impExt
-    );
-    return [imp]; // FIXME multiple imp
-  }
   update(context: UpdateContext): Promise<void> {
     this.emit("update", context);
     this.element.textContent = "";
 
-    if (this.option.loop.enabled) {
+    if (context.option.loop.enabled) {
       this.setLoop(context);
     }
     return this.applyUpdate(context)
       .then(_ => { this.emit("updated", context) })
       .catch(console.error);
   }
+
   private async applyUpdate(context: UpdateContext): Promise<void> {
-    const size = context.plcmtcntOrElse(this.option.placement.size);
+    const size = context.plcmtcntOrElse(context.option.placement.size);
     const bids = context.bids.slice(0, size);
     const result = bids
       .map(async (bid, index) => {
@@ -109,20 +61,17 @@ export class ElementModel extends EventEmitter {
       .map(async context => this.renderWithContenxt(await context));
     await Promise.all(result);
   }
+
   private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, bidIndex: number) {
-    const sandbox = this.createSandboxElement(context, bidIndex);
-    const patternId = getOrElse(() => context.dynamic.pattern.id);
-    const patternTemplates = this.option.dynamic.useTemplateNamesByPattern[patternId];
-    const template = await this.resolveTemplate(
-      isDefined(patternTemplates) ? patternTemplates[bidIndex] : void 0,
-      bidIndex > 0 ? this.option.placement.useTemplateNames[bidIndex] : void 0 // FIXME placement resolution
-    );
-    return this.createRenderContext(bid, bidIndex, sandbox, template)
+    const target = this.createSandboxElement(context, bidIndex);
+    const template = await this.resolveTemplate(context, bidIndex);
+    return this.createRenderContext(target, context.option, template, bid, bidIndex)
   }
+
   private createSandboxElement(context: UpdateContext, bidIndex: number): HTMLElement {
     const sandbox = <HTMLElement>this.element.cloneNode();
-    if (context.sandboxes[bidIndex]) {
-      this.element.parentElement.replaceChild(sandbox, context.sandboxes[bidIndex]);
+    if (context.targets[bidIndex]) {
+      this.element.parentElement.replaceChild(sandbox, context.targets[bidIndex]);
     } else {
       let insertTarget = this.element.nextSibling; // insert after this.element
       const position = getOrElse(() => context.dynamic.override.position);
@@ -134,13 +83,13 @@ export class ElementModel extends EventEmitter {
       }
       this.element.parentElement.insertBefore(sandbox, insertTarget);
     }
-    context.sandboxes[bidIndex] = sandbox;
+    context.targets[bidIndex] = sandbox;
     this.once("update", () => sandbox.remove());
     return sandbox;
   }
   private async setLoop(context: UpdateContext): Promise<void> {
     const onExpired = async (rc: RendererContext) => {
-      if (++context.loopCount < this.option.loop.limitCount) {
+      if (++context.loopCount < context.option.loop.limitCount) {
         rotate(context.bids, 1);
         rc = await this.createRendererContextWithBid(context, context.bids[0], rc.bidIndex);
         this.renderWithContenxt(rc);
@@ -154,30 +103,35 @@ export class ElementModel extends EventEmitter {
   private async renderWithContenxt(context: RendererContext): Promise<void> {
     return this.renderer.render(context).then(_ => void 0);
   }
-  private async preRender(): Promise<void> {
-    const dummies = Array(this.option.placement.size).fill(OpenRTBUtils.dummyBid());
-    await this.applyUpdate(new UpdateContext(dummies));
-  }
 
   private async createRenderContext(
+    target: HTMLElement,
+    option: ElementOption,
+    template: string,
     bid: OpenRTB.Bid,
     bidIndex: number,
-    element: HTMLElement,
-    template: string): Promise<RendererContext> {
+  ): Promise<RendererContext> {
     const context = new RendererContext(
-      this,
-      element,
-      template,
+      new RendererElement(
+        this,
+        target,
+        option
+      ),
       this.createRendererEvents(),
+      template,
       bid,
       bidIndex
     );
     return context;
   }
-  private async resolveTemplate(...templateNames: string[]): Promise<string> {
+  private async resolveTemplate(context: UpdateContext, bidIndex: number): Promise<string> {
+    const patternId = getOrElse(() => context.dynamic.pattern.id);
+    const patternTemplates = context.option.dynamic.useTemplateNamesByPattern[patternId];
     const ids: string[] = [
-      ...templateNames,
-      this.useTemplateName,
+      isDefined(patternTemplates) ? patternTemplates[bidIndex] : void 0,
+      bidIndex > 0 ? context.option.placement.useTemplateNames[bidIndex] : void 0, // FIXME placement resolution
+      context.option.useTemplateName,
+      this.element.getAttribute(this.config.useTemplateNameAttr),
       this.qualifier,
       this.name
     ];
@@ -214,9 +168,10 @@ export class ElementModel extends EventEmitter {
 export class UpdateContext {
   public id: string = RandomId.gen("upd")
   public loopCount: number = 0;
-  public sandboxes: { [index: number]: HTMLElement } = {};
+  public targets: { [index: number]: HTMLElement } = {};
   constructor(
     public bids: OpenRTB.Bid[],
+    public option: ElementOption,
     public dynamic: UpdateDynamic = new UpdateDynamic()
   ) { }
   plcmtcntOrElse(plcmtcnt: number = 1): number {

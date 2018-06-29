@@ -20,7 +20,7 @@ export class IconImageRenderer implements Renderer {
     const icon = AssetUtils.findAsset(context.assets, AssetTypes.ICON_URL);
     if (!icon) return context;
     const targets: HTMLImageElement[] =
-      <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       target.src = icon.img.url;

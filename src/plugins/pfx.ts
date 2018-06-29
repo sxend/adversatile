@@ -98,6 +98,7 @@ export default {
     config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
     const _oldconfigs: OldConfiguration[] = [];
     config.vm.em.plugins.push({
+      // bind callbacks
       install: function(model: ElementModel) {
         try {
           model.on("render", function render(context: RendererContext) {
@@ -110,10 +111,10 @@ export default {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
             const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadrendered) {
-              oldconfig.onpfxadrendered(context.bid, null, context.element);
+              oldconfig.onpfxadrendered(context.bid, null, context.element.target);
             }
             if (window.onpfxadrendered) {
-              window.onpfxadrendered(context.model.qualifier);
+              window.onpfxadrendered(context.element.model.qualifier);
             }
           });
           model.on("impression", (_context: RendererContext) => {
@@ -132,6 +133,7 @@ export default {
       }
     });
     config.vm.em.plugins.push({
+      // display 0 pattern parentElement inview detection 
       install: function(model: ElementModel) {
         const oldconfig = _oldconfigs.find(x => x.tagId === model.name);
         const original = model.update;
@@ -170,7 +172,7 @@ export default {
               if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
                 replacements["${PFX_YDN_NOADCALLBACK}"] = [
                   '<scr' + 'ipt>',
-                  `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.model.name}';`,
+                  `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.element.model.name}';`,
                   '</sc' + 'ript>'
                 ].join('\n');
               }

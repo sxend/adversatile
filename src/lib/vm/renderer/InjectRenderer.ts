@@ -19,9 +19,9 @@ export class InjectRenderer implements Renderer {
     depend.after([NanoTemplateRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
-    let injectMethod: string = context.model.option.renderer.injectMethod;
+    let injectMethod: string = context.element.option.renderer.injectMethod;
 
-    if (context.model.option.isBanner()) {
+    if (context.element.option.isBanner()) {
       context.template = context.template || getOrElse(() => context.bid.ext.bannerHtml);
     } else if (context.filler) {
       context.template = context.filler;
@@ -37,10 +37,10 @@ export class InjectRenderer implements Renderer {
       context = await this.injectInnerHTML(context);
     }
 
-    if (context.model.option.isBanner()) {
-      context.element.setAttribute(this.config.observe.selector.observeSelectorAttrName, this.config.inject.bannerAdImpSelector);
+    if (context.element.option.isBanner()) {
+      context.element.target.setAttribute(this.config.observe.selector.observeSelectorAttrName, this.config.inject.bannerAdImpSelector);
       ObserveRenderer.setObserveAttribute(
-        context.element, SELECTOR, this.config,
+        context.element.target, SELECTOR, this.config,
         context, () => context.events.impress(context));
     }
     context.metadata.applied(this.getName());
@@ -49,16 +49,16 @@ export class InjectRenderer implements Renderer {
   private async injectIframe(context: RendererContext): Promise<RendererContext> {
     const iframe = document.createElement("iframe");
     const attributes: { [attr: string]: string } = {
-      style: context.model.option.renderer.injectedIframeStyle,
+      style: context.element.option.renderer.injectedIframeStyle,
       width: isDefined(context.bid.w) ? context.bid.w.toString() : void 0,
       height: isDefined(context.bid.h) ? context.bid.h.toString() : void 0,
-      scrolling: context.model.option.renderer.injectedIframeScrolling,
-      frameborder: context.model.option.renderer.injectedIframeFrameBorder
+      scrolling: context.element.option.renderer.injectedIframeScrolling,
+      frameborder: context.element.option.renderer.injectedIframeFrameBorder
     };
     Object.keys(attributes).forEach(attr => {
       iframe.setAttribute(attr, attributes[attr]);
     });
-    context.element.appendChild(iframe);
+    context.element.target.appendChild(iframe);
 
     await Async.wait(() => !!iframe.contentDocument);
     try {
@@ -68,23 +68,23 @@ export class InjectRenderer implements Renderer {
       iframe.contentDocument.close();
     }
     await Async.wait(() => !!iframe.contentDocument.body);
-    context.element = iframe.contentDocument.body;
+    context.element.target = iframe.contentDocument.body;
     this.setObserveInview(iframe, context);
     return context;
   }
   private async injectInnerHTML(context: RendererContext): Promise<RendererContext> {
-    context.element.innerHTML = context.template;
-    this.setObserveInview(context.element, context);
+    context.element.target.innerHTML = context.template;
+    this.setObserveInview(context.element.target, context);
     return context;
   }
   private async injectSibling(context: RendererContext): Promise<RendererContext> {
     context = await this.injectInnerHTML(context);
-    const childNodes = [].slice.call(context.element.childNodes);
-    context.model.once("updated", () => {
+    const childNodes = [].slice.call(context.element.target.childNodes);
+    context.element.model.once("updated", () => {
       childNodes.forEach((node: Node) => {
-        context.element.parentElement.insertBefore(node, context.element.nextSibling || context.element);
+        context.element.target.parentElement.insertBefore(node, context.element.target.nextSibling || context.element.target);
       });
-      context.model.once("update", () => {
+      context.element.model.once("update", () => {
         childNodes.forEach((node: ChildNode) => node.remove());
       });
     });

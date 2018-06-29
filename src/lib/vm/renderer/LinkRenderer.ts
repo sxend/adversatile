@@ -23,11 +23,11 @@ export class LinkRenderer implements Renderer {
     const link = context.admNative.link;
     const selector = this.selector();
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, selector);
     if (isEmptyArray(targets)) return context;
     const clickUrl: string = RendererUtils.addExpandParams(
       link.url,
-      context.model.option.expandedClickParams
+      context.element.option.expandedClickParams
     );
     const appId = getOrElse(() => context.bid.ext.appId);
     for (let target of targets) {

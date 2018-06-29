@@ -25,7 +25,7 @@ export class VideoRenderer implements Renderer {
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     const video = AssetUtils.findAsset(context.assets, AssetTypes.VIDEO);
     const image = AssetUtils.findAsset(context.assets, AssetTypes.IMAGE_URL);
     if (isEmptyArray(targets)) return context;
@@ -58,7 +58,7 @@ export class VideoRenderer implements Renderer {
     context.events.vimp = () => { }; // force undertake.
     const clickUrlWithExpandedParams: string = RendererUtils.addExpandParams(
       context.admNative.link.url,
-      context.model.option.expandedClickParams
+      context.element.option.expandedClickParams
     );
     const mountVideoPlayer = () => {
       const player = new (<any>window)[this.config.video.videoPlayerObjectName].VideoPlayer(
@@ -76,21 +76,21 @@ export class VideoRenderer implements Renderer {
           }]);
           context.environment.nativeBridge.open(clickUrlWithPlayCount, appId);
         } : void 0,
-        context.model.option.video,
+        context.element.option.video,
         onContinuousVideoPlayHandler(2000, () => {
           vimp(context);
         }),
         () => {
           setTimeout(() => {
             context.events.expired(context);
-          }, context.model.option.video.replayDelayMillis);
+          }, context.element.option.video.replayDelayMillis);
         }
       );
       player.load();
       attachment.players.push(player);
       context.events.impress(context);
     };
-    context.model.once("rendered", mountVideoPlayer);
+    context.element.model.once("rendered", mountVideoPlayer);
   }
   private loadVideoPlayer(): Promise<void> {
     return new Promise(resolve => {
