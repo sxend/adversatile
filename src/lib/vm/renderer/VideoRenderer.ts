@@ -90,6 +90,7 @@ export class VideoRenderer implements Renderer {
       attachment.players.push(player);
       context.events.impress(context);
     };
+    // LinkRenderer等にdomに再appendされると再生が上手く行かないVideoPlayerのバグ回避のためrenderedまで待つ
     context.element.model.once("rendered", mountVideoPlayer);
   }
   private loadVideoPlayer(): Promise<void> {
