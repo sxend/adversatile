@@ -1,4 +1,4 @@
-import { getOrElse } from "../../misc/ObjectUtils";
+import { getOrElse, contains } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -8,9 +8,6 @@ import { RendererUtils } from "./RendererUtils";
 import { nano } from "../../misc/StringUtils";
 import { InjectRenderer } from "./InjectRenderer";
 import { isEmptyArray, isDefined } from "../../misc/TypeCheck";
-import { AssetUtils } from "../../openrtb/AssetUtils";
-import AssetTypes = OpenRTB.NativeAd.AssetTypes;
-import { OpenRTB } from "../../openrtb/OpenRTB";
 
 export class LinkRenderer implements Renderer {
   constructor(private config: RendererConf) { }
@@ -19,8 +16,7 @@ export class LinkRenderer implements Renderer {
     return LinkRenderer.NAME;
   }
   depends(depend: RenderDependency): void {
-    depend.after([InjectRenderer.NAME]);
-    depend.before([VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
+    depend.after([InjectRenderer.NAME, VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
     if (!context.admNative || !context.admNative.link) return context;
@@ -42,7 +38,7 @@ export class LinkRenderer implements Renderer {
           context.events.click(context);
           context.environment.nativeBridge.open(clickUrl, appId);
         };
-      } else if (AssetUtils.findAsset(context.assets, AssetTypes.VIDEO)) {
+      } else if (contains(context.metadata.appliedRendererNames, VideoRenderer.NAME)) {
         anchor.onclick = () => {
           context.events.click(context);
           let clickUrlWithPlayCount: string;
