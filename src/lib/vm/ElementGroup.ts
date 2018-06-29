@@ -1,5 +1,5 @@
 import { ElementModel, UpdateDynamic, UpdateContext } from "./ElementModel";
-import { ViewModelConf } from "../Configuration";
+import { ViewModelConf, ElementOption } from "../Configuration";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { Store } from "../Store";
 import { Action } from "../Action";
@@ -10,6 +10,11 @@ import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
 import { isEmptyArray } from "../misc/TypeCheck";
 import { RendererContext } from "./Renderer";
 import Analytics from "../misc/Analytics";
+import { AssetUtils } from "../openrtb/AssetUtils";
+import deepmerge from "deepmerge";
+import { Async } from "../misc/Async";
+
+type ModelOptionPair = { em: ElementModel, option: ElementOption };
 
 export class ElementGroup {
   private ems: { [id: string]: ElementModel } = {};
@@ -37,10 +42,23 @@ export class ElementGroup {
         return;
       }
     }
-    const req = await this.createBidReq(ems);
+    const pairs = await this.initElementModels(ems);
+    const req = await this.createBidReq(pairs);
     if (req.imp.length > 0) {
       this.action.adcall(req);
     }
+  }
+  private async initElementModels(ems: ElementModel[]): Promise<ModelOptionPair[]> {
+    const result: ModelOptionPair[] = [];
+    for (let em of ems) {
+      await Async.wait(() => this.config.em.hasOption(em.name), 50, 500)
+      const option = this.getOption(em);
+      if (option.preRender) {
+        await this.preRender(em, option);
+      }
+      result.push({ em, option });
+    }
+    return result;
   }
   update(request: OpenRTB.BidRequest, response: OpenRTB.BidResponse): void {
     if (this.group !== getOrElse(() => response.ext.group)) {
@@ -57,14 +75,14 @@ export class ElementGroup {
       const em = this.ems[id];
       if (!em) return;
       const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
-      const context = new UpdateContext(bidsGroup[id], new UpdateDynamic(pattern, override));
+      const context = new UpdateContext(bidsGroup[id], this.getOption(em), new UpdateDynamic(pattern, override));
       em.update(context);
       updated.push(em.id);
     });
     uniqBy(request.imp, imp => imp.id).forEach(imp => {
       if (contains(updated, imp.id) || !this.ems[imp.id]) return;
       const em = this.ems[imp.id];
-      em.update(new UpdateContext([]));
+      em.update(new UpdateContext([], this.getOption(em)));
     });
     this.action.consumeBidReqRes(request, response);
   }
@@ -94,16 +112,46 @@ export class ElementGroup {
       });
   }
   private async createBidReq(
-    ems: ElementModel[],
+    ems: ModelOptionPair[]
   ): Promise<OpenRTB.BidRequest> {
     const req = await OpenRTBUtils.createBidReqWithImp(
-      flatten(await Promise.all(ems.map(em => em.imp()))),
+      flatten(await Promise.all(ems.map(async pair => {
+        return this.imp(pair.em, pair.option)
+      }))),
       new OpenRTB.Ext.BidRequestExt(this.group),
       OpenRTBUtils.getIfa(this.config.deviceIfaAttrName)
     );
     return req;
   }
+  private getOption(em: ElementModel, override?: ElementOption): ElementOption {
+    const option = deepmerge(this.config.em.option(em.name), override || {});
+    return option;
+  }
+  private async preRender(em: ElementModel, option: ElementOption): Promise<void> {
+    const dummies = Array(option.placement.size).fill(OpenRTBUtils.dummyBid());
+    const context = new UpdateContext(dummies, option);
+    await this.applyUpdate(em, context);
+  }
+  private async applyUpdate(em: ElementModel, context: UpdateContext): Promise<UpdateContext> {
+    await em.update(context);
+    return context;
+  }
+
+  private async imp(em: ElementModel, option: ElementOption): Promise<OpenRTB.Imp[]> {
+    const impExt = new OpenRTB.Ext.ImpressionExt();
+    impExt.excludedBidders = option.excludedBidders;
+    impExt.notrim = option.notrim;
+    const imp = await OpenRTBUtils.createImp(
+      em.id,
+      em.name,
+      option.format,
+      option.assets.map(AssetUtils.optionToNativeAsset),
+      impExt
+    );
+    return [imp]; // FIX multiple imp
+  }
 }
+
 function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
   for (let tag of pattern.tagOverrides) {
     const tagBids = bids.filter(bid => bid.ext.tagid === tag.tagid);

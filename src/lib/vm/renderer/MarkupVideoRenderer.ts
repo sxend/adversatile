@@ -23,7 +23,7 @@ export class MarkupVideoRenderer implements Renderer {
     if (!data || !data.data || !context.admNative || !context.admNative.link) return context;
     const link = context.admNative.link;
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       const divChildElement: HTMLElement = document.createElement("div");

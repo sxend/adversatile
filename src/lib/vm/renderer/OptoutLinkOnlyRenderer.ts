@@ -19,7 +19,7 @@ export class OptoutLinkOnlyRenderer implements Renderer {
     const optout = AssetUtils.findAsset(context.assets, AssetTypes.OPTOUT_LINK);
     if (!optout) return context;
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");

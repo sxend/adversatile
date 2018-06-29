@@ -31,7 +31,7 @@ export class LinkJsRenderer implements Renderer {
     if (!linkUrl || !clktrckUrl) return context;
     const selector = this.selector();
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, selector);
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, selector);
 
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
@@ -41,7 +41,7 @@ export class LinkJsRenderer implements Renderer {
         const openTarget = target.getAttribute(
           this.config.linkJs.openTargetAttrName
         );
-        const expandedClickParams = context.model.option.expandedClickParams;
+        const expandedClickParams = context.element.option.expandedClickParams;
         if (openTarget === "self") {
           window.location.href = RendererUtils.addExpandParams(
             linkUrl,

@@ -1,5 +1,5 @@
 import { TemplateOps } from "./renderer/Template";
-import { RendererConf, AssetOption } from "../Configuration";
+import { RendererConf, AssetOption, ElementOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
@@ -113,10 +113,9 @@ export class RendererContext {
   public metadata: RendererMetadata;
   public environment: RendererEnvironment;
   constructor(
-    public model: ElementModel,
-    public element: HTMLElement,
-    public template: string,
+    public element: RendererElement,
     public events: RendererEvents,
+    public template: string,
     public bid: OpenRTB.Bid,
     public bidIndex: number,
   ) {
@@ -137,11 +136,18 @@ export class RendererContext {
     return getOrElse(() => this.bid.ext.bannerHtml);
   }
   addFoundAssets(...assets: AssetOption[]) {
-    this.model.option.assets = uniqBy(
-      this.model.option.assets.concat(assets),
+    this.element.option.assets = uniqBy(
+      this.element.option.assets.concat(assets),
       asset => asset.id
     );
   }
+}
+export class RendererElement {
+  constructor(
+    public model: ElementModel,
+    public target: HTMLElement,
+    public option: ElementOption
+  ) { }
 }
 export interface RendererEvents {
   root: {

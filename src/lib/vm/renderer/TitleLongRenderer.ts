@@ -20,7 +20,7 @@ export class TitleLongRenderer implements Renderer {
     const text = AssetUtils.findAsset(context.assets, AssetTypes.LEGACY_TITLE_LONG);
     if (!text) return context;
     const targets: HTMLElement[] =
-      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     for (let target of targets) {
       RendererUtils.insertTextAsset(target, text.title.text);

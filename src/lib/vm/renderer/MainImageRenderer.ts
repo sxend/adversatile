@@ -19,7 +19,7 @@ export class MainImageRenderer implements Renderer {
   }
   async render(context: RendererContext): Promise<RendererContext> {
     const targets: HTMLImageElement[] =
-      <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element, this.selector());
+      <HTMLImageElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
     if (contains(context.metadata.appliedRendererNames, VideoRenderer.NAME)) {
       targets.forEach(target => target.remove());

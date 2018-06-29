@@ -32,14 +32,14 @@ export class ObserveRenderer implements Renderer {
     return context;
   }
   private async observeInview(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
-    context.model.once("rendered", async () => {
+    context.element.model.once("rendered", async () => {
       ViewableObserver.onceInview(target, () => {
         callback();
       });
     });
   }
   private async observeSelector(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
-    context.model.once("rendered", async () => {
+    context.element.model.once("rendered", async () => {
       const selector = target.getAttribute(this.config.observe.selector.observeSelectorAttrName);
       let elements: Node[];
       Async.wait(() => {
