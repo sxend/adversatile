@@ -40,7 +40,7 @@ export class VideoRenderer implements Renderer {
     ) {
       await this.loadVideoPlayer();
     }
-    const attachment: {players: any[]} = {players: []};
+    const attachment: { players: any[] } = { players: [] };
     targets.forEach(target => {
       this.onVideoPlayerLoaded(context, target, video, image, attachment);
     });
@@ -52,7 +52,7 @@ export class VideoRenderer implements Renderer {
     element: HTMLElement,
     video: ResAssets,
     image: ResAssets,
-    attachment: {players: any[]}) {
+    attachment: { players: any[] }) {
 
     const vimp = context.events.vimp;
     context.events.vimp = () => { }; // force undertake.

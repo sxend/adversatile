@@ -102,7 +102,7 @@ export class ElementOption {
   useTemplateName: string;
   notrim: boolean = false;
   excludedBidders: string[] = [];
-  expandedClickParams: [{ name: string; value: string | number }] = <any>[];
+  expandedClickParams: { name: string; value: string | number }[] = <any>[];
   video: ElementVideoOption = new ElementVideoOption();
   renderer: ElementRendererOption = new ElementRendererOption();
   loop: ElementLoopOption = new ElementLoopOption();

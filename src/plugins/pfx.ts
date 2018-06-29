@@ -5,7 +5,7 @@ import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel, UpdateContext } from "../lib/vm/ElementModel";
-import { getOrElse, assign, onceFunction, entries } from "../lib/misc/ObjectUtils";
+import { getOrElse, assign, onceFunction, entries, firstDefined } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
@@ -257,16 +257,12 @@ export default {
 
           const spotId = element.getAttribute("data-ca-profitx-spotid");
           const tagId = element.getAttribute("data-ca-profitx-tagid");
-          if (spotId && oldconfigs.filter(config => config.spotId === spotId)[0]) {
-            const oldconfig = oldconfigs.filter(config => config.spotId === spotId)[0];
-            if (oldconfig) {
-              upgradeElement(element, config, oldconfig, existsPageId);
-            }
-          } else if (tagId && oldconfigs.filter(config => config.tagId === tagId)[0]) {
-            const oldconfig = oldconfigs.filter(config => config.tagId === tagId)[0];
-            if (oldconfig) {
-              upgradeElement(element, config, oldconfig, existsPageId);
-            }
+          const oldconfig = firstDefined([
+            oldconfigs.filter(config => config.spotId === spotId)[0],
+            oldconfigs.filter(config => config.tagId === tagId)[0]
+          ]);
+          if (oldconfig) {
+            upgradeElement(element, config, oldconfig, existsPageId);
           }
         });
         oldconfigs.forEach(oldconfig => upgradeConfig(config, oldconfig));
@@ -402,7 +398,7 @@ interface OldConfiguration {
   defaultSponsoredByMessage: string;
   defaultTitleShort: string;
   defaultTitleLong: string;
-  expandedClickParams: [{ name: string; value: string | number }];
+  expandedClickParams: { name: string; value: string | number }[];
   isSwipeAd: boolean;
   swipeAdStyle: NativeWebTemplate;
   // adInIframe: boolean;
