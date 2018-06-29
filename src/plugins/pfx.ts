@@ -103,7 +103,7 @@ export default {
           model.on("render", function render(context: RendererContext) {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
             if (window.onpfxadload) {
-              window.onpfxadload(context.bid);
+              window.onpfxadload([context.bid.ext]);
             }
           });
           model.on("rendered", function rendered(context: RendererContext) {
@@ -221,7 +221,7 @@ export default {
     let firstPageIdDetect = true;
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
       if (!isString(className)) {
-        setup("ca_profitx_ad", className, className.pageIds[0]);
+        setup("ca_profitx_ad", className.configs, className.pageIds[0]);
         return;
       }
       console.log("adv setup");
