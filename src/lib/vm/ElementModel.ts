@@ -26,6 +26,7 @@ export class ElementModel extends EventEmitter {
     if (!this.group) {
       this.element.setAttribute(this.config.groupAttributeName, this.config.defaultGroup);
     }
+    this.config.plugins.forEach(plugin => plugin.install(this));
   }
   get id(): string {
     return this.element.getAttribute(this.config.idAttributeName);
