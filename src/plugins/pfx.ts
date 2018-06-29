@@ -217,7 +217,11 @@ export default {
     config.vm.em.renderer.optoutLink.selectorAttrName = "data-pfx-optout-link";
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
-    let runMain = onceFunction(() => Adversatile.main(config).catch(console.error));
+    let runMain = onceFunction(() => {
+      setTimeout(() => {
+        Adversatile.main(config).catch(console.error)
+      }, 200); // wait for other setup method call
+    });
     let firstPageIdDetect = true;
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
       if (!isString(className)) {
