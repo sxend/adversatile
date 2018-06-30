@@ -7,7 +7,7 @@ import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 import { getOrElse, groupBy, flatten, contains, uniqBy } from "../misc/ObjectUtils";
 import { RouletteWheel } from "../misc/RouletteWheel";
 import PagePattern = OpenRTB.Ext.Adhoc.PagePattern;
-import { isEmptyArray } from "../misc/TypeCheck";
+import { isEmptyArray, isDefined } from "../misc/TypeCheck";
 import { RendererContext } from "./Renderer";
 import Analytics from "../misc/Analytics";
 import { AssetUtils } from "../openrtb/AssetUtils";
@@ -109,6 +109,17 @@ export class ElementGroup {
         this.action.tracking(urls, "view-through-tracking");
       })
       .on("click", (_context: RendererContext) => {
+      })
+      .on("update_request", (context?: UpdateContext) => {
+        let option: ElementOption;
+        if (isDefined(context)) {
+          option = context.option;
+        } else {
+          option = this.getOption(em);
+        }
+        this.createBidReq([{ em, option: option }]).then(req => {
+          this.action.adcall(req);
+        });
       });
   }
   private async createBidReq(
