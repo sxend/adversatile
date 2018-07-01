@@ -62,15 +62,14 @@ export class InjectRenderer implements Renderer {
     });
     context.element.target.appendChild(iframe);
 
-    await Async.wait(() => !!iframe.contentDocument);
+    const contentDocument = await Async.waitAndGet(() => iframe.contentDocument);
     try {
-      iframe.contentDocument.open();
-      iframe.contentDocument.write(context.template);
+      contentDocument.open();
+      contentDocument.write(context.template);
     } finally {
-      iframe.contentDocument.close();
+      contentDocument.close();
     }
-    await Async.wait(() => !!iframe.contentDocument.body);
-    context.element.target = iframe.contentDocument.body;
+    context.element.target = await Async.waitAndGet(() => iframe.contentDocument.body);
     this.setObserveInview(iframe, context);
     return context;
   }
