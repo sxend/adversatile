@@ -110,11 +110,8 @@ export class ElementGroup {
       })
       .on("click", (_context: RendererContext) => {
       })
-      .on("update_request", (context?: UpdateContext) => {
-        let option: ElementOption;
-        if (isDefined(context)) {
-          option = context.option;
-        } else {
+      .on("update_request", (option?: ElementOption) => {
+        if (!isDefined(option)) {
           option = this.getOption(em);
         }
         this.createBidReq([{ em, option: option }]).then(req => {

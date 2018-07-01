@@ -13,6 +13,9 @@ import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 import deepmerge from "deepmerge";
 import { isString, isDefined } from "../lib/misc/TypeCheck";
 import { ViewableObserver } from "../lib/misc/ViewableObserver";
+import { InjectRenderer } from "../lib/vm/renderer/InjectRenderer";
+import { LinkRenderer } from "../lib/vm/renderer/LinkRenderer";
+import { Async } from "../lib/misc/Async";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -168,14 +171,6 @@ export default {
                 "${PFX_AD_SCALE_RATIO}": "{{element.option.renderer.adScaleRatio}}",
                 "${PFX_VIEWPORT_WIDTH}": "{{element.option.renderer.viewPortWidth}}"
               };
-              const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
-              if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
-                replacements["${PFX_YDN_NOADCALLBACK}"] = [
-                  '<scr' + 'ipt>',
-                  `yads_noad_callback = 'parent.PFX_YDN_NOADCALLBACK_TAG${context.element.model.name}';`,
-                  '</sc' + 'ript>'
-                ].join('\n');
-              }
               const pattern = /\$\{[A-Z_]+\}/ig;
               html = html.replace(pattern, matched => {
                 return replacements[matched] || "";
@@ -184,6 +179,96 @@ export default {
             }
           } catch (e) {
             console.error(e);
+          }
+          return original.call(renderer, context);
+        };
+      }
+    });
+
+    // ydn noad callback
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        if (renderer.getName() !== NanoTemplateRenderer.NAME) return;
+        const original = renderer.render;
+        renderer.render = async function(context: RendererContext) {
+          if (!context.bannerHtml) return original.call(renderer, context);
+          const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
+          if (bidderName === "ydn") {
+            context.element.option.banner.impSelector = "a,iframe[src*='yimg'],iframe[src*='yahoo'],iframe[src*='ydn']";
+            const replacements: { [key: string]: string } = {};
+            const noAdCallbackId: string = Dom.setGlobalCallback(
+              RandomId.gen("__ydn_noad_cb"), () => {
+                context.element.option.excludedBidders.push("ydn");
+                context.element.model.emit("update_request", context.element.option);
+              });
+            replacements["${PFX_YDN_NOADCALLBACK}"] = [
+              '<scr' + 'ipt>',
+              `yads_noad_callback = 'parent.${noAdCallbackId}';`,
+              '</sc' + 'ript>'
+            ].join('\n');
+            const pattern = /\$\{[A-Z_]+\}/ig;
+            context.bid.ext.bannerHtml = context.bannerHtml.replace(pattern, matched => {
+              return replacements[matched] || "";
+            });
+          }
+
+          return original.call(renderer, context);
+        };
+      }
+    });
+    // browser integrated banner impression selector
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        if (renderer.getName() !== InjectRenderer.NAME) return;
+        const original = renderer.render;
+        renderer.render = async function(context: RendererContext) {
+          const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
+          if (bidderName === "zucks") {
+            context.element.option.banner.impSelector = "[id^=zucksad] > div > a";
+          } else if (bidderName === "genius") {
+            context.element.option.banner.impSelector = "a[href*='amoad.com%2Fclick']";
+          } else if (bidderName === "afio") {
+            context.element.option.banner.impSelector = "a[href*='amoad.com%2Fclick']";
+          } else if (bidderName === "ydn") {
+            context.element.option.banner.impSelector = "a,iframe[src*='yimg'],iframe[src*='yahoo'],iframe[src*='ydn']";
+          }
+          return original.call(renderer, context);
+        };
+      }
+    });
+    // browser integrated banner link replace
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        if (renderer.getName() !== LinkRenderer.NAME) return;
+        const original = renderer.render;
+        renderer.render = async function(context: RendererContext) {
+          const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
+
+          let demandAnchorSelector: string;
+          if (bidderName === "zucks") {
+            demandAnchorSelector = "[id^=zucksad] > div > a";
+          } else if (bidderName === "genius") {
+            demandAnchorSelector = "a[href*='amoad.com%2Fclick']";
+          } else if (bidderName === "afio") {
+            demandAnchorSelector = "a[href*='amoad.com%2Fclick']";
+          }
+          if (!isDefined(demandAnchorSelector)) {
+            return original.call(renderer, context);
+          }
+          const findLink: () => HTMLAnchorElement = () => <HTMLAnchorElement>Dom.recursiveQuerySelector(
+            context.element.target,
+            demandAnchorSelector);
+          const link = await Async.waitAndGet(() => findLink(), 10, 3000);
+          if (!link) {
+            return original.call(renderer, context);
+          }
+          if (link.href.indexOf('ad.caprofitx.adtdp.com') === -1) {
+            link.href = context.bid.ext.clickThroughUrl + encodeURIComponent(link.href);
+          }
+          const targets = Dom.recursiveQuerySelectorAll(context.element.target,
+            config.vm.em.renderer.link.selectorAttrName);
+          for (let target of targets) {
+            target.addEventListener("click", () => link.click());
           }
           return original.call(renderer, context);
         };

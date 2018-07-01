@@ -1,7 +1,11 @@
 import { isDefined } from "./TypeCheck";
 
 export namespace Async {
-  export async function wait(condition: () => boolean, interval?: number, timeout?: number, timeoutWithError: boolean = false): Promise<void> {
+  export async function wait(
+    condition: () => boolean,
+    interval?: number,
+    timeout?: number,
+    timeoutWithError: boolean = false): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const timer = setInterval(() => {
         try {
@@ -25,5 +29,12 @@ export namespace Async {
         }, timeout);
       }
     });
+  }
+  export async function waitAndGet<A>(fn: () => A,
+    interval?: number,
+    timeout?: number,
+    timeoutWithError: boolean = false): Promise<A> {
+    await wait(() => isDefined(fn()), interval, timeout, timeoutWithError);
+    return fn();
   }
 }

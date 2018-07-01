@@ -1,4 +1,4 @@
-import { getOrElse, contains } from "../../misc/ObjectUtils";
+import { getOrElse, contains, firstDefined } from "../../misc/ObjectUtils";
 import { RendererContext, Renderer, RenderDependency } from "../Renderer";
 import { RendererConf } from "../../Configuration";
 import { Dom } from "../../misc/Dom";
@@ -19,14 +19,16 @@ export class LinkRenderer implements Renderer {
     depend.after([InjectRenderer.NAME, VideoRenderer.NAME, MarkupVideoRenderer.NAME]);
   }
   async render(context: RendererContext): Promise<RendererContext> {
-    if (!context.admNative || !context.admNative.link) return context;
-    const link = context.admNative.link;
+    let clickUrl: string = firstDefined([
+      getOrElse(() => context.admNative.link.url),
+    ]);
+    if (!clickUrl) return context;
     const selector = this.selector();
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, selector);
     if (isEmptyArray(targets)) return context;
-    const clickUrl: string = RendererUtils.addExpandParams(
-      link.url,
+    clickUrl = RendererUtils.addExpandParams(
+      clickUrl,
       context.element.option.expandedClickParams
     );
     const appId = getOrElse(() => context.bid.ext.appId);
