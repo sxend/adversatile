@@ -402,7 +402,7 @@ export default {
         template = oldconfig.templateHtml;
       }
       template = upgradeTemplate(template, config);
-      if (template) {
+      if (template && template.length > 15) {
         if (!config.vm.em.templates[name]) {
           config.vm.em.templates[name] = template;
         }
