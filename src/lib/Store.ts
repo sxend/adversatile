@@ -4,7 +4,11 @@ import { IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
 
 export class Store extends EventEmitter {
-  private internal: any = {};
+  private internal: {
+    requests: { [id: string]: OpenRTB.BidRequest }
+    responses: { [id: string]: OpenRTB.BidResponse },
+    trackedUrls: { [name: string]: string[] }
+  } = <any>{};
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
     (this.internal.requests = this.internal.requests || {});
@@ -47,15 +51,15 @@ export class Store extends EventEmitter {
     this.emit("AddBidResponse", response);
   }
   hasBidRequest(id: string): boolean {
-    return !!this.internal.requests && !!this.internal.requests[id] && this.internal.requests[id].length > 0;
+    return !!this.internal.requests && !!this.internal.requests[id];
   }
   getBidRequest(id: string): OpenRTB.BidRequest {
     return this.internal.requests[id];
   }
   hasBidResponse(id: string): boolean {
-    return !!this.internal.responses && !!this.internal.responses[id] && this.internal.responses[id].length > 0;
+    return !!this.internal.responses && !!this.internal.responses[id];
   }
-  getBidResponse(id: string): OpenRTB.Bid {
+  getBidResponse(id: string): OpenRTB.BidResponse {
     return this.internal.responses[id];
   }
   getTrackedUrls(name: string): string[] {
