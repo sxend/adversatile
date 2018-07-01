@@ -165,8 +165,8 @@ export default {
             let html = getOrElse(() => context.bid.ext.bannerHtml);
             if (html) {
               const replacements: any = {
-                "${PFX_AD_SCALE_RATIO}": "{{model.option.renderer.adScaleRatio}}",
-                "${PFX_VIEWPORT_WIDTH}": "{{model.option.renderer.viewPortWidth}}"
+                "${PFX_AD_SCALE_RATIO}": "{{element.option.renderer.adScaleRatio}}",
+                "${PFX_VIEWPORT_WIDTH}": "{{element.option.renderer.viewPortWidth}}"
               };
               const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
               if (bidderName === "ydn") { // when change here, check also insertNoAdCallbackForBanner
@@ -206,7 +206,6 @@ export default {
         };
       }
     });
-    config.vm.em.renderer.inject.bannerAdImpSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
     config.vm.em.renderer.link.selectorAttrName = "data-pfx-link";
     config.vm.em.renderer.link.markedClass = "pfx-link-added";
     config.vm.em.renderer.link.anchorMarkedClass = "pfx-anchor-link";
@@ -291,6 +290,7 @@ export default {
         }
         emoption.format = oldconfig.adFormat;
         if (emoption.isBanner()) {
+          emoption.banner.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
           emoption.renderer.injectMethod = "iframe";
         }
         emoption.assets = (oldconfig.assets || []).map(asset => {

@@ -38,7 +38,9 @@ export class InjectRenderer implements Renderer {
     }
 
     if (context.element.option.isBanner()) {
-      context.element.target.setAttribute(this.config.observe.selector.observeSelectorAttrName, this.config.inject.bannerAdImpSelector);
+      context.element.target.setAttribute(
+        this.config.observe.selector.observeSelectorAttrName,
+        context.element.option.banner.impSelector);
       ObserveRenderer.setObserveAttribute(
         context.element.target, SELECTOR, this.config,
         context, () => context.events.impress(context));

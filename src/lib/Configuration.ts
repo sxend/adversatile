@@ -98,6 +98,7 @@ export class ElementOption {
   private formatIs = function(this: ElementOption, format: string): boolean {
     return this.format === format;
   };
+  banner: ElementBannerOption = new ElementBannerOption();
   assets: AssetOption[] = [];
   useTemplateName: string;
   notrim: boolean = false;
@@ -108,6 +109,9 @@ export class ElementOption {
   loop: ElementLoopOption = new ElementLoopOption();
   placement: ElementPlacementOption = new ElementPlacementOption();
   dynamic: ElementDynamicOption = new ElementDynamicOption();
+}
+export class ElementBannerOption {
+  impSelector: string = "a";
 }
 export class ElementDynamicOption {
   useTemplateNamesByPattern: { [pattern: string]: string[] } = {};
@@ -157,7 +161,6 @@ export class RendererConf {
 }
 export class InjectRendererConf {
   selectorAttrName: string = "data-adv-renderer-inject-method";
-  bannerAdImpSelector: string = "a";
 }
 export class VideoRendererConf {
   selectorAttrName: string = "data-adv-renderer-video";
