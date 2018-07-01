@@ -16,7 +16,7 @@ export class ObserveRenderer implements Renderer {
   async render(context: RendererContext): Promise<RendererContext> {
     const timer = setInterval(() => this.scan(context), this.config.observe.scanInterval);
     context.element.model.once("update", () => clearInterval(timer));
-    this.scan(context);
+    await this.scan(context);
     return context;
   }
   private async scan(context: RendererContext): Promise<void> {
