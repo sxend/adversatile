@@ -209,6 +209,8 @@ export class LinkJsRendererConf {
 }
 export class ObserveRendererConf {
   selectorAttrName: string = "data-adv-renderer-observe";
+  observeMarkedClass: string = "adv-renderer-observed";
+  scanInterval: number = 100;
   observeTypeAttrName: string = "data-adv-renderer-observe-type";
   observeCallbackAttrName: string = "data-adv-renderer-observe-callback";
   selector: ObserveSelectorConf = new ObserveSelectorConf()

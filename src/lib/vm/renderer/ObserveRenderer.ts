@@ -14,44 +14,46 @@ export class ObserveRenderer implements Renderer {
   }
   depends(_: RenderDependency): void { }
   async render(context: RendererContext): Promise<RendererContext> {
+    const timer = setInterval(() => this.scan(context), this.config.observe.scanInterval);
+    context.element.model.once("update", () => clearInterval(timer));
+    this.scan(context);
+    return context;
+  }
+  private async scan(context: RendererContext): Promise<void> {
     const topWindow = await Dom.TopLevelWindow;
     const targets = <HTMLElement[]>Dom.recursiveQuerySelectorAll(topWindow.document, this.selector(context.id));
-    if (isEmptyArray(targets)) return context;
+    if (isEmptyArray(targets)) return;
     const canInview = await Dom.canViewportIntersectionMeasurement;
     for (let target of targets) {
+      target.classList.add(this.config.observe.observeMarkedClass);
       const type = target.getAttribute(this.config.observe.observeTypeAttrName);
       const callbackId = target.getAttribute(this.config.observe.observeCallbackAttrName);
       const callback = <Function>(<any>topWindow)[callbackId];
       if (type === String(ObserveType.INVIEW) && canInview) {
-        this.observeInview(target, context, callback);
+        this.observeInview(target, callback);
       } else if (type === String(ObserveType.SELECTOR)) {
-        this.observeSelector(target, context, callback);
+        this.observeSelector(target, callback);
       }
     }
     context.metadata.applied(this.getName());
-    return context;
   }
-  private async observeInview(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
-    context.element.model.once("rendered", async () => {
-      ViewableObserver.onceInview(target, () => {
-        callback();
-      });
+  private async observeInview(target: HTMLElement, callback: Function = () => { }) {
+    ViewableObserver.onceInview(target, () => {
+      callback();
     });
   }
-  private async observeSelector(target: HTMLElement, context: RendererContext, callback: Function = () => { }) {
-    context.element.model.once("rendered", async () => {
-      const selector = target.getAttribute(this.config.observe.selector.observeSelectorAttrName);
-      let elements: Node[];
-      Async.wait(() => {
-        elements = Dom.recursiveQuerySelectorAll(target, selector);
-        return elements.length > 0;
-      }, 50).then(_ => {
-        callback(elements);
-      });
+  private async observeSelector(target: HTMLElement, callback: Function = () => { }) {
+    const selector = target.getAttribute(this.config.observe.selector.observeSelectorAttrName);
+    let elements: Node[];
+    Async.wait(() => {
+      elements = Dom.recursiveQuerySelectorAll(target, selector);
+      return elements.length > 0;
+    }, 50).then(_ => {
+      callback(elements);
     });
   }
   private selector(id: string): string {
-    return `[${this.config.observe.selectorAttrName}="${id}"][${this.config.observe.observeTypeAttrName}]`;
+    return `[${this.config.observe.selectorAttrName}="${id}"][${this.config.observe.observeTypeAttrName}]:not(.${this.config.observe.observeMarkedClass})`;
   }
   static setObserveAttribute(
     element: Element,

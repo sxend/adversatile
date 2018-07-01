@@ -94,8 +94,10 @@ export class InjectRenderer implements Renderer {
     return context;
   }
   private setObserveInview(target: HTMLElement, context: RendererContext) {
-    ObserveRenderer.setObserveAttribute(
-      target, INVIEW, this.config, context,
-      () => context.events.vimp(context));
+    context.element.model.once("impression", () => {
+      ObserveRenderer.setObserveAttribute(
+        target, INVIEW, this.config, context,
+        () => context.events.vimp(context));
+    });
   }
 }
