@@ -18,12 +18,12 @@ export class Action {
     responseP
       .then(response => {
         this.dispatcher.dispatch({ event: "BidResponse:New", data: response });
-        return Promise.resolve();
       })
       .catch(console.error);
   }
   consumeBidReqRes(id: string) {
-    this.dispatcher.dispatch({ event: "BidReqRes:Consume", data: id });
+    this.dispatcher.dispatch({ event: "BidRequest:Consume", data: id });
+    this.dispatcher.dispatch({ event: "BidResponse:Consume", data: id });
   }
   tracking(urls: string[], trackingName: string) {
     Tracking.trackingCall(urls, trackingName).then(_ => {

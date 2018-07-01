@@ -70,36 +70,40 @@ export default {
       },
       pa: Analytics
     });
-    const oldcontext: {
-      config: Configuration
-      oldconfigs: OldConfiguration[]
-      assets: OpenRTB.NativeAd.Request.Assets[][]
-    } = <any>{};
-    function init(names: any[], assets?: OpenRTB.NativeAd.Request.Assets[][]) {
-      console.log("adv init");
-      names = names.map(name => name.toString());
-      if (!oldcontext.config) {
-        oldcontext.config = new Configuration();
-        oldcontext.config.version = 1;
-        oldcontext.assets = assets;
-      }
-    };
-    function render(oldconfigs: OldConfiguration[]) {
-      console.log("adv render");
-      if (!oldcontext.config) {
-        oldcontext.oldconfigs = oldconfigs;
-        return;
-      }
-    }
-    function preRender() {
-      console.log("adv preRender");
-    }
     const config = new Configuration();
     config.version = 1;
     config.vm.deviceIfaAttrName = "data-ca-profitx-device-ifa";
     config.action.backend.adcallCallbackPrefix = "pfxCallback_";
     config.vm.em.groupAttributeName = 'data-ca-profitx-pageid';
-    const _oldconfigs: OldConfiguration[] = [];
+    const runMain = onceFunction(() => {
+      setTimeout(() => {
+        Adversatile.main(config).catch(console.error)
+      }, 200); // wait for other setup method call
+    });
+    const oldcontext: {
+      config: Configuration
+      oldconfigs: OldConfiguration[]
+      assets: OpenRTB.NativeAd.Request.Assets[][]
+    } = <any>{
+      oldconfigs: []
+    };
+    function init(_names: any[], _assets?: OpenRTB.NativeAd.Request.Assets[][]) {
+      console.log("adv init");
+    };
+    function render(oldconfig: OldConfiguration) {
+      console.log("adv render");
+      if (isDefined(oldconfig.elementClass)) {
+        Dom.recursiveQuerySelectorAll(document.body, `.${oldconfig.elementClass}`).forEach((element: HTMLElement) => {
+          upgradeElement(element, config, oldconfig, false);
+        });
+      }
+      setup(oldconfig.elementClass || "ca_profitx_ad", [oldconfig]);
+      runMain(null);
+    }
+    function preRender() {
+      console.log("adv preRender");
+    }
+
     config.vm.em.plugins.push({
       // bind callbacks
       install: function(model: ElementModel) {
@@ -112,7 +116,7 @@ export default {
           });
           model.on("rendered", function rendered(context: RendererContext) {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
-            const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
+            const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadrendered) {
               oldconfig.onpfxadrendered(context.bid, null, context.element.target);
             }
@@ -124,7 +128,7 @@ export default {
             window.postMessage('onpfximpression', '*');
           });
           model.on("viewable_impression", (context: RendererContext) => {
-            const oldconfig = _oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
+            const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadinview) {
               oldconfig.onpfxadinview();
             }
@@ -138,7 +142,7 @@ export default {
     config.vm.em.plugins.push({
       // display 0 pattern parentElement inview detection 
       install: function(model: ElementModel) {
-        const oldconfig = _oldconfigs.find(x => x.tagId === model.name);
+        const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === model.name);
         const original = model.update;
         model.update = function update(context: UpdateContext): Promise<void> {
           const size = getOrElse(() => context.dynamic.override.plcmtcnt);
@@ -303,11 +307,6 @@ export default {
     config.vm.em.renderer.optoutLink.selectorAttrName = "data-pfx-optout-link";
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
-    let runMain = onceFunction(() => {
-      setTimeout(() => {
-        Adversatile.main(config).catch(console.error)
-      }, 200); // wait for other setup method call
-    });
     let firstPageIdDetect = true;
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
       if (!isString(className)) {
@@ -410,7 +409,7 @@ export default {
           config.vm.em.templates[qualifier] = template;
         }
       }
-      _oldconfigs.push(oldconfig);
+      oldcontext.oldconfigs.push(oldconfig);
     }
     function upgradeTemplate(template: string = "", config: Configuration): string {
       template = template.replace(/data-pfx-link-self/g, `${config.vm.em.renderer.link.anchorTargetAttrName}="_self"`);

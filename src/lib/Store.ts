@@ -12,20 +12,22 @@ export class Store extends EventEmitter {
   } = <any>{};
   constructor(private config: StoreConf, private dispatcher: IDispatcher) {
     super();
-    (this.internal.requests = this.internal.requests || {});
-    (this.internal.responses = this.internal.responses || {});
+    this.internal.requests = this.internal.requests || {};
+    this.internal.responses = this.internal.responses || {};
+    this.internal.trackedUrls = this.internal.trackedUrls || {};
     this.dispatcher.onDispatch("BidRequest:New", (request: OpenRTB.BidRequest) => {
       this.addBidRequest(request);
     });
     this.dispatcher.onDispatch("BidResponse:New", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
     });
-    this.dispatcher.onDispatch("BidReqRes:Consume", (id: string) => {
+    this.dispatcher.onDispatch("BidRequest:Consume", (id: string) => {
       delete this.internal.requests[id];
+    });
+    this.dispatcher.onDispatch("BidResponse:Consume", (id: string) => {
       delete this.internal.responses[id];
     });
     this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
-      this.internal.trackedUrls = this.internal.trackedUrls || {};
       this.internal.trackedUrls[data.name] = (this.internal.trackedUrls[data.name] || []).concat(data.urls);
     });
   }
