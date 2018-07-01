@@ -67,6 +67,10 @@ export function flatten<A>(nested: A[][]): A[] {
   return nested.reduce((prev, current) => prev.concat(current), []);
 }
 
+export function every<A>(arr: A[], fn: (a: A) => boolean): boolean {
+  return arr.reduce((p, c) => p && fn(c), true);
+}
+
 export function rotate<A>(arr: A[], num: number = 0): A[] {
   for (let i = 0; i < num; i++) {
     arr.push(arr.shift());

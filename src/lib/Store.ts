@@ -2,6 +2,7 @@ import { StoreConf } from "./Configuration";
 import { EventEmitter } from "events";
 import { IDispatcher } from "./Dispatcher";
 import { OpenRTB } from "./openrtb/OpenRTB";
+import { values, every } from "./misc/ObjectUtils";
 
 export class Store extends EventEmitter {
   private internal: {
@@ -16,14 +17,12 @@ export class Store extends EventEmitter {
     this.dispatcher.onDispatch("BidRequest:New", (request: OpenRTB.BidRequest) => {
       this.addBidRequest(request);
     });
-    this.dispatcher.onDispatch("BidRequest:Consume", (request: OpenRTB.BidRequest) => {
-      delete this.internal.requests[request.id];
-    });
     this.dispatcher.onDispatch("BidResponse:New", (response: OpenRTB.BidResponse) => {
       this.addBidResponse(response);
     });
-    this.dispatcher.onDispatch("BidResponse:Consume", (response: OpenRTB.BidResponse) => {
-      delete this.internal.responses[response.id];
+    this.dispatcher.onDispatch("BidReqRes:Consume", (id: string) => {
+      delete this.internal.requests[id];
+      delete this.internal.responses[id];
     });
     this.dispatcher.onDispatch("Tracked", (data: { name: string, urls: string[] }) => {
       this.internal.trackedUrls = this.internal.trackedUrls || {};
@@ -61,6 +60,11 @@ export class Store extends EventEmitter {
   }
   getBidResponse(id: string): OpenRTB.BidResponse {
     return this.internal.responses[id];
+  }
+  findBidResponseByName(name: string): OpenRTB.BidResponse {
+    return values(this.internal.responses).find((res: OpenRTB.BidResponse) => {
+      return every(res.seatbid, (sbid) => every(sbid.bid, (bid) => bid.ext.tagid === name));
+    });
   }
   getTrackedUrls(name: string): string[] {
     if (this.internal.trackedUrls) {

@@ -29,11 +29,12 @@ export class ElementGroup {
       if (!request || !response.ext || !response.ext.group || response.ext.group !== this.group) {
         return;
       }
-      this.update(request, response);
+      this.updateByGroup(request, response);
     });
     this.config.group.plugins.forEach(plugin => plugin.install(this));
   }
   async register(ems: ElementModel[]) {
+    const needAdcallEms = [];
     for (let em of ems) {
       if (Object.keys(this.ems).indexOf(em.id) === -1) {
         this.ems[em.id] = em;
@@ -41,8 +42,15 @@ export class ElementGroup {
       } else {
         return;
       }
+      const response = this.store.findBidResponseByName(em.name);
+      const sbid = getOrElse(() => response.seatbid[0]);
+      if (isDefined(response) && isDefined(sbid) && isDefined(sbid.bid)) {
+        this.updateByBids(em, response);
+      } else {
+        needAdcallEms.push(em);
+      }
     }
-    const pairs = await this.initElementModels(ems);
+    const pairs = await this.initElementModels(needAdcallEms);
     const req = await this.createBidReq(pairs);
     if (req.imp.length > 0) {
       this.action.adcall(req);
@@ -60,7 +68,13 @@ export class ElementGroup {
     }
     return result;
   }
-  update(request: OpenRTB.BidRequest, response: OpenRTB.BidResponse): void {
+  private updateByBids(em: ElementModel, response: OpenRTB.BidResponse): void {
+    const sbid = getOrElse(() => response.seatbid[0]);
+    const pattern = selectPattern(sbid);
+    this.update(em, sbid.bid, pattern);
+    this.action.consumeBidReqRes(response.id);
+  }
+  private updateByGroup(request: OpenRTB.BidRequest, response: OpenRTB.BidResponse): void {
     if (this.group !== getOrElse(() => response.ext.group)) {
       throw new Error(`invalid response.ext.group: ${getOrElse(() => response.ext.group)}`);
     }
@@ -74,9 +88,7 @@ export class ElementGroup {
     Object.keys(bidsGroup).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
-      const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
-      const context = new UpdateContext(bidsGroup[id], this.getOption(em), new UpdateDynamic(pattern, override));
-      em.update(context);
+      this.update(em, bidsGroup[id], pattern);
       updated.push(em.id);
     });
     uniqBy(request.imp, imp => imp.id).forEach(imp => {
@@ -84,7 +96,12 @@ export class ElementGroup {
       const em = this.ems[imp.id];
       em.update(new UpdateContext([], this.getOption(em)));
     });
-    this.action.consumeBidReqRes(request, response);
+    this.action.consumeBidReqRes(request.id);
+  }
+  update(em: ElementModel, bids: OpenRTB.Bid[], pattern?: PagePattern) {
+    const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
+    const context = new UpdateContext(bids, this.getOption(em), new UpdateDynamic(pattern, override));
+    em.update(context);
   }
   private setEvents(em: ElementModel): void {
     em

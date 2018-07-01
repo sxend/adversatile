@@ -10,9 +10,9 @@ import { Store } from "./Store";
 import { Dispatcher } from "./Dispatcher";
 import pfx from "../plugins/pfx";
 
-export async function main(...args: any[]) {
+export function main(...args: any[]): any {
   if (isObject(args[0]) && isConfiguration(args[0])) {
-    await runWithConfiguration(asConfituration(args[0]));
+    return runWithConfiguration(asConfituration(args[0]));
   } else {
     throw "abort";
   }
@@ -22,7 +22,8 @@ async function runWithConfiguration(configuration: Configuration) {
   const dispatcher: Dispatcher = new Dispatcher();
   const action = new Action(configuration.action, dispatcher);
   const store = new Store(configuration.store, dispatcher);
-  new ViewModel(configuration.vm, store, action);
+  const vm = new ViewModel(configuration.vm, store, action);
+  return { action, store, vm };
 }
 
 export function use(this: any, plugin: Plugin, options?: any) {

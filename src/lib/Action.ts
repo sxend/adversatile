@@ -22,9 +22,8 @@ export class Action {
       })
       .catch(console.error);
   }
-  consumeBidReqRes(req: OpenRTB.BidRequest, res: OpenRTB.BidResponse) {
-    this.dispatcher.dispatch({ event: "BidRequest:Consume", data: req });
-    this.dispatcher.dispatch({ event: "BidResponse:Consume", data: res });
+  consumeBidReqRes(id: string) {
+    this.dispatcher.dispatch({ event: "BidReqRes:Consume", data: id });
   }
   tracking(urls: string[], trackingName: string) {
     Tracking.trackingCall(urls, trackingName).then(_ => {
