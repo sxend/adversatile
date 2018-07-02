@@ -128,6 +128,12 @@ export class ElementGroup {
       .on("click", (_context: RendererContext) => {
       })
       .on("update_request", (option?: ElementOption) => {
+        const response = this.store.findBidResponseByName(em.name);
+        const sbid = getOrElse(() => response.seatbid[0]);
+        if (isDefined(response) && isDefined(sbid) && isDefined(sbid.bid)) {
+          this.updateByBids(em, response);
+          return;
+        }
         if (!isDefined(option)) {
           option = this.getOption(em);
         }
