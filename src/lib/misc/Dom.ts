@@ -51,7 +51,8 @@ export namespace Dom {
     `iframe:not([src])`,
     `iframe[src="about:self"]`,
     `iframe[src^="//${location.host}"]`,
-    `iframe[src^="${location.origin}"]`
+    `iframe[src^="${location.origin}"]`,
+    'iframe:not([src*="//"])'
   ].join(",");
   export function recursiveQuerySelectorAll(
     element: ParentNode,
