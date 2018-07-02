@@ -311,19 +311,7 @@ export default {
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
       if (!isString(className)) { // deprecated.
-        const oldconfigs = className.displayConfigs.map((configString: string) => {
-          try {
-            let config: OldConfiguration = <OldConfiguration>JSON.parse(configString);
-            if (!!className.templateHtmls[config.spotId]) {
-              config.templateHtml = className.templateHtmls[config.spotId];
-            }
-            return config;
-          } catch (e) {
-            console.warn("json parse error. displayConfigs:", configString, e);
-          }
-          return void 0;
-        }).filter((_: OldConfiguration) => !!_);
-        setup("ca_profitx_ad", oldconfigs, className.pageIds[0]);
+        runWithMediumConfig(className);
         return;
       }
       runMain(null);
@@ -445,6 +433,21 @@ export default {
       } else {
         config.vm.em.defaultGroup = element.getAttribute(config.vm.em.groupAttributeName);
       }
+    }
+    function runWithMediumConfig(mediumConfig: any) {
+      const oldconfigs = mediumConfig.displayConfigs.map((configString: string) => {
+        try {
+          let config: OldConfiguration = <OldConfiguration>JSON.parse(configString);
+          if (!!mediumConfig.templateHtmls[config.spotId]) {
+            config.templateHtml = mediumConfig.templateHtmls[config.spotId];
+          }
+          return config;
+        } catch (e) {
+          console.warn("json parse error. displayConfigs:", configString, e);
+        }
+        return void 0;
+      }).filter((_: OldConfiguration) => !!_);
+      setup("ca_profitx_ad", oldconfigs, mediumConfig.pageIds[0]);
     }
     Adversatile.use({
       install: function(adv: any) {
