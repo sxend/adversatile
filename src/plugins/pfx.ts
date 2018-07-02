@@ -309,11 +309,23 @@ export default {
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     let firstPageIdDetect = true;
     function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
-      if (!isString(className)) {
-        setup("ca_profitx_ad", className.configs, className.pageIds[0]);
+      console.log("adv setup");
+      if (!isString(className)) { // deprecated.
+        const oldconfigs = className.displayConfigs.map((configString: string) => {
+          try {
+            let config: OldConfiguration = <OldConfiguration>JSON.parse(configString);
+            if (!!className.templateHtmls[config.spotId]) {
+              config.templateHtml = className.templateHtmls[config.spotId];
+            }
+            return config;
+          } catch (e) {
+            console.warn("json parse error. displayConfigs:", configString, e);
+          }
+          return void 0;
+        }).filter((_: OldConfiguration) => !!_);
+        setup("ca_profitx_ad", oldconfigs, className.pageIds[0]);
         return;
       }
-      console.log("adv setup");
       runMain(null);
       Dom.TopLevelWindow.then(w => {
         config.vm.selector = `.${className}`;
