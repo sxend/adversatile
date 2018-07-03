@@ -4,8 +4,9 @@ import { EventEmitter } from "events";
 import { OpenRTB } from "../openrtb/OpenRTB";
 import { Renderer, RendererContext, RendererEvents, RootRenderer, RendererElement } from "../vm/Renderer";
 import { TemplateOps } from "./renderer/Template";
-import { onceFunction, rotate, getOrElse } from "../misc/ObjectUtils";
+import { onceFunction, rotate, getOrElse, noOp } from "../misc/ObjectUtils";
 import { isDefined } from "../misc/TypeCheck";
+import { OpenRTBUtils } from "../openrtb/OpenRTBUtils";
 
 export class ElementModel extends EventEmitter {
   private renderer: Renderer;
@@ -118,7 +119,7 @@ export class ElementModel extends EventEmitter {
         target,
         option
       ),
-      this.createRendererEvents(),
+      OpenRTBUtils.isDummyBid(bid) ? noOpRendererEvents : this.createRendererEvents(),
       template,
       bid,
       bidIndex
@@ -166,6 +167,19 @@ export class ElementModel extends EventEmitter {
     };
   }
 }
+
+const noOpRendererEvents: RendererEvents = {
+  root: {
+    render: noOp,
+    rendered: noOp
+  },
+  impress: noOp,
+  vimp: noOp,
+  viewThrough: noOp,
+  click: noOp,
+  expired: noOp
+};
+
 export class UpdateContext {
   public id: string = RandomId.gen("upd")
   public loopCount: number = 0;

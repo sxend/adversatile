@@ -23,6 +23,8 @@ export function assign(target: any, _varArgs: any) {
   return to;
 }
 
+export const noOp = () => { };
+
 // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
 export function entries(obj: any) {
   const ownProps = Object.keys(obj);
