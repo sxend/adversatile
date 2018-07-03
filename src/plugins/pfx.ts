@@ -103,7 +103,14 @@ export default {
     function preRender() {
       console.log("adv preRender");
     }
-
+    // update default group by newest group
+    config.vm.em.plugins.push({
+      install: function(model: ElementModel) {
+        if (model.group) {
+          config.vm.em.defaultGroup = model.group;
+        }
+      }
+    });
     config.vm.em.plugins.push({
       // bind callbacks
       install: function(model: ElementModel) {
