@@ -5,17 +5,18 @@ import { OpenRTBUtils } from "../lib/openrtb/OpenRTBUtils";
 import { Dom } from "../lib/misc/Dom";
 import Analytics from "../lib/misc/Analytics";
 import { ElementModel, UpdateContext } from "../lib/vm/ElementModel";
-import { getOrElse, assign, onceFunction, entries, firstDefined } from "../lib/misc/ObjectUtils";
+import { getOrElse, assign, onceFunction, entries, firstDefined, groupBy } from "../lib/misc/ObjectUtils";
 import { AssetUtils } from "../lib/openrtb/AssetUtils";
 import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
 import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 import deepmerge from "deepmerge";
-import { isString, isDefined } from "../lib/misc/TypeCheck";
+import { isString, isDefined, isEmptyArray } from "../lib/misc/TypeCheck";
 import { ViewableObserver } from "../lib/misc/ViewableObserver";
 import { InjectRenderer } from "../lib/vm/renderer/InjectRenderer";
 import { LinkRenderer } from "../lib/vm/renderer/LinkRenderer";
 import { Async } from "../lib/misc/Async";
+import { Backend } from "../lib/action/Backend";
 
 declare var window: {
   onpfxadrendered: Function,
@@ -103,6 +104,28 @@ export default {
     function preRender() {
       console.log("adv preRender");
     }
+    // override impid: "1"
+    config.action.backend.plugins.push({
+      install: function(backend: Backend) {
+        const original = backend.adcall;
+        backend.adcall = async function(req: OpenRTB.BidRequest) {
+          const response: OpenRTB.BidResponse = await original.call(backend, req);
+          const sbid = getOrElse(() => response.seatbid[0]);
+          if (!isDefined(sbid) || !isDefined(sbid.bid) || isEmptyArray(sbid.bid)) return response;
+          const group = groupBy(sbid.bid, bid => bid.ext.tagid);
+          Object.keys(group).forEach(tagId => {
+            const imps = req.imp.filter(imp => imp.tagid === tagId);
+            const defaultImp = imps[0];
+            if (!defaultImp) return;
+            group[tagId].forEach((bid: OpenRTB.Bid) => {
+              const imp = imps.shift() || defaultImp;
+              bid.impid = imp.id;
+            });
+          });
+          return response;
+        }
+      }
+    });
     // update default group by newest group
     config.vm.em.plugins.push({
       install: function(model: ElementModel) {

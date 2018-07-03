@@ -10,7 +10,13 @@ export function isArray(o: any): boolean {
   return matchToString("[object Array]", o);
 }
 export function isDefined(o: any): boolean {
-  return o !== void 0;
+  return !isUndefined(o) && !isNull(o);
+}
+export function isNull(o: any): boolean {
+  return o === null;
+}
+export function isUndefined(o: any): boolean {
+  return o === void 0;
 }
 export function isEmptyArray<A>(arr: A[]): boolean {
   return arr.length === 0;
