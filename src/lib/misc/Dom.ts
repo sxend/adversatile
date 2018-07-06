@@ -1,3 +1,5 @@
+import { isDefined } from "./TypeCheck";
+
 export namespace Dom {
   export const TopLevelWindow: Promise<Window> = new Promise(resolve => {
     let current = window;
@@ -22,6 +24,13 @@ export namespace Dom {
     }
     search();
   });
+  export async function callOnTopLevelOnce<A>(id: string, callback: () => A): Promise<A> {
+    const promise = (<any>await Dom.TopLevelWindow)[id];
+    if (isDefined(promise)) {
+      return promise;
+    }
+    return (<any>await Dom.TopLevelWindow)[id] = Promise.resolve(callback());
+  }
   export const canViewportIntersectionMeasurement = TopLevelWindow.then(
     x => x === window.top
   );

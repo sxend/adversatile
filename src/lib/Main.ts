@@ -9,6 +9,7 @@ import { Action } from "./Action";
 import { Store } from "./Store";
 import { Dispatcher } from "./Dispatcher";
 import pfx from "../plugins/pfx";
+import { Dom } from "./misc/Dom";
 
 export function main(...args: any[]): any {
   if (isObject(args[0]) && isConfiguration(args[0])) {
@@ -19,11 +20,12 @@ export function main(...args: any[]): any {
 }
 
 async function runWithConfiguration(configuration: Configuration) {
-  const dispatcher: Dispatcher = new Dispatcher();
-  const action = new Action(configuration.action, dispatcher);
-  const store = new Store(configuration.store, dispatcher);
-  const vm = new ViewModel(configuration.vm, store, action);
-  return { action, store, vm };
+  Dom.callOnTopLevelOnce("__adv_loaded", () => {
+    const dispatcher: Dispatcher = new Dispatcher();
+    const action = new Action(configuration.action, dispatcher);
+    const store = new Store(configuration.store, dispatcher);
+    new ViewModel(configuration.vm, store, action);
+  });
 }
 
 export function use(this: any, plugin: Plugin, options?: any) {
