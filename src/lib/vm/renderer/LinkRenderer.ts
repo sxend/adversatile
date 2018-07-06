@@ -32,6 +32,7 @@ export class LinkRenderer implements Renderer {
       context.element.option.expandedClickParams
     );
     const appId = getOrElse(() => context.bid.ext.appId);
+    const attachment: HTMLAnchorElement[] = [];
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       anchor.target = this.detectAnchorTarget(target);
@@ -44,7 +45,7 @@ export class LinkRenderer implements Renderer {
         anchor.onclick = () => {
           context.events.click(context);
           let clickUrlWithPlayCount: string;
-          const videoAttachment = context.metadata.appliedRendererAttachments[VideoRenderer.NAME];
+          const videoAttachment = context.metadata.getAttachment(VideoRenderer.NAME);
           if (isDefined(videoAttachment)) {
             clickUrlWithPlayCount = RendererUtils.addExpandParams(clickUrl, [{
               name: "video_play_nth",
@@ -74,7 +75,9 @@ export class LinkRenderer implements Renderer {
       }
       target.classList.add(this.config.link.markedClass);
       anchor.appendChild(target);
+      attachment.push(anchor);
     }
+    context.metadata.setAttachment(this.getName(), attachment);
     context.metadata.applied(this.getName());
     return context;
   }

@@ -276,8 +276,8 @@ export default {
         if (renderer.getName() !== LinkRenderer.NAME) return;
         const original = renderer.render;
         renderer.render = async function(context: RendererContext) {
+          context = await original.call(renderer, context);
           const bidderName = getOrElse(() => context.bid.ext.bidderName, "");
-
           let demandAnchorSelector: string;
           if (bidderName === "zucks") {
             demandAnchorSelector = "[id^=zucksad] > div > a";
@@ -287,24 +287,26 @@ export default {
             demandAnchorSelector = "a[href*='amoad.com%2Fclick']";
           }
           if (!isDefined(demandAnchorSelector)) {
-            return original.call(renderer, context);
+            return context;
           }
           const findLink: () => HTMLAnchorElement = () => <HTMLAnchorElement>Dom.recursiveQuerySelector(
             context.element.target,
             demandAnchorSelector);
           const link = await Async.waitAndGet(() => findLink(), 10, 3000);
           if (!link) {
-            return original.call(renderer, context);
+            return context;
           }
           if (link.href.indexOf('ad.caprofitx.adtdp.com') === -1) {
             link.href = context.bid.ext.clickThroughUrl + encodeURIComponent(link.href);
           }
-          const targets = Dom.recursiveQuerySelectorAll(context.element.target,
-            config.vm.em.renderer.link.selectorAttrName);
-          for (let target of targets) {
-            target.addEventListener("click", () => link.click());
+          if (context.metadata.isAppied(LinkRenderer.NAME)) {
+            const targets: HTMLAnchorElement[] = context.metadata.getAttachment(LinkRenderer.NAME) || [];
+            for (let target of targets) {
+              target.href = link.href;
+              target.addEventListener("click", () => link.click());
+            }
           }
-          return original.call(renderer, context);
+          return context;
         };
       }
     });

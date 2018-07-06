@@ -44,7 +44,8 @@ export class VideoRenderer implements Renderer {
     targets.forEach(target => {
       this.onVideoPlayerLoaded(context, target, video, image, attachment);
     });
-    context.metadata.applied(this.getName(), attachment);
+    context.metadata.setAttachment(this.getName(), attachment);
+    context.metadata.applied(this.getName());
     return context;
   }
   private onVideoPlayerLoaded(

@@ -2,7 +2,7 @@ import { TemplateOps } from "./renderer/Template";
 import { RendererConf, AssetOption, ElementOption } from "../Configuration";
 import { ElementModel } from "../vm/ElementModel";
 import { OpenRTB } from "../openrtb/OpenRTB";
-import { uniq, getOrElse, values, uniqBy } from "../misc/ObjectUtils";
+import { uniq, getOrElse, values, uniqBy, contains } from "../misc/ObjectUtils";
 import { NanoTemplateRenderer } from "./renderer/NanoTemplateRenderer";
 import { InjectRenderer } from "./renderer/InjectRenderer";
 import { VideoRenderer } from "./renderer/VideoRenderer";
@@ -162,12 +162,18 @@ export interface RendererEvents {
 }
 export class RendererMetadata {
   public appliedRendererNames: string[] = [];
-  public appliedRendererAttachments: { [name: string]: any } = {};
-  public applied(name: string, attachment?: any): void {
+  public attachments: { [name: string]: any } = {};
+  public applied(name: string): void {
     this.appliedRendererNames = uniq(this.appliedRendererNames.concat(name));
-    if (isDefined(attachment)) {
-      this.appliedRendererAttachments[name] = attachment;
-    }
+  }
+  public isAppied(name: string): boolean {
+    return contains(this.appliedRendererNames, name);
+  }
+  public setAttachment(name: string, attachment: any): void {
+    this.attachments[name] = attachment;
+  }
+  public getAttachment(name: string): any {
+    return this.attachments[name];
   }
 }
 export class RendererEnvironment {
