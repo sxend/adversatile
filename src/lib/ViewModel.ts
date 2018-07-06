@@ -35,17 +35,19 @@ export class ViewModel {
     }
   }
   private polling(): void {
-    const poller = () => {
-      try {
-        this.pollElements();
-      } catch (e) {
-        console.error(e);
-      }
-      setTimeout(poller, this.config.polling.interval);
-    };
-    setTimeout(poller);
+    Dom.TopLevelDocument.then(document => {
+      const poller = () => {
+        try {
+          this.pollElements(document);
+        } catch (e) {
+          console.error(e);
+        }
+        setTimeout(poller, this.config.polling.interval);
+      };
+      setTimeout(poller);
+    });
   }
-  private pollElements(): void {
+  private pollElements(document: Document): void {
     const newElements = [].slice
       .call(Dom.recursiveQuerySelectorAll(document, this.selector()))
       .map((element: HTMLElement) => {

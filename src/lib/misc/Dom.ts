@@ -24,6 +24,7 @@ export namespace Dom {
     }
     search();
   });
+  export const TopLevelDocument: Promise<Document> = TopLevelWindow.then(_ => _.document);
   export async function callOnTopLevelOnce<A>(id: string, callback: () => A): Promise<A> {
     const promise = (<any>await Dom.TopLevelWindow)[id];
     if (isDefined(promise)) {
