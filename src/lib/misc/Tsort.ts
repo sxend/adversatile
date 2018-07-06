@@ -1,4 +1,5 @@
 import { contains } from "./ObjectUtils";
+import { isDefined } from "./TypeCheck";
 
 // https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
 export class Tsort<A> {
@@ -6,19 +7,19 @@ export class Tsort<A> {
   private nodes: A[] = [];
   constructor(private key: (a: A) => string) {
   }
-  add(node0: A, node1?: A): void {
-    if (!contains(this.nodes, node0)) {
-      this.nodes.unshift(node0);
+  private addNode(node: A): void {
+    if (!contains(this.nodes, node)) {
+      this.nodes.unshift(node);
     }
-    if (node1) {
-      if (!contains(this.nodes, node1)) {
-        this.nodes.unshift(node1);
-      }
-      const key0 = this.key(node0);
-      this.graph[key0] = this.graph[key0] || [];
-      if (!contains(this.graph[key0], node1)) {
-        this.graph[key0].unshift(node1);
-      }
+  }
+  add(node0: A, node1?: A): void {
+    this.addNode(node0);
+    if (!isDefined(node1)) return;
+    this.addNode(node1);
+    const key0 = this.key(node0);
+    this.graph[key0] = this.graph[key0] || [];
+    if (!contains(this.graph[key0], node1)) {
+      this.graph[key0].unshift(node1);
     }
   }
   sort(): A[] {
