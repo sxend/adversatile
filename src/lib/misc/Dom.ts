@@ -25,12 +25,18 @@ export namespace Dom {
     search();
   });
   export const TopLevelDocument: Promise<Document> = TopLevelWindow.then(_ => _.document);
-  export async function callOnTopLevelOnce<A>(id: string, callback: () => A): Promise<A> {
-    const promise = (<any>await Dom.TopLevelWindow)[id];
+  export async function callOnTopLevelOnce<A>(id: string, callback: () => A, resetOnWindowUnload: boolean = true): Promise<A> {
+    const topWindow = (<any>await Dom.TopLevelWindow);
+    const promise = topWindow[id];
     if (isDefined(promise)) {
       return promise;
     }
-    return (<any>await Dom.TopLevelWindow)[id] = Promise.resolve(callback());
+    if (resetOnWindowUnload) {
+      window.addEventListener("unload", async () => {
+        delete topWindow[id];
+      });
+    }
+    return topWindow[id] = Promise.resolve(callback());
   }
   export const canViewportIntersectionMeasurement = TopLevelWindow.then(
     x => x === window.top
