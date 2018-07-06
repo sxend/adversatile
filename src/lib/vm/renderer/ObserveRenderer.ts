@@ -64,7 +64,7 @@ export class ObserveRenderer implements Renderer {
   ) {
     element.setAttribute(config.observe.selectorAttrName, context.id);
     element.setAttribute(config.observe.observeTypeAttrName, String(type));
-    const callbackId = `__adv_ob_rend_${RandomId.gen()}`;
+    const callbackId = RandomId.gen(`__adv_ob_rend`);
     element.setAttribute(config.observe.observeCallbackAttrName, callbackId);
     Dom.setTopWindowCallback(callbackId, callback);
   }
