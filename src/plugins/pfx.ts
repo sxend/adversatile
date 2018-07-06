@@ -11,7 +11,7 @@ import { Renderer, RendererContext } from "../lib/vm/Renderer";
 import { RandomId } from "../lib/misc/RandomId";
 import { NanoTemplateRenderer } from "../lib/vm/renderer/NanoTemplateRenderer";
 import deepmerge from "deepmerge";
-import { isString, isDefined, isEmptyArray } from "../lib/misc/TypeCheck";
+import { isDefined, isEmptyArray } from "../lib/misc/TypeCheck";
 import { ViewableObserver } from "../lib/misc/ViewableObserver";
 import { InjectRenderer } from "../lib/vm/renderer/InjectRenderer";
 import { LinkRenderer } from "../lib/vm/renderer/LinkRenderer";
@@ -338,12 +338,8 @@ export default {
     config.vm.em.renderer.sponsoredByMessage.selectorAttrName = "data-pfx-sponsored-by-message";
     config.vm.em.renderer.video.selectorAttrName = "data-pfx-video";
     let firstPageIdDetect = true;
-    function setup(className: string | any, oldconfigs: OldConfiguration[], pageId?: number) {
+    function setup(className: string, oldconfigs: OldConfiguration[], pageId?: number) {
       console.log("adv setup");
-      if (!isString(className)) { // deprecated.
-        runWithMediumConfig(className);
-        return;
-      }
       runMain(null);
       Dom.TopLevelWindow.then(w => {
         config.vm.selector = `.${className}`;
@@ -463,21 +459,6 @@ export default {
       } else {
         config.vm.em.defaultGroup = element.getAttribute(config.vm.em.groupAttributeName);
       }
-    }
-    function runWithMediumConfig(mediumConfig: any) {
-      const oldconfigs = mediumConfig.displayConfigs.map((configString: string) => {
-        try {
-          let config: OldConfiguration = <OldConfiguration>JSON.parse(configString);
-          if (!!mediumConfig.templateHtmls[config.spotId]) {
-            config.templateHtml = mediumConfig.templateHtmls[config.spotId];
-          }
-          return config;
-        } catch (e) {
-          console.warn("json parse error. displayConfigs:", configString, e);
-        }
-        return void 0;
-      }).filter((_: OldConfiguration) => !!_);
-      setup("ca_profitx_ad", oldconfigs, mediumConfig.pageIds[0]);
     }
     Adversatile.use({
       install: function(adv: any) {

@@ -160,7 +160,6 @@ export class RendererConf {
   }[] = [];
 }
 export class InjectRendererConf {
-  selectorAttrName: string = "data-adv-renderer-inject-method";
 }
 export class VideoRendererConf {
   selectorAttrName: string = "data-adv-renderer-video";
