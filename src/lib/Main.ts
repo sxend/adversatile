@@ -25,7 +25,7 @@ async function runWithConfiguration(configuration: Configuration) {
     const action = new Action(configuration.action, dispatcher);
     const store = new Store(configuration.store, dispatcher);
     new ViewModel(configuration.vm, store, action);
-  });
+  }, Dom.isInIframe(window));
 }
 
 export function use(this: any, plugin: Plugin, options?: any) {
