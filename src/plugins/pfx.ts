@@ -140,7 +140,7 @@ export default {
           model.on("render", function render(context: RendererContext) {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
             if (window.onpfxadload) {
-              window.onpfxadload([context.bid.ext]);
+              window.onpfxadload([context.bid.ext], context.parentSeatBid);
             }
           });
           model.on("rendered", function rendered(context: RendererContext) {

@@ -71,7 +71,7 @@ export class ElementGroup {
   private updateByBids(em: ElementModel, response: OpenRTB.BidResponse): void {
     const sbid = getOrElse(() => response.seatbid[0]);
     const pattern = selectPattern(sbid);
-    this.update(em, sbid.bid, pattern);
+    this.update(em, sbid, sbid.bid, pattern);
     this.action.consumeBidReqRes(response.id);
   }
   private updateByGroup(request: OpenRTB.BidRequest, response: OpenRTB.BidResponse): void {
@@ -88,19 +88,19 @@ export class ElementGroup {
     Object.keys(bidsGroup).forEach(id => {
       const em = this.ems[id];
       if (!em) return;
-      this.update(em, bidsGroup[id], pattern);
+      this.update(em, sbid, bidsGroup[id], pattern);
       updated.push(em.id);
     });
     uniqBy(request.imp, imp => imp.id).forEach(imp => {
       if (contains(updated, imp.id) || !this.ems[imp.id]) return;
       const em = this.ems[imp.id];
-      em.update(new UpdateContext([], this.getOption(em)));
+      em.update(new UpdateContext(new OpenRTB.SeatBid(), this.getOption(em)));
     });
     this.action.consumeBidReqRes(request.id);
   }
-  update(em: ElementModel, bids: OpenRTB.Bid[], pattern?: PagePattern) {
+  update(em: ElementModel, seatbid: OpenRTB.SeatBid, bids: OpenRTB.Bid[], pattern?: PagePattern) {
     const override = getOrElse(() => pattern.tagOverrides.find(tag => tag.tagid === em.name));
-    const context = new UpdateContext(bids, this.getOption(em), new UpdateDynamic(pattern, override));
+    const context = new UpdateContext(OpenRTBUtils.cloneSeatBidWithBid(seatbid, bids), this.getOption(em), new UpdateDynamic(pattern, override));
     em.update(context);
   }
   private setEvents(em: ElementModel): void {
@@ -160,7 +160,9 @@ export class ElementGroup {
   }
   private async preRender(em: ElementModel, option: ElementOption): Promise<void> {
     const dummies = Array(option.placement.size).fill(OpenRTBUtils.dummyBid());
-    const context = new UpdateContext(dummies, option);
+    const seatbid = new OpenRTB.SeatBid();
+    seatbid.bid = dummies;
+    const context = new UpdateContext(seatbid, option);
     await this.applyUpdate(em, context);
   }
   private async applyUpdate(em: ElementModel, context: UpdateContext): Promise<UpdateContext> {

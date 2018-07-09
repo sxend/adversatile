@@ -10,6 +10,9 @@ export function dummyBid(): OpenRTB.Bid {
   return OpenRTBUtils.dummyBid();
 }
 export function dummyRendererContext(element: HTMLElement): RendererContext {
+  const bid = dummyBid();
+  const sbid = new OpenRTB.SeatBid();
+  sbid.bid = [bid];
   return new RendererContext(
     new RendererElement(
       mockElementModel(),
@@ -20,8 +23,9 @@ export function dummyRendererContext(element: HTMLElement): RendererContext {
     ),
     dummyEvents(),
     "",
-    dummyBid(),
+    bid,
     0,
+    sbid
   );
 }
 export function mockElementModel(): ElementModel {

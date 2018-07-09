@@ -55,7 +55,7 @@ export class ElementModel extends EventEmitter {
 
   private async applyUpdate(context: UpdateContext): Promise<void> {
     const size = context.plcmtcntOrElse(context.option.placement.size);
-    const bids = context.bids.slice(0, size);
+    const bids = context.seatbid.bid.slice(0, size);
     const result = bids
       .map(async (bid, index) => {
         return this.createRendererContextWithBid(context, bid, index);
@@ -67,7 +67,7 @@ export class ElementModel extends EventEmitter {
   private async createRendererContextWithBid(context: UpdateContext, bid: OpenRTB.Bid, bidIndex: number) {
     const target = this.createSandboxElement(context, bidIndex);
     const template = await this.resolveTemplate(context, bidIndex);
-    return this.createRenderContext(target, context.option, template, bid, bidIndex)
+    return this.createRenderContext(target, context.option, template, bid, bidIndex, context.seatbid);
   }
 
   private createSandboxElement(context: UpdateContext, bidIndex: number): HTMLElement {
@@ -92,8 +92,8 @@ export class ElementModel extends EventEmitter {
   private async setLoop(context: UpdateContext): Promise<void> {
     const onExpired = async (rc: RendererContext) => {
       if (++context.loopCount < context.option.loop.limitCount) {
-        rotate(context.bids, 1);
-        rc = await this.createRendererContextWithBid(context, context.bids[0], rc.bidIndex);
+        rotate(context.seatbid.bid, 1);
+        rc = await this.createRendererContextWithBid(context, context.seatbid.bid[0], rc.bidIndex);
         this.renderWithContenxt(rc);
       } else {
         this.removeListener("expired", onExpired);
@@ -112,6 +112,7 @@ export class ElementModel extends EventEmitter {
     template: string,
     bid: OpenRTB.Bid,
     bidIndex: number,
+    seatbid: OpenRTB.SeatBid
   ): Promise<RendererContext> {
     const context = new RendererContext(
       new RendererElement(
@@ -122,7 +123,8 @@ export class ElementModel extends EventEmitter {
       OpenRTBUtils.isDummyBid(bid) ? noOpRendererEvents : this.createRendererEvents(),
       template,
       bid,
-      bidIndex
+      bidIndex,
+      seatbid,
     );
     return context;
   }
@@ -185,7 +187,7 @@ export class UpdateContext {
   public loopCount: number = 0;
   public targets: { [index: number]: HTMLElement } = {};
   constructor(
-    public bids: OpenRTB.Bid[],
+    public seatbid: OpenRTB.SeatBid,
     public option: ElementOption,
     public dynamic: UpdateDynamic = new UpdateDynamic()
   ) { }

@@ -79,6 +79,11 @@ export namespace OpenRTBUtils {
   export const dummyImg: string = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
   export const dummyText: string = "...";
   export const DUMMY_BID_ID = "DUMMY";
+  export function cloneSeatBidWithBid(seatbid: OpenRTB.SeatBid, bid: OpenRTB.Bid[]): OpenRTB.SeatBid {
+    seatbid = deepmerge(new OpenRTB.SeatBid(), seatbid);
+    seatbid.bid = bid;
+    return seatbid;
+  }
   export function dummyBid(): OpenRTB.Bid {
     const bid = new OpenRTB.Bid();
     bid.id = DUMMY_BID_ID;
