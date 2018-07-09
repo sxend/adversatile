@@ -61,6 +61,7 @@ export class LinkJsRenderer implements Renderer {
         return false;
       };
     }
+    context.metadata.setAttachment(this.getName(), targets);
     context.metadata.applied(this.getName());
     return context;
   }

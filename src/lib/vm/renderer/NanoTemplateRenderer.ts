@@ -14,6 +14,7 @@ export class NanoTemplateRenderer implements Renderer {
       context.bid.ext.bannerHtml = nano(context.bannerHtml, context);
     }
     context.template = nano(context.template || "", context);
+    context.metadata.applied(this.getName());
     return context;
   }
 }

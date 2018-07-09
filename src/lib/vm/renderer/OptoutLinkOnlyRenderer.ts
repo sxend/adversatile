@@ -21,6 +21,7 @@ export class OptoutLinkOnlyRenderer implements Renderer {
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
+    const attachment: HTMLAnchorElement[] = [];
     for (let target of targets) {
       const anchor: HTMLAnchorElement = document.createElement("a");
       anchor.href = optout.link.url;
@@ -40,8 +41,10 @@ export class OptoutLinkOnlyRenderer implements Renderer {
       }
       target.classList.add(this.config.optoutLinkOnly.markedClass);
       anchor.appendChild(target);
+      attachment.push(anchor);
     }
     context.metadata.applied(this.getName());
+    context.metadata.setAttachment(this.getName(), attachment);
     return context;
   }
   private selector(): string {

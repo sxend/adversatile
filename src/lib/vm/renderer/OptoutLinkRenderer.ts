@@ -21,6 +21,7 @@ export class OptoutLinkRenderer implements Renderer {
     const targets: HTMLElement[] =
       <HTMLElement[]>Dom.recursiveQuerySelectorAll(context.element.target, this.selector());
     if (isEmptyArray(targets)) return context;
+    const attachment: HTMLAnchorElement[] = [];
     for (let target of targets) {
       const optoutLink: HTMLAnchorElement = document.createElement("a");
       optoutLink.href = image.link.url;
@@ -34,8 +35,10 @@ export class OptoutLinkRenderer implements Renderer {
       optoutLink.appendChild(optoutImg);
       target.parentElement.appendChild(optoutLink);
       target.parentElement.removeChild(target);
+      attachment.push(optoutLink);
     }
     context.metadata.applied(this.getName());
+    context.metadata.setAttachment(this.getName(), attachment);
     return context;
   }
   private selector(): string {

@@ -40,6 +40,8 @@ export class MarkupVideoRenderer implements Renderer {
       Dom.fireScript(divChildElement);
     }
     context.metadata.applied(this.getName());
+    context.metadata.setAttachment(this.getName(), targets);
+    context.events.impress(context);
     return context;
   }
   private selector(): string {

@@ -27,6 +27,7 @@ export class SponsoredByMessageRenderer implements Renderer {
       context.addFoundAssets(AssetUtils.sponsoredByMessageOption());
     }
     context.metadata.applied(this.getName());
+    context.metadata.setAttachment(this.getName(), targets);
     return context;
   }
   private selector(): string {
