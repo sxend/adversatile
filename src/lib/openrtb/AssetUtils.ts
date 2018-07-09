@@ -93,7 +93,7 @@ export namespace AssetUtils {
       length
     );
   }
-  export function sponsoredByMessage(length?: number) {
+  export function sponsoredByMessage(length?: number): ReqAssets {
     return data(
       getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE),
       DataTypes.SPONSORED,
@@ -124,7 +124,7 @@ export namespace AssetUtils {
     );
     return asset;
   }
-  function data(assetId: number, typeId: number, length?: number) {
+  function data(assetId: number, typeId: number, length?: number): ReqAssets {
     var asset = new ReqAssets(assetId, true);
     asset.data = new OpenRTB.NativeAd.Request.Data(typeId, length);
     return asset;

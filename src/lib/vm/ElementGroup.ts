@@ -13,6 +13,7 @@ import Analytics from "../misc/Analytics";
 import { AssetUtils } from "../openrtb/AssetUtils";
 import deepmerge from "deepmerge";
 import { Async } from "../misc/Async";
+import ReqAssets = OpenRTB.NativeAd.Request.Assets;
 
 type ModelOptionPair = { em: ElementModel, option: ElementOption };
 
@@ -178,11 +179,16 @@ export class ElementGroup {
       em.id,
       em.name,
       option.format,
-      option.assets.map(AssetUtils.optionToNativeAsset),
+      addEssentialAssets(option.assets.map(AssetUtils.optionToNativeAsset)),
       impExt
     );
     return [imp]; // FIX multiple imp
   }
+}
+
+function addEssentialAssets(assets: ReqAssets[]): ReqAssets[] {
+  assets.push(AssetUtils.sponsoredByMessage());
+  return uniqBy(assets, (asset: ReqAssets) => asset.id);
 }
 
 function isAvaiablePattern(pattern: PagePattern, bids: OpenRTB.Bid[]): boolean {
