@@ -139,6 +139,10 @@ export default {
         try {
           model.on("render", function render(context: RendererContext) {
             if (OpenRTBUtils.isDummyBid(context.bid)) return;
+            const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
+            if (oldconfig && oldconfig.onpfxadrender) {
+              oldconfig.onpfxadrender(context.bid, null);
+            }
             if (window.onpfxadload) {
               window.onpfxadload([context.bid.ext], context.parentSeatBid);
             }
