@@ -45,9 +45,8 @@ export class ElementModel extends EventEmitter {
     this.emit("update", context);
     this.element.textContent = "";
 
-    if (context.option.loop.enabled) {
-      this.setLoop(context);
-    }
+    this.setExpire(context);
+
     return this.applyUpdate(context)
       .then(_ => { this.emit("updated", context) })
       .catch(console.error);
@@ -89,14 +88,16 @@ export class ElementModel extends EventEmitter {
     this.once("update", () => sandbox.remove());
     return sandbox;
   }
-  private async setLoop(context: UpdateContext): Promise<void> {
+  private async setExpire(context: UpdateContext): Promise<void> {
     const onExpired = async (rc: RendererContext) => {
-      if (++context.loopCount < context.option.loop.limitCount) {
-        rotate(context.seatbid.bid, 1);
-        rc = await this.createRendererContextWithBid(context, context.seatbid.bid[0], rc.bidIndex);
-        this.renderWithContenxt(rc);
-      } else {
-        this.removeListener("expired", onExpired);
+      if (context.option.loop.enabled) {
+        if (++context.loopCount < context.option.loop.limitCount) {
+          rotate(context.seatbid.bid, 1);
+          rc = await this.createRendererContextWithBid(context, context.seatbid.bid[0], rc.bidIndex);
+          this.renderWithContenxt(rc);
+        } else {
+          this.removeListener("expired", onExpired);
+        }
       }
     };
     this.on("expired", onExpired);
