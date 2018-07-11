@@ -60,9 +60,21 @@ export namespace Dom {
     } catch (e) { }
     return false;
   }
+
+  export function getOwnerIFrame(window: Window, element: HTMLElement): HTMLIFrameElement {
+    const iframes = <HTMLIFrameElement[]>recursiveQuerySelectorAll(window.document, friendryIframeSelector);
+    for (var frame of iframes) {
+      if (frame.contentDocument && frame.contentDocument.body && frame.contentDocument.body.contains(element)) {
+        return frame;
+      }
+    }
+    return void 0;
+  }
+
   export function createScriptElement(): HTMLScriptElement {
     return document.createElement("script");
   }
+
   const friendryIframeSelector: string = [
     `iframe:not([src])`,
     `iframe[src="about:self"]`,
@@ -70,6 +82,7 @@ export namespace Dom {
     `iframe[src^="${location.origin}"]`,
     'iframe:not([src*="//"])'
   ].join(",");
+
   export function recursiveQuerySelectorAll(
     element: ParentNode,
     selector: string
@@ -158,5 +171,21 @@ export namespace Dom {
     const elements = [].slice.call(container.children);
     container.textContent = "";
     return elements;
+  }
+  export function onScroll(callback: () => void): void {
+    Dom.TopLevelWindow.then(_ => _.addEventListener('scroll', callback));
+  }
+  export function onScrollEnd(thresholdMillis: number, callback: () => void) {
+    let timerId: any;
+    onScroll(() => {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+      timerId = setTimeout(function() {
+        timerId = null;
+        callback();
+      }, thresholdMillis);
+    });
   }
 }

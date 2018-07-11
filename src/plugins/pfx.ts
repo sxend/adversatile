@@ -273,6 +273,33 @@ export default {
         };
       }
     });
+    // active overlay
+    config.vm.em.renderer.plugins.push({
+      install: function(renderer: Renderer) {
+        if (renderer.getName() !== InjectRenderer.NAME) return;
+        const original = renderer.render;
+        renderer.render = async function(context: RendererContext) {
+          const target = context.element.target;
+          context = await original.call(renderer, context);
+          const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === context.element.model.name);
+          if (!oldconfig) return context;
+          if (oldconfig.activeOverlaySetting && oldconfig.activeOverlaySetting.enabled) {
+            const adInIframe = !!(await Dom.getOwnerIFrame(await Dom.TopLevelWindow, target));
+            const width = context.bid.w;
+            const height = context.bid.h;
+            if (adInIframe) {
+              enableActiveOverlay(oldconfig.tagId, oldconfig.activeOverlaySetting,
+                <HTMLElement>(<any>window).frameElement, width, height); // decorate iframe element
+            } else {
+              enableActiveOverlay(oldconfig.tagId, oldconfig.activeOverlaySetting,
+                target, width, height);
+            }
+          }
+          return context;
+        };
+      }
+    });
+
     // browser integrated banner link replace
     config.vm.em.renderer.plugins.push({
       install: function(renderer: Renderer) {
@@ -498,6 +525,131 @@ function getAssetIdByName(name: string): number | undefined {
     return AssetUtils.getAssetIdByAsset(AssetTypes.SPONSORED_BY_MESSAGE);
   }
   return void 0;
+}
+
+async function enableActiveOverlay(tagId: string, activeOverlaySetting: ActiveOverlaySetting, element: HTMLElement, width: number = 320, height: number = 50): Promise<HTMLElement> {
+  const appearancePercentageFromBottom = activeOverlaySetting.appearancePercentageFromBottom !== void 0 ?
+    activeOverlaySetting.appearancePercentageFromBottom : 20;
+  const transitionSeconds = activeOverlaySetting.transitionSeconds !== void 0 ?
+    activeOverlaySetting.transitionSeconds : 2;
+  const initialOpacity = activeOverlaySetting.initialOpacity !== void 0 ?
+    activeOverlaySetting.initialOpacity : 0.8;
+  const scrollEndMillis = activeOverlaySetting.scrollEndMillis !== void 0 ?
+    activeOverlaySetting.scrollEndMillis : 100;
+  const zIndex = activeOverlaySetting.zIndex !== void 0 ?
+    activeOverlaySetting.zIndex : 10;
+  let iframeStyle = "";
+  const enableExpandFullWidth = activeOverlaySetting.enableExpandFullWidth !== void 0 ?
+    activeOverlaySetting.enableExpandFullWidth : false;
+  const enableFixToTopAtScrollEnded = activeOverlaySetting.enableFixToTopAtScrollEnded !== void 0 ?
+    activeOverlaySetting.enableFixToTopAtScrollEnded : true;
+  let offsetLeft = width / 2;
+  const topLevelWindow = await Dom.TopLevelWindow;
+  if (enableExpandFullWidth) {
+    const scaleRatio = width !== 0 ? topLevelWindow.innerWidth / width : 0;
+    iframeStyle = iframeStyle + `
+      transform: scale(${scaleRatio}, ${scaleRatio});
+      -webkit-transform: scale(${scaleRatio}, ${scaleRatio});
+    `;
+    if (navigator.userAgent.indexOf("Android 4") >= 0) {
+      width = topLevelWindow.innerWidth;
+      offsetLeft = Math.ceil(width / 2 * scaleRatio);
+    }
+  }
+  const styleTag = document.createElement('style');
+  styleTag.innerHTML = generateOverlayAnimationCSS(tagId, transitionSeconds, appearancePercentageFromBottom,
+    0, initialOpacity, width, height, zIndex, iframeStyle, offsetLeft);
+  topLevelWindow.document.head.appendChild(styleTag);
+  function startOverlayAnimation() {
+    element.classList.add(`pfx_active_overlay_animate_${tagId}`);
+    const scrollTop = topLevelWindow.document.body.scrollTop;
+    const scrollHeight = topLevelWindow.document.body.scrollHeight;
+    const nowScrollEnded = Math.abs((topLevelWindow.innerHeight + scrollTop) - scrollHeight) <= 1; // domの構造によって、一番下でも完全一致しないケースがあるため。
+    if (nowScrollEnded && enableFixToTopAtScrollEnded) { // 最下部までスクロールいた場合、上部に固定する
+      element.setAttribute("data-pfx-active-overlay-position", "top");
+      element.querySelector('iframe').setAttribute("data-pfx-active-overlay-position", "top");
+    } else {
+      // 下部へ吸い付く
+      element.setAttribute("data-pfx-active-overlay-position", "bottom");
+      element.querySelector('iframe').setAttribute("data-pfx-active-overlay-position", "bottom");
+    }
+  }
+  element.classList.add(`pfx_active_overlay_${tagId}`);
+  Dom.onScroll(() => {
+    element.classList.remove(`pfx_active_overlay_animate_${tagId}`);
+  });
+  Dom.onScrollEnd(scrollEndMillis, () => {
+    startOverlayAnimation();
+  });
+  startOverlayAnimation();
+  return element;
+}
+function generateOverlayAnimationCSS(tagId: string, duration: number, fromBottom: number,
+  toBottom: number, fromOpacity: number, width: number, height: number, zIndex: number,
+  iframeStyle: string, offsetLeft: number): string {
+  return `
+    .pfx_active_overlay_${tagId} {
+      display: none;
+      margin: 0 0;
+      border: 0;
+      z-index: ${zIndex};
+      position: fixed;
+      width: ${width}px;
+      height: ${height}px;
+    }
+    .pfx_active_overlay_${tagId} iframe {
+      width: ${width}px;
+      height: ${height}px;
+      ${iframeStyle}
+    }
+    .pfx_active_overlay_${tagId} iframe[data-pfx-active-overlay-position="top"] {
+      transform-origin: 50% 0% 0px;
+      -webkit-transform-origin: 50% 0% 0px;
+    }
+    .pfx_active_overlay_${tagId} iframe[data-pfx-active-overlay-position="bottom"] {
+      transform-origin: 50% 100% 0px;
+      -webkit-transform-origin: 50% 100% 0px;
+    }
+    .pfx_active_overlay_${tagId}[data-pfx-active-overlay-position="top"] {
+      top: 0;
+      bottom: "";
+    }
+    .pfx_active_overlay_${tagId}[data-pfx-active-overlay-position="bottom"] {
+      top: "";
+      bottom: 0;
+    }
+    .pfx_active_overlay_animate_${tagId} {
+      display: inline;
+      left: 50%;
+      margin-left: -${offsetLeft}px !important;
+      animation-duration: ${duration}s;
+      animation-fill-mode: forwards;
+      animation-name: pfx_active_overlay_animation_${tagId};
+      -webkit-animation-duration: ${duration}s;
+      -webkit-animation-fill-mode: forwards;
+      -webkit-animation-name: pfx_active_overlay_animation_${tagId};
+    }
+    @-webkit-keyframes pfx_active_overlay_animation_${tagId} {
+      0% {
+        bottom: ${fromBottom}%;
+        opacity: ${fromOpacity};
+      }
+      100% {
+        bottom: ${toBottom}%;
+        opacity: 1;
+      }
+    }
+    @keyframes pfx_active_overlay_animation_${tagId} {
+      from {
+        bottom: ${fromBottom}%;
+        opacity: ${fromOpacity};
+      }
+      to {
+        bottom: ${toBottom}%;
+        opacity: 1;
+      }
+    }
+    `;
 }
 
 interface OldConfiguration {
