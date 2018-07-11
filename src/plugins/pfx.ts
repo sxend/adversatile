@@ -78,7 +78,7 @@ export default {
     const runMain = onceFunction(() => {
       setTimeout(() => {
         Adversatile.main(config).catch(console.error)
-      }, 200); // wait for other setup method call
+      }, 500); // wait for other setup method call
     });
     const oldcontext: {
       config: Configuration

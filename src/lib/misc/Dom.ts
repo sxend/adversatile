@@ -78,8 +78,8 @@ export namespace Dom {
   const friendryIframeSelector: string = [
     `iframe:not([src])`,
     `iframe[src="about:self"]`,
-    `iframe[src^="//${location.host}"]`,
-    `iframe[src^="${location.origin}"]`,
+    `iframe[src^="//${window.location.host}"]`,
+    `iframe[src^="${window.location.origin}"]`,
     'iframe:not([src*="//"])'
   ].join(",");
 

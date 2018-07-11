@@ -18,7 +18,7 @@ export default {
       var Promise = (function() {
         ${fs.readFileSync(require.resolve('es6-promise')).toString()}
         return this;
-      }).call({}).ES6Promise;
+      }).call({}).ES6Promise || (module && module.exports);
     `
   },
   plugins: [
