@@ -430,7 +430,9 @@ export default {
             config.vm.em.templates[dynamicTemplateId] = entry[1];
           });
         }
-        emoption.format = oldconfig.adFormat;
+        if (isDefined(oldconfig.adFormat)) {
+          emoption.format = oldconfig.adFormat;
+        }
         if (emoption.isBanner()) {
           emoption.banner.impSelector = 'a[href*="ad.caprofitx.adtdp.com"],img[src]';
           emoption.renderer.injectMethod = "iframe";
