@@ -157,15 +157,11 @@ export default {
               window.onpfxadrendered(context.element.model.qualifier);
             }
           });
-          model.on("impression", (_context: RendererContext) => {
-            (<any>window).postMessage('onpfximpression', '*');
-          });
           model.on("viewable_impression", (context: RendererContext) => {
             const oldconfig = oldcontext.oldconfigs.find(x => x.tagId === context.bid.ext.tagid);
             if (oldconfig && oldconfig.onpfxadinview) {
               oldconfig.onpfxadinview();
             }
-            (<any>window).postMessage('onpfxviewableImpression', '*');
           });
         } catch (e) {
           console.error(e);
